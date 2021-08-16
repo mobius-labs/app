@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "@mobius-labs/frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
