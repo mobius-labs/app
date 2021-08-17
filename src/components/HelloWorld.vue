@@ -8,8 +8,7 @@
     </p>
     <h3>Installed CLI Plugins</h3>
     <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
+      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
     </ul>
     <h3>Essential Links</h3>
     <ul>
@@ -28,43 +27,41 @@
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
     <o-field label="Find a JS framework">
-      <o-autocomplete rounded expanded open-on-focus v-model="name" placeholder="e.g.: jQuery" :data="filteredDataArray" icon="book-search" clearable @select="option => selected = option">
+      <o-autocomplete rounded expanded open-on-focus v-model="name" placeholder="e.g.: jQuery" :data="filteredDataArray" icon="search" clearable @select="option => selected = option">
         <template v-slot:empty>No results found</template>
       </o-autocomplete>
     </o-field>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HelloWorld',
+<script lang="ts">
+import { defineComponent, ref, computed } from 'vue';
+
+export default defineComponent({
   props: {
     msg: String
   },
-  data() {
-    return {
-      data: ['Angular', 'Angular 2', 'Aurelia', 'Backbone', 'Ember', 'jQuery', 'Meteor', 'Node.js', 'Polymer', 'React', 'RxJS', 'Vue.js'],
-      name: '',
-      selected: null
-    }
-  },
-  computed: {
-    filteredDataArray() {
-      return this.data.filter(option => {
+  setup() {
+    const data = ref(['awesome', 'stuff', 'going', 'on']);
+    const name = ref('');
+    const filteredDataArray = computed(() => {
+      return data.value.filter(option => {
         return (
           option
             .toString()
             .toLowerCase()
-            .indexOf(this.name.toLowerCase()) >= 0
+            .indexOf(name.value.toLowerCase()) >= 0
         )
       })
-    }
+    });
+
+    return { data, name, filteredDataArray }
   }
-}
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 h3 {
   margin: 40px 0 0;
 }
