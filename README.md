@@ -1,6 +1,6 @@
 # Möbius Labs - Frontend
 
-[view documentation on Confluence](https://mobius-labs.atlassian.net/wiki/spaces/MLH)
+[view documentation on Confluence](https://mobius-labs.atlassian.net/wiki/spaces/MLH/pages/13697105/Frontend+Documentation)
 
 ## Project setup
 ```

@@ -27,6 +27,11 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
+    <o-field label="Find a JS framework">
+      <o-autocomplete rounded expanded open-on-focus v-model="name" placeholder="e.g.: jQuery" :data="filteredDataArray" icon="book-search" clearable @select="option => selected = option">
+        <template v-slot:empty>No results found</template>
+      </o-autocomplete>
+    </o-field>
   </div>
 </template>
 
@@ -35,6 +40,25 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      data: ['Angular', 'Angular 2', 'Aurelia', 'Backbone', 'Ember', 'jQuery', 'Meteor', 'Node.js', 'Polymer', 'React', 'RxJS', 'Vue.js'],
+      name: '',
+      selected: null
+    }
+  },
+  computed: {
+    filteredDataArray() {
+      return this.data.filter(option => {
+        return (
+          option
+            .toString()
+            .toLowerCase()
+            .indexOf(this.name.toLowerCase()) >= 0
+        )
+      })
+    }
   }
 }
 </script>
