@@ -1,4 +1,4 @@
-# backend
+# Backend Documentation
 Below is a short guide on how to install and set up Django and PostgreSQL. This is only the initial setup and does not include integrating Vue or REST.
 
 There are two different ways to go about setting up Django. I recommend setting up through PyCharm but if you prefer Visual Studio Code and doing everything in the terminal feel free to do the second way. 
