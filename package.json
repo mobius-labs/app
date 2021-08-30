@@ -1,10 +1,13 @@
 {
   "name": "@mobius-labs/app",
   "description": "This is put in the root of the repo, so that the Heroku node.JS buildpack will build our frontend",
+  "dependencies": {
+    "@mobius-labs/frontend": "file:./frontend"
+  },
   "engines": {
     "node": "16.x"
   },
   "scripts": {
-    "build": "cd frontend && npm ci && pwd"
+    "build": "cd frontend && vue-cli-service build"
   }
 }
