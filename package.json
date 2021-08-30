@@ -5,6 +5,6 @@
     "node": "16.x"
   },
   "scripts": {
-    "build": "cd frontend && npm ci && ./node_modules/.bin/vue-cli-service build"
+    "build": "cd frontend && npm ci && pwd"
   }
 }
