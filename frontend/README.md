@@ -52,6 +52,7 @@ maintain code quality in the long run.
 ## Editors & tooling
 
 Recommended editors (same as for the backend):
+
 - PyCharm Professional Edition and the Vue.js extension,
 - VS Code with the [Vetur](https://vuejs.github.io/vetur/) extension.
 
