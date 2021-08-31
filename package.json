@@ -13,6 +13,9 @@
     "lint": "cd frontend && npm run lint && npx prettier --check ."
   },
   "gitHooks": {
-    "pre-commit": "cd frontend && npx prettier --write ."
+    "pre-commit": "cd frontend && lint-staged"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-eslint": "~4.5.0"
   }
 }
