@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint && npx prettier --check ."
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
@@ -64,7 +64,7 @@
     "not dead"
   ],
   "lint-staged": {
-    "*.{js,json,vue,ts}": [
+    "*.{js,json,vue,ts,html}": [
       "npx prettier --write"
     ]
   }
