@@ -10,6 +10,7 @@ import "my-vue-app/src/assets/scss/plugin.scss";
 import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
 import "@fortawesome/fontawesome-free/scss/regular.scss";
 import "@fortawesome/fontawesome-free/scss/solid.scss";
+import "@fortawesome/fontawesome-free/scss/brands.scss";
 
 const app = createApp(App).use(router);
 app.use(Oruga, {
