@@ -53,8 +53,13 @@ Do the following to set up postgres:
 
 1. Install postgres either from your terminal if you are on a mac (brew install postgresql) or from their website https://www.postgresql.org/
 
-2. Now we will create a database. For now, lets call it 'test_db' to match with the dictionary above. You can change it to whatever name as long as you change it in the dictionary too, but for the simplicity of git commits, lets stay with 'test_db for now. You can either create a database in pgAdmin4 (a postgres GUI), or with the postgres terminal. To create in terminal run:
+2. First we need to create a postges superuser. I have called the superuser 'postgres', I suggest staying with this for now. We can do so by running:
 ```
-> psql -U postgres
+python manage.py createsuperuser
+```
+
+3. Now we will create a database. For now, lets call it 'test_db' to match with the dictionary above. You can change it to whatever name as long as you change it in the dictionary too, but for the simplicity of git commits, lets stay with 'test_db for now. You can either create a database in pgAdmin4 (a postgres GUI), or with the postgres terminal. To create in terminal run:
+```
+> psql -U postgres                 # note here 'postgres' is our username
 > CREATE DATABASE test_db
 ```
