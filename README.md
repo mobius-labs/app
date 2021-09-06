@@ -53,7 +53,8 @@ Do the following to set up postgres:
 
 1. Install postgres either from your terminal if you are on a mac (brew install postgresql) or from their website https://www.postgresql.org/
 
-2. You want to create a database and match its name to the name in the dictionary above (here it is called 'test_db). Also you want to match your postresql username and password with the dictionary above. For now, it is probably best to keep this consistent with the names above.
-  
-  2.1. To create a database you can either use pgAdmin 4, which is a GUI to interact with postgres databases, or you can use the postgres terminal and run
-  > CREATE DATABASE test_db;
+2. Now we will create a database. For now, lets call it 'test_db' to match with the dictionary above. You can change it to whatever name as long as you change it in the dictionary too, but for the simplicity of git commits, lets stay with 'test_db for now. You can either create a database in pgAdmin4 (a postgres GUI), or with the postgres terminal. To create in terminal run:
+```
+> psql -U postgres
+> CREATE DATABASE test_db
+```
