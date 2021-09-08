@@ -8,11 +8,6 @@
     "node": "16.x"
   },
   "scripts": {
-    "serve": "cd frontend && npm run serve",
-    "build": "cd frontend && npm run build",
-    "lint": "cd frontend && npm run lint"
-  },
-  "gitHooks": {
-    "pre-commit": "cd frontend && lint-staged"
+    "build": "cd frontend && vue-cli-service build"
   }
 }
