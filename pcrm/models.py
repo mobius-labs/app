@@ -15,8 +15,7 @@ class User(models.Model):
     DateCreated = models.DateTimeField()
     Password = models.CharField(max_length=45)
 
-    # ignore that Contact is not picked up
-    LinkedToContactId = models.OneToOneField(Contact)
+    LinkedToContactId = models.OneToOneField('Contact', on_delete=models.CASCADE)
 
 
 class Contact(models.Model):
