@@ -10,7 +10,8 @@
   "scripts": {
     "serve": "cd frontend && npm run serve",
     "build": "cd frontend && npm run build",
-    "lint": "cd frontend && npm run lint"
+    "lint": "cd frontend && npm run lint",
+    "test:unit": "cd frontend && npm run test:unit"
   },
   "gitHooks": {
     "pre-commit": "cd frontend && lint-staged"
