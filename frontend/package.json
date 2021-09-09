@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
+    "test:unit": "vue-cli-service test:unit --coverage",
     "lint": "vue-cli-service lint && npx prettier --check ."
   },
   "dependencies": {
@@ -90,7 +90,15 @@
     "transform": {
       "^.+\\.js$": "babel-jest",
       "^.+\\.vue$": "vue-jest"
-    }
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{js,vue}",
+      "!**/node_modules/**"
+    ],
+    "coverageReporters": [
+      "text-summary"
+    ]
   },
   "lint-staged": {
     "*.{js,json,vue,ts,html}": [
