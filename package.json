@@ -11,7 +11,8 @@
     "serve": "cd frontend && npm run serve",
     "build": "cd frontend && npm run build",
     "lint": "cd frontend && npm run lint",
-    "test:unit": "cd frontend && npm run test:unit"
+    "test:unit": "cd frontend && npm run test:unit",
+    "test:e2e" : "cd frontend && npm run test:e2e"
   },
   "gitHooks": {
     "pre-commit": "cd frontend && lint-staged"

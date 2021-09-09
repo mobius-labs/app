@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit --coverage",
+    "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint && npx prettier --check ."
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-e2e-cypress": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
@@ -32,6 +34,7 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "^2.0.0-rc.14",
     "babel-eslint": "^10.1.0",
+    "cypress": "^8.3.1",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.20.2",
