@@ -5,6 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit --coverage",
+    "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint && npx prettier --check ."
   },
   "dependencies": {
@@ -17,16 +19,22 @@
     "vue-router": "^4.0.11"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.19",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-e2e-cypress": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^7.0.0",
+    "@vue/test-utils": "^2.0.0-rc.14",
     "babel-eslint": "^10.1.0",
+    "cypress": "^8.3.1",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.20.2",
@@ -38,7 +46,8 @@
     "prettier": "2.3.2",
     "sass": "^1.38.0",
     "sass-loader": "^10.2.0",
-    "typescript": "~4.1.5"
+    "typescript": "~4.1.5",
+    "vue-jest": "^5.0.0-0"
   },
   "eslintConfig": {
     "root": true,
@@ -50,19 +59,50 @@
       "eslint:recommended",
       "@vue/typescript",
       "@vue/typescript/recommended",
-      "@vue/standard"
+      "@vue/standard",
+      "prettier"
     ],
     "parserOptions": {
       "parser": "@typescript-eslint/parser",
       "ecmaVersion": 2020
     },
-    "rules": {}
+    "rules": {},
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not dead"
   ],
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.js$": "babel-jest",
+      "^.+\\.vue$": "vue-jest"
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{js,vue}",
+      "!**/node_modules/**"
+    ],
+    "coverageReporters": [
+      "text-summary"
+    ]
+  },
   "lint-staged": {
     "*.{js,json,vue,ts,html}": [
       "npx prettier --write"
