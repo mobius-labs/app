@@ -14,6 +14,14 @@
     "SECRET_KEY": {
       "description": "A secret key used by the Django framework",
       "generator": "secret"
+    },
+    "DEBUG": {
+      "description": "App debug mode",
+      "value": "false"
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Allowed values for the HTTP `Host` header",
+      "value": ".herokuapp.com"
     }
   }
 }
