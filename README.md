@@ -32,26 +32,18 @@ I recommend setting up through PyCharm but if you prefer to do everything in the
 
 4. Now try running the server with the following command `python3 manage.py runserver`. If the server runs Django should be installed correctly.
 
-
 ## Postgres setup
 
-In [settings.py](backend_crm/settings.py) file you will notice the following dictionary:
+In the [.env.default](.env.default) file you will notice the following variable:
 
-```python
-DATABASES = {
-     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test_db',
-        'USER': 'postgres',
-        'PASSWORD': 'mobius',
-        'HOST': 'localhost',
-        'PORT': '',
-        'CONN_MAX_AGE': 500
-    }
-}
+```
+DATABASE_URL=pgsql://postgres:mobius@localhost/test_db
 ```
 
-Do the following to set up postgres:
+This specifies to connect to a Postgres database named `test_db` with host `localhost`, authenticating with user `postgres` and password `mobius`.
+Now we need to set up postgres so Django can connect.
+
+Do the following to setup postgres:
 
 1. Install postgres on your computer (if you use Homebrew on a Mac, then: `brew install postgresql`, or alternatively follow the instructions for your system on the [Postgres  website](https://www.postgresql.org/))
 

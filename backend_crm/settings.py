@@ -19,11 +19,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    # default to restricting to .herokuapp.com in production
+    ALLOWED_HOSTS=(list, [".herokuapp.com"])
 )
 
-# Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Take default environment variables from .env.default file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.default'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
