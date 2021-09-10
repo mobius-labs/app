@@ -1,0 +1,13 @@
+{
+  "name": "Möbius Labs",
+  "description": "IT Project Sem 2 2021 Personal CRM",
+  "repository": "https://github.com/mobius-labs/app",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
