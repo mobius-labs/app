@@ -41,12 +41,14 @@ INSTALLED_APPS = [
     'rest_framework',
     
     # our installed apps
-    'apps.account_page',
     'apps.calendar',
     'apps.contact_book',
-    'apps.login'
+    'apps.account'
 
 ]
+
+# authenticating users with custom authentication instead of default
+AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
