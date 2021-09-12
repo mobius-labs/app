@@ -1,0 +1,18 @@
+{
+  "name": "@mobius-labs/app",
+  "description": "This is put in the root of the repo, so that the Heroku node.JS buildpack will build our frontend",
+  "dependencies": {
+    "@mobius-labs/frontend": "file:./frontend"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "serve": "cd frontend && npm run serve",
+    "build": "cd frontend && npm run build",
+    "lint": "cd frontend && npm run lint"
+  },
+  "gitHooks": {
+    "pre-commit": "cd frontend && lint-staged"
+  }
+}
