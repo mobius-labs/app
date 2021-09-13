@@ -19,7 +19,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def save(self):
         user = User(
-            loginEmail = self.validated_data['email']
+            email=self.validated_data['email']
         )
         password = self.validated_data['password']
         confirm_password = self.validated_data['confirm_password']
@@ -30,5 +30,5 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         # if the passwords are the same
         user.set_password(password)
-        account.save()
-        return account
+        user.save()
+        return user
