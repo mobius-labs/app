@@ -40,7 +40,9 @@
         <div>
             <p class="has-text-centered has-text-white">
                 Already have an account?
-                <router-link class="link" to="/login">Log in</router-link>
+                <router-link to="/login" class="has-text-warning"
+                    >Log in</router-link
+                >
             </p>
         </div>
     </div>
@@ -82,9 +84,5 @@ export default defineComponent({
 <style scoped>
 .login-box {
     width: 30rem;
-}
-
-.link {
-    color: yellow;
 }
 </style>
