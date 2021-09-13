@@ -1,7 +1,7 @@
 <template>
-    <div class="page">
+    <div>
         <div class="box login-box">
-            <img src="../assets/mobius-logo-example.png" class="app-logo" />
+            <Logo />
 
             <o-field label="Email">
                 <o-input
@@ -25,7 +25,7 @@
                     v-model="confirmedPassword"
                     placeholder="Re-enter password"
                     type="password"
-                    icon="arrow-up"
+                    icon="redo"
                 ></o-input>
             </o-field>
             <div class="">
@@ -38,9 +38,9 @@
             </div>
         </div>
         <div>
-            <p class="alternative">
+            <p class="has-text-centered has-text-white">
                 Already have an account?
-                <a class="link" href="/login">Log in</a>
+                <router-link class="link" to="/login">Log in</router-link>
             </p>
         </div>
     </div>
@@ -48,9 +48,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import Logo from "@/components/Logo.vue";
 
 export default defineComponent({
     name: "SignUp",
+    components: { Logo },
     data() {
         return {
             email: "",
@@ -79,29 +81,7 @@ export default defineComponent({
 
 <style scoped>
 .login-box {
-    max-width: 30rem;
-    margin: 3rem auto;
-}
-
-.app-logo {
-    display: block;
-    max-width: 80%;
-    margin: 2rem auto;
-}
-
-.page {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
-        url("../assets/Presentation1.png");
-    justify-content: center;
-}
-
-.alternative {
-    text-align: center;
-    color: white;
+    width: 30rem;
 }
 
 .link {

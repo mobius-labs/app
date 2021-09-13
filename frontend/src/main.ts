@@ -5,7 +5,7 @@ import "@oruga-ui/oruga-next/dist/oruga-full.css";
 import { bulmaConfig } from "my-vue-app/src/plugins/oruga";
 import router from "./router";
 
-import "my-vue-app/src/assets/scss/plugin.scss";
+import "./styles/app.scss";
 
 import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
 import "@fortawesome/fontawesome-free/scss/regular.scss";

@@ -3,10 +3,10 @@
         <transition mode="out-in">
             <div v-if="contact === null" class="hero is-fullheight is-relative">
                 <o-button
-                    @click="$emit('close')"
                     icon-left="times"
                     class="floating-close-button"
                     variant="light"
+                    @click="$emit('close')"
                 ></o-button>
                 <div class="hero-body">
                     <div class="is-flex-grow-1">
@@ -25,10 +25,10 @@
                 <div class="level">
                     <div class="level-left">
                         <o-button
-                            @click="$emit('close')"
                             icon-left="times"
                             variant="light"
                             class="m-3"
+                            @click="$emit('close')"
                         ></o-button>
                         <h2 class="title p-3">{{ contact.name }}</h2>
                     </div>

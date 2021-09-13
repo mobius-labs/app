@@ -15,6 +15,4 @@ export default {
 };
 </script>
 
-<style scoped>
-@import "../styles/app-view.css";
-</style>
+<style scoped></style>

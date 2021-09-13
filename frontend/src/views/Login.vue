@@ -1,8 +1,7 @@
 <template>
-    <div class="login-page">
-        <div class="box login-box">
-            <!--<img src="../assets/mobius-logo-example.png" class="app-logo" /> -->
-            <h1 class="page-title">möbius</h1>
+    <div class="login-box">
+        <div class="box">
+            <Logo />
             <o-field label="Email">
                 <o-input
                     v-model="email"
@@ -19,8 +18,10 @@
                     type="password"
                 ></o-input>
             </o-field>
-            <p class="forgot"><a href="/forgot">Forgot password?</a></p>
-            <div class="login-submit-row">
+            <p class="has-text-right mb-4">
+                <router-link to="/forgot">Forgot password?</router-link>
+            </p>
+            <div>
                 <o-button
                     class="is-fullwidth is-medium is-primary"
                     variant=""
@@ -29,18 +30,22 @@
                 >
             </div>
         </div>
-        <p class="alternative">
+        <p class="has-text-white has-text-centered">
             Don't have an account?
-            <a href="/signup" style="color: yellow">Sign Up!</a>
+            <router-link to="/signup" style="color: yellow"
+                >Sign Up!</router-link
+            >
         </p>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import Logo from "@/components/Logo.vue";
 
 export default defineComponent({
     name: "Login",
+    components: { Logo },
     data() {
         return {
             email: "",
@@ -58,44 +63,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.forgot {
-    text-align: right;
-    margin: 0 0 1rem 0;
-}
 .login-box {
-    display: flex;
-    flex-direction: column;
-    width: 30rem;
-    margin: 0rem auto 0rem auto;
-    justify-content: center;
-    align-content: center;
-}
-
-.page-title {
-    font-size: 60px;
-    font-weight: bold;
-    text-align: center;
-    color: dodgerblue;
-    margin: 0 auto;
-}
-
-.app-logo {
-    display: block;
-    max-width: 80%;
-    margin: 2rem auto;
-}
-
-.login-page {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-content: center;
-    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)),
-        url("https://free4kwallpapers.com/uploads/wallpaper/kurzgesagt-wallpaper-2560x1440-wallpaper.jpg");
-}
-.alternative {
-    color: white;
-    text-align: center;
+    width: 25rem;
 }
 </style>
