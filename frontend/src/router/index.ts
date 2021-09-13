@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
+import SignUp from "../views/SignUp.vue";
 import PageNotFound from "../views/PageNotFound.vue";
 import AppLayout from "../views/AppLayout.vue";
 import AppDashboard from "../views/AppDashboard.vue";
 import Contacts from "../views/Contacts.vue";
+import ForgotPassword from "../views/ForgotPassword.vue";
 
 const routes = [
     {
@@ -16,6 +18,11 @@ const routes = [
         path: "/login",
         name: "Login",
         component: Login,
+    },
+    {
+        path: "/signup",
+        name: "SignUp",
+        component: SignUp,
     },
     {
         path: "/app",
@@ -31,6 +38,11 @@ const routes = [
                 component: Contacts,
             },
         ],
+    },
+    {
+        path: "/forgot",
+        name: "Forgot",
+        component: ForgotPassword,
     },
     {
         path: "/about",
