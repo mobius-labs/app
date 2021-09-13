@@ -32,7 +32,7 @@
         </div>
         <p class="has-text-white has-text-centered">
             Don't have an account?
-            <router-link to="/signup" style="color: yellow"
+            <router-link to="/signup" class="has-text-warning"
                 >Sign Up!</router-link
             >
         </p>
