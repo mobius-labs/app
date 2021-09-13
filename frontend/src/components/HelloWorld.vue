@@ -118,7 +118,7 @@ import { defineComponent, ref, computed } from "vue";
 
 export default defineComponent({
     props: {
-        msg: String,
+        msg: { type: String, default: "" },
     },
     setup() {
         const data = ref(["awesome", "stuff", "going", "on"]);

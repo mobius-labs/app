@@ -7,6 +7,7 @@ import AppLayout from "../views/AppLayout.vue";
 import AppDashboard from "../views/AppDashboard.vue";
 import Contacts from "../views/Contacts.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
+import AuthLayout from "../views/AuthLayout.vue";
 
 const routes = [
     {
@@ -15,14 +16,25 @@ const routes = [
         component: Home,
     },
     {
-        path: "/login",
-        name: "Login",
-        component: Login,
-    },
-    {
-        path: "/signup",
-        name: "SignUp",
-        component: SignUp,
+        path: "/",
+        component: AuthLayout,
+        children: [
+            {
+                path: "/login",
+                name: "Login",
+                component: Login,
+            },
+            {
+                path: "/signup",
+                name: "SignUp",
+                component: SignUp,
+            },
+            {
+                path: "/forgot",
+                name: "Forgot",
+                component: ForgotPassword,
+            },
+        ],
     },
     {
         path: "/app",
@@ -38,11 +50,6 @@ const routes = [
                 component: Contacts,
             },
         ],
-    },
-    {
-        path: "/forgot",
-        name: "Forgot",
-        component: ForgotPassword,
     },
     {
         path: "/about",
