@@ -1,57 +1,55 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
 # Create your models here.
 
 # this is where we create our user
 class AccountManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    """Define a model manager for User model with no username field."""
+
+    def _create_user(self, email, password, **extra_fields):
+        """Create and save a User with the given email and password."""
         if not email:
             raise ValueError("User did not enter an email address.")
 
         user = self.model(
             email=self.normalize_email(email),
-            username=username
+            **extra_fields
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username,  password):
-        if not email:
-            raise ValueError("User did not enter an email address.")
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a regular User with the given email and password."""
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
 
-        user = self.create_user(
-            email=self.normalize_email(email),
-            password=password,
-            username=username
-        )
+    def create_superuser(self, email, password, **extra_fields):
+        """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
 
-        user.is_superuser = True
-        user.is_admin = True
-        user.is_staff = True
-        user.save(using=self._db)
-        return user
-        # add staff and admin too ?
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser):
-    email = models.CharField(max_length=50, primary_key=True)
-    username = models.CharField(max_length=30, unique=False)
-    date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
-    last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
-    is_superuser = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+class User(AbstractUser):
+    username = None
+    email = models.EmailField('email address', unique=True)
     # linkedToContactId = models.OneToOneField('Contact', on_delete=models.CASCADE)
     # more user fields
 
     # the field the user logs in with
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     objects = AccountManager()
 

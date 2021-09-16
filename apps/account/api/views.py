@@ -11,19 +11,17 @@ from apps.account.api.serializers import RegistrationSerializer
 def registration_view(request):
 
     # post: sends a body into the api, e.g. here is my username and password I want something back
-    if request.method == 'POST':
-        serializer = RegistrationSerializer(data=request.data)
-        data = {}
+    serializer = RegistrationSerializer(data=request.data)
+    data = {}
 
-        if serializer.is_valid():
-            user = serializer.save()
-            data['response'] = "user registration successful"
-            data['email'] = user.email
-            data['username'] = user.username
-        else:
-            data = serializer.errors
-            return Response(data, status=400)
+    if serializer.is_valid():
+        user = serializer.save()
+        data['response'] = "user registration successful"
+        data['email'] = user.email
+    else:
+        data = serializer.errors
+        return Response(data, status=400)
 
-        return Response(data)
+    return Response(data)
 
 
