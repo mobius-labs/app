@@ -4,12 +4,15 @@ from rest_framework.decorators import api_view
 from apps.account.api.serializers import RegistrationSerializer
 
 # Create your views here.
+#  takes a web request and returns a web response ;views contain logic o bdg fdxponxd
+
 
 @api_view(['POST'])
 def registration_view(request):
 
+    # post: sends a body into the api, e.g. here is my username and password I want something back
     if request.method == 'POST':
-        serializer = RegistrationSerializer(data=request.date)
+        serializer = RegistrationSerializer(data=request.data)
         data = {}
 
         if serializer.is_valid():
