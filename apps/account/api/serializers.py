@@ -28,11 +28,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         password = self.validated_data['password']
         confirm_password = self.validated_data['confirm_password']
 
-        # returning a json message
-        if password != confirm_password:
-            serializers.ValidationError({'password': 'Passwords do no match.'})
-
-        # if the passwords are the same
         user.set_password(password)
         user.save()
         return user
+
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            # returning a json message
+            raise serializers.ValidationError({'password': 'Passwords do not match.'})
+        return data
