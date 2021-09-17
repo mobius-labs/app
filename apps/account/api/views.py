@@ -1,4 +1,3 @@
-from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from apps.account.api.serializers import RegistrationSerializer
@@ -9,7 +8,6 @@ from apps.account.api.serializers import RegistrationSerializer
 
 @api_view(['POST'])
 def registration_view(request):
-
     # post: sends a body into the api, e.g. here is my username and password I want something back
     serializer = RegistrationSerializer(data=request.data)
     data = {}
