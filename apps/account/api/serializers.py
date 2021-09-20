@@ -13,7 +13,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email','username', 'password', 'confirm_password']
+        fields = ['email', 'password', 'confirm_password']
 
         # hides password field
         extra_kwargs = {
@@ -23,7 +23,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         user = User(
             email=self.validated_data['email'],
-            username=self.validated_data['username']
+            #username=self.validated_data['username']
         )
         password = self.validated_data['password']
         confirm_password = self.validated_data['confirm_password']
