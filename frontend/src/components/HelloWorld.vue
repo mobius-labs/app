@@ -91,32 +91,25 @@
                 >
             </li>
         </ul>
-        <o-field label="Find a JS framework">
-            <o-autocomplete
-                v-model="name"
-                rounded
-                expanded
-                open-on-focus
-                placeholder="e.g.: jQuery"
-                :data="filteredDataArray"
-                icon="search"
-                clearable
-                @select="(option) => (selected = option)"
-            >
-                <template #empty>No results found</template>
-            </o-autocomplete>
-        </o-field>
+        <!--        <o-field label="Find a JS framework">-->
+        <!--            <o-autocomplete-->
+        <!--                v-model="name"-->
+        <!--                rounded-->
+        <!--                expanded-->
+        <!--                open-on-focus-->
+        <!--                placeholder="e.g.: jQuery"-->
+        <!--                :data="filteredDataArray"-->
+        <!--                icon="search"-->
+        <!--                clearable-->
+        <!--                @select="(option) => (selected = option)"-->
+        <!--            >-->
+        <!--                <template #empty>No results found</template>-->
+        <!--            </o-autocomplete>-->
+        <!--        </o-field>-->
 
-        <o-table
-            hoverable
-            focusable
-            :data="tableData"
-            :columns="columns"
-        ></o-table>
-
-        <o-field label="Name">
-            <o-input></o-input>
-        </o-field>
+        <!--        <o-field label="Name">-->
+        <!--            <o-input></o-input>-->
+        <!--        </o-field>-->
     </div>
 </template>
 
@@ -125,7 +118,7 @@ import { defineComponent, ref, computed } from "vue";
 
 export default defineComponent({
     props: {
-        msg: String,
+        msg: { type: String, default: "" },
     },
     setup() {
         const data = ref(["awesome", "stuff", "going", "on"]);
@@ -178,31 +171,7 @@ export default defineComponent({
                 gender: "Female",
             },
         ]);
-        const columns = ref([
-            {
-                field: "id",
-                label: "ID",
-                width: "40",
-                numeric: true,
-            },
-            {
-                field: "first_name",
-                label: "First Name",
-            },
-            {
-                field: "last_name",
-                label: "Last Name",
-            },
-            {
-                field: "date",
-                label: "Date",
-                position: "centered",
-            },
-            {
-                field: "gender",
-                label: "Gender",
-            },
-        ]);
+        const columns = ref([]);
 
         return { name, filteredDataArray, tableData, columns };
     },
