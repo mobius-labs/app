@@ -38,8 +38,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'rest_framework',
+    
+    # our installed apps
+    'apps.calendar',
+    'apps.contact_book',
+    'apps.account'
+
 ]
+
+# authenticating users with custom authentication instead of default
+AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
