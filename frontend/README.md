@@ -1,8 +1,12 @@
 # Möbius Labs - Frontend
 
-[view more documentation on Confluence](https://mobius-labs.atlassian.net/wiki/spaces/MLH/pages/13697105/Frontend+Documentation)
+## Table of Contents
 
-## Project setup
+- in-repo documentation at [frontend/docs](./docs):
+  - [docs/assets.md](docs/assets.md) - handling assets (images, fonts, icons, etc...)
+- higher-level documentation, architecture and UI design on [Confluence](https://mobius-labs.atlassian.net/l/c/kass4bw0)
+
+## Getting started with the frontend
 
 Most of these commands should work in either this `frontend`
 folder or the root directory.

@@ -1,0 +1,13 @@
+// Here we override the default color scheme used by Bulma,
+// with our own colour palette.
+$primary: #2f9df7;
+
+// TODO: maybe pick a slightly less bold yellow here
+$warning: yellow;
+
+// This stylesheet is provided by the `oruga-bulma` project,
+// https://github.com/oruga-ui/oruga-bulma
+//
+// It ties together the bulma CSS framework,
+// and the 'oruga' Vue UI component framework.
+@import "my-vue-app/src/assets/scss/plugin.scss";

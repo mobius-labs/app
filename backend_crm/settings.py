@@ -39,8 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'pcrm.apps.PcrmConfig'
+
+    # our installed apps
+    'apps.calendar',
+    'apps.contact_book',
+    'apps.account'
+
 ]
+
+# authenticating users with custom authentication instead of default
+AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
