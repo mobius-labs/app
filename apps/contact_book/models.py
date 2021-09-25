@@ -52,41 +52,44 @@ class Contact(models.Model):
 
 class Address(models.Model):
 
-    state = models.CharField(max_length=3, primary_key=True)
-    country = models.CharField(max_length=45, primary_key=True)
-    postcode = models.CharField(max_length=4, primary_key=True)
-    address_line_one = models.CharField(max_length=45, primary_key=True)
-    address_line_two = models.CharField(max_length=45, primary_key=True)
+    address_id = models.IntegerField(auto_created=True, primary_key=True)
+    state = models.CharField(max_length=3)
+    country = models.CharField(max_length=45)
+    postcode = models.CharField(max_length=4)
+    address_line_one = models.CharField(max_length=45)
+    address_line_two = models.CharField(max_length=45)
     suburb = models.CharField(max_length=45)
     city = models.CharField(max_length=45)
     start_of_habitation = models.DateTimeField(null=True)
     end_of_habitation = models.DateTimeField(null=True)
     is_current = models.BooleanField()
     is_hometown = models.BooleanField(null=True)
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Number(models.Model):
 
-    number = models.CharField(max_length=18, primary_key=True)
+    number = models.CharField(max_length=18)
     label = models.CharField(
         max_length=15,
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    number_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
 class Email(models.Model):
 
-    email_address = models.CharField(max_length=45, primary_key=True)
+    email_address = models.CharField(max_length=45)
     label = models.CharField(
         max_length=15,
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
 class SocialMediaSite(models.Model):
@@ -97,10 +100,11 @@ class SocialMediaSite(models.Model):
 
 class SocialMediaContact(models.Model):
 
+    social_media_link_id = models.IntegerField(auto_created=True, primary_key=True)
     link = models.CharField(max_length=45, primary_key=True)
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
-    social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE, primary_key=True)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
 
 
 class ImportantDateType(models.Model):
@@ -114,7 +118,7 @@ class ImportantDate(models.Model):
     important_date_id = models.IntegerField(auto_created=True, primary_key=True)
     date = models.DateTimeField()
     get_alert = models.BooleanField()
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
-    important_date_type = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE, primary_key=True)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    important_date_type = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
 

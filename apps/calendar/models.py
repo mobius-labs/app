@@ -1,7 +1,8 @@
 from enum import Enum
 from django.db import models
 
-from apps.account_page.models import User
+from apps.account.models import User
+from apps.contact_book.models import Contact
 
 
 class EventTag(Enum):
@@ -38,20 +39,22 @@ class Event(models.Model):
     )
     is_public = models.BooleanField()
     alert = models.DateTimeField(null=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class EventOccurrence(models.Model):
 
-    date = models.DateTimeField(primary_key=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, primary_key=True)
+    event_occurrence_id = models.IntegerField(auto_created=True, primary_key=True)
+    date = models.DateTimeField()
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
 
 
 class EventIncludesContact(models.Model):
 
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, primary_key=True)
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE, primary_key=True)
+    contact_at_event_id = models.IntegerField(auto_created=True, primary_key=True)
+    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
