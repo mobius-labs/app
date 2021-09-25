@@ -1,14 +1,14 @@
 <template>
     <div class="login-page">
         <div class="homepage-link">
-            <router-link to="/" class="has-text-white"
-                >Go back to homepage...</router-link
-            >
+            <router-link to="/" class="has-text-white">
+                Go back to homepage...
+            </router-link>
         </div>
 
         <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
-                <component :is="Component"></component>
+                <component :is="Component" />
             </transition>
         </router-view>
     </div>

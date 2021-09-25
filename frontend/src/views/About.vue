@@ -4,8 +4,10 @@
         <p class="some-class">
             This is some about content! And some more content!
         </p>
-        <o-button :disabled="amount <= 0" @click="amount--">Subtract</o-button>
-        <o-button @click="amount++">Add</o-button>
+        <o-button :disabled="amount <= 0" @click="amount--">
+            Subtract
+        </o-button>
+        <o-button @click="amount++"> Add </o-button>
         <p>The amount is {{ amount }}</p>
     </div>
 </template>

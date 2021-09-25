@@ -9,7 +9,7 @@
                     placeholder="Enter your email"
                     required
                     icon="envelope"
-                ></o-input>
+                />
             </o-field>
 
             <o-field label="Password">
@@ -19,7 +19,7 @@
                     required
                     type="password"
                     icon="lock"
-                ></o-input>
+                />
             </o-field>
 
             <o-field label="Confirm Password">
@@ -29,23 +29,24 @@
                     required
                     type="password"
                     icon="redo"
-                ></o-input>
+                />
             </o-field>
             <div class="">
                 <o-button
                     class="is-fullwidth is-medium"
                     variant="primary"
                     @click="onSubmit"
-                    >Sign up</o-button
                 >
+                    Sign up
+                </o-button>
             </div>
         </div>
         <div>
             <p class="has-text-centered has-text-white">
                 Already have an account?
-                <router-link to="/login" class="has-text-warning"
-                    >Log in</router-link
-                >
+                <router-link to="/login" class="has-text-warning">
+                    Log in
+                </router-link>
             </p>
         </div>
     </div>
