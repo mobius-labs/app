@@ -1,7 +1,7 @@
 from django.db import models
 from enum import Enum
 
-from apps.account_page.models import User
+from apps.account.models import User
 
 
 class PronounsChoice(Enum):
@@ -76,7 +76,6 @@ class Number(models.Model):
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
     number_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
@@ -88,7 +87,6 @@ class Email(models.Model):
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
     email_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
@@ -101,9 +99,8 @@ class SocialMediaSite(models.Model):
 class SocialMediaContact(models.Model):
 
     social_media_link_id = models.IntegerField(auto_created=True, primary_key=True)
-    link = models.CharField(max_length=45, primary_key=True)
+    link = models.CharField(max_length=45)
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
     social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
 
 
@@ -119,6 +116,5 @@ class ImportantDate(models.Model):
     date = models.DateTimeField()
     get_alert = models.BooleanField()
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
     important_date_type = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
 
