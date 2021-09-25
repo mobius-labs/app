@@ -7,6 +7,7 @@
                 <o-input
                     v-model="email"
                     placeholder="Enter your email"
+                    required
                     icon="envelope"
                 ></o-input>
             </o-field>
@@ -15,6 +16,7 @@
                 <o-input
                     v-model="password"
                     placeholder="Enter your password"
+                    required
                     type="password"
                     icon="lock"
                 ></o-input>
@@ -24,6 +26,7 @@
                 <o-input
                     v-model="confirmedPassword"
                     placeholder="Re-enter password"
+                    required
                     type="password"
                     icon="redo"
                 ></o-input>
@@ -49,8 +52,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import Logo from "@/components/Logo.vue";
+import { defineComponent } from "vue";
+import { displayErrors, getInstance } from "@/api/api";
 
 export default defineComponent({
     name: "SignUp",
@@ -63,18 +67,32 @@ export default defineComponent({
         };
     },
     methods: {
-        onSubmit() {
+        async onSubmit() {
             // would send
-            let request = {
+            let data = {
                 email: this.email,
                 password: this.password,
-                confirmed: this.confirmedPassword,
+                confirm_password: this.confirmedPassword,
             };
-            console.log("Would send ", request);
 
-            if (this.password === this.confirmedPassword) {
-                // all good! passwords are consistent.
-                this.$router.push("/app");
+            let axios = getInstance();
+
+            try {
+                let response = await axios.post("account/register", data);
+                if (response.data.response === "registration_successful") {
+                    this.$oruga.notification.open({
+                        message: "Successfully registered user",
+                        variant: "success",
+                        duration: 10000,
+                        closable: true,
+                    });
+                    await this.$router.push("/");
+                }
+            } catch (e) {
+                if (e.response.data.errors) {
+                    displayErrors(e.response, this.$oruga);
+                }
+                console.log(e.response.data.errors);
             }
         },
     },

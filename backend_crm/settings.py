@@ -8,8 +8,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 
-import django_heroku
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+     # allows running the frontend from a different domain/port to the backend
+    'corsheaders',
     
     # our installed apps
     'apps.calendar',
@@ -52,6 +52,7 @@ AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'spa.middleware.SPAMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -83,6 +84,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_crm.wsgi.application'
 
+if DEBUG:
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        # any local development port
+        r"^http://localhost:80[0-9]+"
+    ]
+
+CORS_URLS_REGEX = r"^/api/.*$"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -154,6 +162,3 @@ STATICFILES_STORAGE = 'spa.storage.SPAStaticFilesStorage'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Activate Django-Heroku.
-django_heroku.settings(locals())
