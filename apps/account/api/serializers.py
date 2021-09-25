@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from apps.account.models import User
 
-# a seralizer allows complex data such as querysets and model instances to be converted to puthon datatypes
+# a serializer allows complex data such as querysets and model instances to be converted to python datatypes
 # these types can be rendered to json
 
 

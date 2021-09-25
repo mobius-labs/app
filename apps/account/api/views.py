@@ -2,10 +2,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from apps.account.api.serializers import RegistrationSerializer
+from rest_framework.authtoken.models import Token
 
 # Create your views here.
-#  takes a web request and returns a web response ;views contain logic o bdg fdxponxd
-
 
 @api_view(['POST'])
 def registration_view(request):
@@ -19,7 +18,8 @@ def registration_view(request):
             user = serializer.save()
             data['response'] = "user registration successful"
             data['email'] = user.email
-            #data['username'] = user.username
+            token = Token.object.get(user=user).key
+            data['token'] = token
         else:
             data = serializer.errors
             return Response(data, status=400)
