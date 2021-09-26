@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic'
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework'
     'rest_framework.authtoken'
+    
+    #our installed apps
+    'apps.calendar',
+    'apps.contact_book',
+    'apps.account'
 ]
 
 MIDDLEWARE = [
