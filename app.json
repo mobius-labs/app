@@ -1,0 +1,27 @@
+{
+  "name": "Möbius Labs",
+  "description": "IT Project Sem 2 2021 Personal CRM",
+  "repository": "https://github.com/mobius-labs/app",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "A secret key used by the Django framework",
+      "generator": "secret"
+    },
+    "DEBUG": {
+      "description": "App debug mode",
+      "value": "false"
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Allowed values for the HTTP `Host` header",
+      "value": ".herokuapp.com"
+    }
+  }
+}
