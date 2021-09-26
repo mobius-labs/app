@@ -52,10 +52,9 @@ class Contact(models.Model):
 
 class Address(models.Model):
 
-    address_id = models.IntegerField(auto_created=True, primary_key=True)
-    state = models.CharField(max_length=3)
+    state = models.CharField(max_length=10)
     country = models.CharField(max_length=45)
-    postcode = models.CharField(max_length=4)
+    postcode = models.CharField(max_length=10)
     address_line_one = models.CharField(max_length=45)
     address_line_two = models.CharField(max_length=45)
     suburb = models.CharField(max_length=45)
@@ -76,7 +75,6 @@ class Number(models.Model):
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    number_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
 class Email(models.Model):
@@ -87,7 +85,6 @@ class Email(models.Model):
         choices=[(tag, tag.value) for tag in ContactMediumLabel]
     )
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    email_id = models.IntegerField(auto_created=True, primary_key=True)
 
 
 class SocialMediaSite(models.Model):
@@ -98,7 +95,6 @@ class SocialMediaSite(models.Model):
 
 class SocialMediaContact(models.Model):
 
-    social_media_link_id = models.IntegerField(auto_created=True, primary_key=True)
     link = models.CharField(max_length=45)
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
     social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
@@ -112,7 +108,6 @@ class ImportantDateType(models.Model):
 
 class ImportantDate(models.Model):
 
-    important_date_id = models.IntegerField(auto_created=True, primary_key=True)
     date = models.DateTimeField()
     get_alert = models.BooleanField()
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
