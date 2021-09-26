@@ -8,22 +8,19 @@ from rest_framework.authtoken.models import Token
 
 @api_view(['POST'])
 def registration_view(request):
+    serializer = RegistrationSerializer(data=request.data)
+    data = {}
 
-    # post: sends a body into the api, e.g. here is my username and password I want something back
-    if request.method == 'POST':
-        serializer = RegistrationSerializer(data=request.data)
-        data = {}
+    if serializer.is_valid():
+        user = serializer.save()
+        data['response'] = "user registration successful"
+        data['email'] = user.email
+        token = Token.object.get(user=user).key
+        data['token'] = token
+    else:
+        data = serializer.errors
+        return Response(data, status=400)
 
-        if serializer.is_valid():
-            user = serializer.save()
-            data['response'] = "user registration successful"
-            data['email'] = user.email
-            token = Token.object.get(user=user).key
-            data['token'] = token
-        else:
-            data = serializer.errors
-            return Response(data, status=400)
-
-        return Response(data)
+    return Response(data)
 
 

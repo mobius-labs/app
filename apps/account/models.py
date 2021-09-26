@@ -30,7 +30,6 @@ class AccountManager(BaseUserManager):
         user = self.create_user(
             email=self.normalize_email(email),
             password=password,
-            #username=username
         )
 
         user.is_superuser = True
@@ -43,7 +42,6 @@ class AccountManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.CharField(max_length=50, primary_key=True)
-    #username = models.CharField(max_length=30, unique=False)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
     is_superuser = models.BooleanField(default=False)
@@ -55,7 +53,6 @@ class User(AbstractBaseUser):
 
     # the field the user logs in with
     USERNAME_FIELD = 'email'
-    #REQUIRED_FIELDS = ['username']
 
     objects = AccountManager()
 
