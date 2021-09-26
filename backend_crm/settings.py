@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken'
 
     # our installed apps
     'apps.calendar',
@@ -92,7 +93,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'test_db',
         'USER': 'postgres',
-        'PASSWORD': 'mobius',
+        'PASSWORD': '4Bonsai4',
         'HOST': 'localhost',
         'PORT': '',
          # From: https://devcenter.heroku.com/articles/python-concurrency-and-database-connections
