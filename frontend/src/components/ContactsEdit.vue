@@ -144,7 +144,11 @@
 
                     <p class="subtitle">Email</p>
 
-                    <o-field v-for="(email, i) in emails" :key="i">
+                    <o-field
+                        class="edit-email"
+                        v-for="(email, i) in emails"
+                        :key="i"
+                    >
                         <o-select placeholder="Type">
                             <option value="home">Home</option>
                             <option value="work">Work</option>
@@ -155,11 +159,15 @@
                         }}</o-input>
                         <o-button
                             icon-left="times"
+                            id="delete-email"
                             @click="deleteEmail(i)"
                         ></o-button>
                     </o-field>
 
-                    <o-button variant="success" @click="emails.push({})"
+                    <o-button
+                        class="add-email"
+                        variant="success"
+                        @click="emails.push({})"
                         >Add email address</o-button
                     >
 
@@ -177,10 +185,16 @@
                         <o-input placeholder="Email address" required>{{
                             phone.number
                         }}</o-input>
-                        <button class="delete" @click="deletePhone(i)"></button>
+                        <button
+                            class="delete-phone"
+                            @click="deletePhone(i)"
+                        ></button>
                     </o-field>
 
-                    <o-button variant="success" @click="phones.push({})"
+                    <o-button
+                        class="add-phone"
+                        variant="success"
+                        @click="phones.push({})"
                         >Add phone number</o-button
                     >
 
@@ -200,12 +214,15 @@
                             >{{ social.name }}</o-input
                         >
                         <button
-                            class="delete"
+                            class="delete-social"
                             @click="deleteSocial(i)"
                         ></button>
                     </o-field>
 
-                    <o-button variant="success" @click="socials.push({})"
+                    <o-button
+                        class="add-social"
+                        variant="success"
+                        @click="socials.push({})"
                         >Add social media</o-button
                     >
                 </div>
