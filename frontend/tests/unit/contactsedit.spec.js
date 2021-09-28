@@ -94,7 +94,7 @@ describe("ContactsEdit component unit tests", () => {
         ).toBe("Surname");
     });
 
-    // test.only("Extra contact details title displayed", () => {
+    // test("Extra contact details title displayed", () => {
     //     const wrapper = mount(ContactsEdit, {
     //         propsData: {
     //             expanded : true,
@@ -244,6 +244,18 @@ describe("ContactsEdit component unit tests", () => {
             "Add email address"
         );
     });
+
+    // test.only("Display add and delete email actions upon clicking add email", () => {
+    //     const wrapper = mount(ContactsEdit, {
+    //         propsData: {
+    //             expanded: true,
+    //             contact: { name: "contactName" },
+    //         },
+    //     });
+    //     wrapper.setData({emails: [({address: "shiv@gmail.com"}, 0)]});
+    //     wrapper.find("o-button.add-email").trigger("click");
+    //     //expect(wrapper.find("o-field.edit-email").exists()).toBeTruthy();
+    // });
 
     test("Phone number heading displayed", () => {
         const wrapper = mount(ContactsEdit, {
