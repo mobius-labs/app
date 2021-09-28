@@ -86,11 +86,15 @@
                     <!--<o-button variant="white is-large" outlined
                     >Get Connected
                     </o-button>-->
-                    <router-link to="/signup">
-                        <o-button variant="white is-large" outlined
-                            >Get Connected
-                        </o-button>
-                    </router-link>
+                    <!--                    <router-link >-->
+                    <o-button
+                        tag="router-link"
+                        to="/signup"
+                        variant="white is-large"
+                        outlined
+                        >Get Connected
+                    </o-button>
+                    <!--                    </router-link>-->
                 </div>
                 <div class="box has-shadow demo">
                     <video

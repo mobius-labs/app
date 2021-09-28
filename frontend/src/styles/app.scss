@@ -17,26 +17,6 @@ $box-shadow: 0 0.5em 1em -0.125em, 0 0px 0 1px;
 //testing title size
 $size-1: 4em;
 
-// Set some custom image sizes for the logo on different pages
-$large-width-logo: 18rem;
-$medium-width-logo: 10rem;
-$small-width-logo: 6.5rem;
-
-.is-large-logo {
-  width: $large-width-logo;
-  height: auto;
-}
-
-.is-medium-logo {
-  width: $medium-width-logo;
-  height: auto;
-}
-
-.is-small-logo {
-  width: $small-width-logo;
-  height: auto;
-}
-
 // This stylesheet is provided by the `oruga-bulma` project,
 // https://github.com/oruga-ui/oruga-bulma
 //
