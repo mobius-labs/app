@@ -74,7 +74,7 @@
             "
         >
             <div class="hero-body">
-                <div class="container has-text-centered text">
+                <div class="container has-text-centered">
                     <p class="title is-1">möbius crm.</p>
                     <p class="subtitle is-4">Connecting. You.</p>
                     <div class="container">
@@ -119,6 +119,7 @@
 }
 .demo {
     margin: 0 7rem;
+    box-shadow: 0 0.5em 1em -0.125em, 0 0 0 1px;
 }
 </style>
 
