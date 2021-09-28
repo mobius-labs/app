@@ -1,6 +1,6 @@
 <template>
     <!-- TODO: replace this with final logo once done -->
-    <h1
+    <!--<h1
         class="
             page-title
             has-text-primary
@@ -9,12 +9,19 @@
         "
     >
         möbius
-    </h1>
+    </h1>-->
+    <img :class="'logo ' + type" src="../assets/full_lockup_nobg.png" />
 </template>
 
 <script>
 export default {
     name: "Logo",
+    props: {
+        type: {
+            Type: String,
+            required: false,
+        },
+    },
 };
 </script>
 

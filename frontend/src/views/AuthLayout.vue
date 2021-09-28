@@ -1,7 +1,7 @@
 <template>
     <div class="login-page">
         <div class="homepage-link">
-            <router-link to="/" class="has-text-white"
+            <router-link to="/" class="has-text-warning"
                 >Go back to homepage...</router-link
             >
         </div>

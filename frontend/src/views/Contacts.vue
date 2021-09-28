@@ -47,7 +47,7 @@
                     v-slot="props"
                     label="Social Media"
                 >
-                    <span v-if="props.row.facebook" class="tag is-info"
+                    <span v-if="props.row.facebook" class="tag is-link"
                         ><o-icon
                             icon="facebook"
                             pack="fab"
@@ -55,7 +55,7 @@
                         ></o-icon
                         >{{ props.row.facebook }}</span
                     >
-                    <span v-if="props.row.instagram" class="tag is-info"
+                    <span v-if="props.row.instagram" class="tag is-link"
                         ><o-icon
                             icon="instagram"
                             pack="fab"
@@ -68,6 +68,7 @@
                     <o-button
                         icon-left="pencil-alt"
                         @click="selected = props.row"
+                        variant="warning"
                         >Edit</o-button
                     >
                 </o-table-column>
@@ -89,12 +90,12 @@ import ContactsEdit from "../components/ContactsEdit.vue";
 // it is super simplified just for displaying in this mockup
 const fakeContacts = [
     {
-        name: "John McAlfey",
-        email: "john@gmail.com",
+        name: "James McAlfey",
+        email: "james@gmail.com",
         address: "93 Foobar St",
         phone: "9888 2932",
         lastContacted: "6 months ago",
-        facebook: "john.mcalfey",
+        facebook: "james.mcalfey",
     },
     {
         name: "Foo Bar",

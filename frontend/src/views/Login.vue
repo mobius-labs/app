@@ -1,7 +1,10 @@
 <template>
     <div class="login-box">
         <div class="box">
-            <Logo />
+            <div class="has-text-centered">
+                <Logo type="is-large-logo" />
+            </div>
+
             <o-field label="Email">
                 <o-input
                     v-model="email"
@@ -64,6 +67,6 @@ export default defineComponent({
 
 <style scoped>
 .login-box {
-    width: 25rem;
+    width: 30rem;
 }
 </style>
