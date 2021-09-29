@@ -4,7 +4,7 @@ from enum import Enum
 from apps.account.models import User
 
 
-class PronounsChoice(Enum):
+class PronounsChoice(models.TextChoices):
     MAL = "he/him"
     FEM = "she/her"
     OTH = "they/them"
@@ -17,37 +17,34 @@ class ContactMediumLabel(Enum):
     OTH = "other"
 
 
+class RegularityOfContact(models.IntegerChoices):
+    WK2 = 104
+    WK1 = 52
+    FRNT = 26
+    MNTH = 12
+    BIMT = 6
+    YR2 = 2
+    YR1 = 1
+
+
 class Contact(models.Model):
-
-    class RegularityOfContact(models.IntegerChoices):
-        WK2 = 104
-        WK1 = 52
-        FRNT = 26
-        MNTH = 12
-        BIMT = 6
-        YR2 = 2
-        YR1 = 1
-
-    contact_id = models.IntegerField(auto_created=True, primary_key=True)
+    # contact_id = models.IntegerField(auto_created=True, primary_key=True)
+    # login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     first_name = models.CharField(max_length=45)
     surname = models.CharField(max_length=45, null=True)
     middle_name = models.CharField(max_length=45, null=True)
     nickname = models.CharField(max_length=45, null=True)
     name_pronunciation = models.CharField(max_length=45, null=True)
-    pronouns = models.CharField(
-        max_length=15,
-        choices=[(tag, tag.value) for tag in PronounsChoice],
-        null=True
-    )
-    title = models.CharField(max_length=45, null=True),
-    relation = models.CharField(max_length=45, null=True),
-    company = models.CharField(max_length=45, null=True),
-    job_title = models.CharField(max_length=45, null=True),
-    side_notes = models.TextField(null=True),
-    department = models.CharField(max_length=45, null=True),
-    regularity_of_contact = models.IntegerField(choices=RegularityOfContact.choices, null=True),
+    pronouns = models.CharField(max_length=15, choices=PronounsChoice.choices, null=True)
+    #pronouns = models.CharField(choices=PronounsChoice.cho)
+    title = models.CharField(max_length=45, null=True)
+    relation = models.CharField(max_length=45, null=True)
+    company = models.CharField(max_length=45, null=True)
+    job_title = models.CharField(max_length=45, null=True)
+    side_notes = models.TextField(null=True)
+    department = models.CharField(max_length=45, null=True)
+    regularity_of_contact = models.IntegerField(choices=RegularityOfContact.choices, null=True)
     last_time_contacted = models.DateTimeField(null=True)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Address(models.Model):
