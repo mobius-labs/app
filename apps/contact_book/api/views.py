@@ -1,65 +1,37 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from apps.contact_book.api.serializers import ContactSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from apps.contact_book.models import Contact
 
 
 @api_view(['POST'])
-def create_contact_view(request):
-    serializer = ContactSerializer(data=request.data)
-    data = {}
+@permission_classes([IsAuthenticated])
+def create_contact(request):
+    user = request.user
+    contact = Contact(author=user)
+
+    serializer = ContactSerializer(contact, data=request.data)
 
     if serializer.is_valid():
-        contact = serializer.save()
-        data['response'] = "new contact created"
-        data['first_name'] = contact.first_name
-        data['surname'] = contact.surname
-        data['middle_name'] = contact.middle_name
-        data['nickname'] = contact.nickname
-        data['name_pronunciation'] = contact.name_pronunciation
-        data['pronouns'] = contact.pronouns
-        data['title'] = contact.title
-        data['relation'] = contact.relation
-        data['company'] = contact.company
-        data['job_title'] = contact.job_title
-        data['side_notes'] = contact.side_notes
-        data['department'] = contact.department
-        data['regularity_of_contact'] = contact.regularity_of_contact
-
-
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
 
-    return Response(data)
 
-'''
 @api_view(['GET'])
-def get_contact_view(request, contact_id):
+@permission_classes([IsAuthenticated])
+def get_contact_by_id(request, contact_id):
+    user = request.user
+    contact = get_object_or_404(Contact, id=contact_id)
 
-    try:
-        contact = Contact.objects.get(contact_id)
-    except Contact.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    if str(contact.author) != str(user.email):
+        return Response({'user does not have permission to get id'})
 
     serializer = ContactSerializer(contact)
     return Response(serializer.data)
-
-@api_view(['POST'])
-def create_contact_view(request):
-    serializer = ContactSerializer(data=request.data)
-    data = {}
-
-    if serializer.is_valid():
-        contact = serializer.save()
-        data['response'] = "contact creation successful"
-        data['email'] = contact.email
-
-    else:
-        data = serializer.errors
-        return Response(data, status=400)
-
-    return Response(data)
-'''

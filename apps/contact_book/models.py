@@ -2,6 +2,7 @@ from django.db import models
 from enum import Enum
 
 from apps.account.models import User
+from backend_crm import settings
 
 
 class PronounsChoice(models.TextChoices):
@@ -27,16 +28,16 @@ class RegularityOfContact(models.IntegerChoices):
     YR1 = 1
 
 
+
+
 class Contact(models.Model):
-    # contact_id = models.IntegerField(auto_created=True, primary_key=True)
-    # login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=45)
     surname = models.CharField(max_length=45, null=True)
     middle_name = models.CharField(max_length=45, null=True)
     nickname = models.CharField(max_length=45, null=True)
     name_pronunciation = models.CharField(max_length=45, null=True)
     pronouns = models.CharField(max_length=15, choices=PronounsChoice.choices, null=True)
-    #pronouns = models.CharField(choices=PronounsChoice.cho)
     title = models.CharField(max_length=45, null=True)
     relation = models.CharField(max_length=45, null=True)
     company = models.CharField(max_length=45, null=True)
