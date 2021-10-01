@@ -13,7 +13,7 @@
                 </div>
                 <div class="level-right">
                     <div class="user-info">
-                        <o-icon icon="user" size="large"></o-icon>
+                        <o-icon icon="user" size="large" />
                     </div>
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <p class="menu-label">General</p>
             <ul class="menu-list">
                 <li>
-                    <router-link to="/app/contacts">Contacts</router-link>
+                    <router-link to="/app/contacts"> Contacts </router-link>
                     <ul>
                         <li><a>Close Friends</a></li>
                         <li><a>Family</a></li>
@@ -52,7 +52,7 @@
             <!--              </ul>-->
         </nav>
         <div class="app-content">
-            <router-view></router-view>
+            <router-view />
         </div>
     </div>
 </template>

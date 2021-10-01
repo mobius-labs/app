@@ -9,7 +9,7 @@
                         type="search"
                         icon="search"
                         placeholder="Search for contacts..."
-                    ></o-input>
+                    />
                 </div>
             </div>
 
@@ -24,12 +24,14 @@
                 </o-table-column>
                 <o-table-column v-slot="props" label="Contacts">
                     <span v-if="props.row.email" class="tag mr-2"
-                        ><o-icon icon="envelope" class="mr-0"></o-icon
-                        >{{ props.row.email }}</span
+                        ><o-icon icon="envelope" class="mr-0" />{{
+                            props.row.email
+                        }}</span
                     >
                     <span v-if="props.row.phone" class="tag mr-2"
-                        ><o-icon icon="phone" class="mr-0"></o-icon
-                        >{{ props.row.phone }}</span
+                        ><o-icon icon="phone" class="mr-0" />{{
+                            props.row.phone
+                        }}</span
                     >
                 </o-table-column>
                 <o-table-column v-slot="props" label="Address">
@@ -69,8 +71,9 @@
                         icon-left="pencil-alt"
                         variant="warning"
                         @click="selected = props.row"
-                        >Edit</o-button
                     >
+                        Edit
+                    </o-button>
                 </o-table-column>
             </o-table>
         </div>
@@ -79,7 +82,7 @@
             :expanded="selected !== null"
             :contact="selected"
             @close="selected = null"
-        ></ContactsEdit>
+        />
     </div>
 </template>
 

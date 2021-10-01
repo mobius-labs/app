@@ -10,7 +10,7 @@
                     v-model="email"
                     placeholder="Enter 'test'"
                     icon="envelope"
-                ></o-input>
+                />
             </o-field>
 
             <o-field label="Password">
@@ -19,25 +19,26 @@
                     placeholder="Enter 'test'"
                     icon="lock"
                     type="password"
-                ></o-input>
+                />
             </o-field>
             <p class="has-text-right mb-4">
-                <router-link to="/forgot">Forgot password?</router-link>
+                <router-link to="/forgot"> Forgot password? </router-link>
             </p>
             <div>
                 <o-button
                     class="is-fullwidth is-medium is-primary"
                     variant=""
                     @click="onSubmit"
-                    >Login</o-button
                 >
+                    Login
+                </o-button>
             </div>
         </div>
         <p class="has-text-white has-text-centered">
             Don't have an account?
-            <router-link to="/signup" class="has-text-warning"
-                >Sign Up!</router-link
-            >
+            <router-link to="/signup" class="has-text-warning">
+                Sign Up!
+            </router-link>
         </p>
     </div>
 </template>

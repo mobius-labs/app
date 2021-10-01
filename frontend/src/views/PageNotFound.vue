@@ -7,9 +7,9 @@
                     Oh no! The page you were trying to reach was not found.
                 </p>
                 <p>
-                    <router-link class="button" to="/"
-                        >Go back to home</router-link
-                    >
+                    <router-link class="button" to="/">
+                        Go back to home
+                    </router-link>
                 </p>
             </div>
         </section>
