@@ -12,8 +12,7 @@
                 placeholder="Enter your email"
                 type="Email"
                 icon="envelope"
-            >
-            </o-input>
+            />
         </o-field>
 
         <o-tooltip
@@ -33,7 +32,7 @@
                 </SpinnerOverlay>
             </o-button>
         </o-tooltip>
-        <VerificationInput :expanded="codeSent"></VerificationInput>
+        <VerificationInput :expanded="codeSent" />
     </div>
 </template>
 
