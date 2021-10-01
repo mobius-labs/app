@@ -11,13 +11,13 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class EmailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Number
+        model = Email
         fields = ['email_address', 'label']
 
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Number
+        model = Address
         fields = ['state', 'country', 'postcode', 'address_line_one', 'address_line_two', 'suburb', 'city',
                   'start_of_habitation', 'end_of_habitation', 'is_current', 'is_hometown']
 

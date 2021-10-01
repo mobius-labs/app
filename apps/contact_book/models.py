@@ -11,7 +11,7 @@ class PronounsChoice(models.TextChoices):
     OTH = "they/them"
 
 
-class ContactMediumLabel(Enum):
+class ContactMediumLabel(models.TextChoices):
     BUS = "business"
     FRN = "friend"
     FAM = "family"
@@ -26,8 +26,6 @@ class RegularityOfContact(models.IntegerChoices):
     BIMT = 6
     YR2 = 2
     YR1 = 1
-
-
 
 
 class Contact(models.Model):
@@ -49,40 +47,31 @@ class Contact(models.Model):
 
 
 class Address(models.Model):
-
-    state = models.CharField(max_length=10)
-    country = models.CharField(max_length=45)
-    postcode = models.CharField(max_length=10)
+    state = models.CharField(max_length=10, null=True)
+    country = models.CharField(max_length=45, null=True)
+    postcode = models.CharField(max_length=10, null=True)
     address_line_one = models.CharField(max_length=45)
-    address_line_two = models.CharField(max_length=45)
-    suburb = models.CharField(max_length=45)
-    city = models.CharField(max_length=45)
+    address_line_two = models.CharField(max_length=45, null=True)
+    suburb = models.CharField(max_length=45, null=True)
+    city = models.CharField(max_length=45, null=True)
     start_of_habitation = models.DateTimeField(null=True)
     end_of_habitation = models.DateTimeField(null=True)
     is_current = models.BooleanField()
     is_hometown = models.BooleanField(null=True)
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
 class Number(models.Model):
-
     number = models.CharField(max_length=18)
-    label = models.CharField(
-        max_length=15,
-        choices=[(tag, tag.value) for tag in ContactMediumLabel]
-    )
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
 class Email(models.Model):
 
     email_address = models.CharField(max_length=45)
-    label = models.CharField(
-        max_length=15,
-        choices=[(tag, tag.value) for tag in ContactMediumLabel]
-    )
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
 
 class SocialMediaSite(models.Model):
