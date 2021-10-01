@@ -116,6 +116,15 @@
     </div>
 </template>
 
+<script lang="ts">
+import { defineComponent } from "vue";
+import Logo from "@/components/Logo.vue";
+export default defineComponent({
+    name: "Home",
+    components: { Logo },
+});
+</script>
+
 <style scoped>
 .desc {
     width: 40%;
@@ -126,12 +135,3 @@
     box-shadow: 0 0.5em 1em -0.125em, 0 0 0 1px;
 }
 </style>
-
-<script lang="ts">
-import { defineComponent } from "vue";
-import Logo from "@/components/Logo.vue";
-export default defineComponent({
-    name: "Home",
-    components: { Logo },
-});
-</script>

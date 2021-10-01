@@ -67,8 +67,8 @@
                 <o-table-column v-slot="props" label="Actions">
                     <o-button
                         icon-left="pencil-alt"
-                        @click="selected = props.row"
                         variant="warning"
+                        @click="selected = props.row"
                         >Edit</o-button
                     >
                 </o-table-column>
