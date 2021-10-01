@@ -60,11 +60,17 @@ class Address(models.Model):
     is_hometown = models.BooleanField(null=True)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('address_line_one', 'contact')
+
 
 class Number(models.Model):
     number = models.CharField(max_length=18)
     label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('number', 'contact')
 
 
 class Email(models.Model):
@@ -73,30 +79,46 @@ class Email(models.Model):
     label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('email_address', 'contact')
+
 
 class SocialMediaSite(models.Model):
 
     site = models.CharField(max_length=45, primary_key=True)
-    icon = models.CharField(max_length=45, null=True)
+    icon = models.ImageField(null=True)
+    is_default = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['site', 'is_default']
 
 
 class SocialMediaContact(models.Model):
 
     link = models.CharField(max_length=45)
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('link', 'social_media_site', 'contact')
 
 
 class ImportantDateType(models.Model):
 
     label = models.CharField(max_length=45, primary_key=True)
-    icon = models.CharField(max_length=45, null=True)
+    icon = models.ImageField(null=True)
+    is_default = models.BooleanField()
+
+    class Meta:
+        unique_together = ['label', 'is_default']
 
 
 class ImportantDate(models.Model):
 
-    date = models.DateTimeField()
+    date = models.DateField()
     get_alert = models.BooleanField()
-    contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-    important_date_type = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    important_date_type = models.ForeignKey(ImportantDateType, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('contact', 'date', 'important_date_type')
