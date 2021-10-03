@@ -12,9 +12,19 @@ import "@fortawesome/fontawesome-free/scss/regular.scss";
 import "@fortawesome/fontawesome-free/scss/solid.scss";
 import "@fortawesome/fontawesome-free/scss/brands.scss";
 
-const app = createApp(App).use(router);
+// this makes Typescript no longer complain about a missing
+// "this.$oruga" property on Vue components.
+declare module "@vue/runtime-core" {
+    export interface ComponentCustomProperties {
+        $oruga: typeof Oruga;
+    }
+}
+
+const app = createApp(App);
+app.use(router);
 app.use(Oruga, {
     iconPack: "fas",
     ...bulmaConfig,
 });
+
 app.mount("#app");

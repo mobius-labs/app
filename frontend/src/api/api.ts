@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import Oruga from "@oruga-ui/oruga-next";
 
 let instance: AxiosInstance | null = null;
 
@@ -20,7 +21,16 @@ export const getInstance = () => {
     return instance;
 };
 
-export function displayErrors(response: AxiosResponse, $oruga: any) {
+// used for most API requests
+export class ServerData {
+    // form data which was sent to the server
+    model: Record<string, any> = {};
+
+    // validation errors returned by the API call, grouped by field name
+    errors: Record<string, string[]> = {};
+}
+
+export function displayErrors(response: AxiosResponse, $oruga: typeof Oruga) {
     console.log(response.data.errors);
     for (const [field, errors] of Object.entries(response.data.errors)) {
         for (let error of errors as string[]) {

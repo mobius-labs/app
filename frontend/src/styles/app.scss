@@ -11,3 +11,5 @@ $warning: yellow;
 // It ties together the bulma CSS framework,
 // and the 'oruga' Vue UI component framework.
 @import "my-vue-app/src/assets/scss/plugin.scss";
+
+@import 'oruga-fixes.scss';

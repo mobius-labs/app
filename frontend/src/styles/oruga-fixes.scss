@@ -1,0 +1,12 @@
+// these override some of the Oruga / Bulma styles globally...
+
+// Eventually some of these could be upstreamed to the Oruga project,
+// but now overriding here will do.
+
+.o-notices--top {
+    align-items: flex-end;
+}
+
+.o-notices--top .notification {
+    max-width: 30rem;
+}
