@@ -9,19 +9,41 @@
                             class="app-menu-logo"
                         />
                     </router-link>-->
-                    <Logo type="is-medium-logo" />
+                    <router-link to="/app">
+                        <Logo type="is-medium-logo" />
+                    </router-link>
                 </div>
                 <div class="level-right">
-                    <div class="user-info">
-                        <o-icon icon="user" size="large" />
-                    </div>
+                    <o-dropdown aria-role="list">
+                        <template #trigger>
+                            <o-button variant="white">
+                                <!--                                <div class="user-info">-->
+                                <o-icon
+                                    icon="user"
+                                    size="medium"
+                                    class="has-text-grey"
+                                />
+                                <!--                                </div>-->
+                                <!--                                <o-icon :icon="active ? 'caret-up' : 'caret-down'"></o-icon>-->
+                            </o-button>
+                        </template>
+
+                        <!--                        <o-dropdown-item aria-role="listitem">Action</o-dropdown-item>-->
+                        <!--                        <o-dropdown-item aria-role="listitem">Another action</o-dropdown-item>-->
+                        <o-dropdown-item aria-role="listitem" @click="logout"
+                            >Logout</o-dropdown-item
+                        >
+                    </o-dropdown>
                 </div>
             </div>
 
             <p class="menu-label">General</p>
             <ul class="menu-list">
                 <li>
-                    <router-link to="/app/contacts"> Contacts </router-link>
+                    <router-link to="/app">Dashboard</router-link>
+                </li>
+                <li>
+                    <router-link to="/app/contacts">Contacts</router-link>
                     <ul>
                         <li><a>Close Friends</a></li>
                         <li><a>Family</a></li>
@@ -59,12 +81,18 @@
 
 <script>
 import Logo from "@/components/Logo.vue";
-export default {
-    name: "AppLayout",
-    components: {
-        Logo,
-    },
-};
+import { Options, Vue } from "vue-class-component";
+@Options({
+    components: { Logo },
+})
+export default class AppLayout extends Vue {
+    async logout() {
+        await this.$store.dispatch("logout", {
+            router: this.$router,
+            oruga: this.$oruga,
+        });
+    }
+}
 </script>
 
 <style scoped lang="scss">

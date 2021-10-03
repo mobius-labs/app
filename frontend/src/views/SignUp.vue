@@ -5,6 +5,8 @@
                 <Logo type="is-large-logo" />
             </div>
 
+            <NonFieldErrorsList :non-field-errors="serverData.nonFieldErrors" />
+
             <ValidatedField
                 v-slot="{ value, setValue }"
                 v-model="model"
@@ -84,10 +86,11 @@ import Logo from "@/components/Logo.vue";
 import { getAxiosInstance, ServerData } from "@/api/api";
 import { Options, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
+import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 
 @Options({
-    components: { ValidatedField, Logo, SpinnerOverlay },
+    components: { ValidatedField, Logo, SpinnerOverlay, NonFieldErrorsList },
 })
 export default class SignUp extends Vue {
     model = {
@@ -113,8 +116,11 @@ export default class SignUp extends Vue {
                     duration: 10000,
                     closable: true,
                 });
-
-                await this.$router.push("/app");
+                await this.$store.dispatch("login", {
+                    token: response.data.token,
+                    router: this.$router,
+                    oruga: this.$oruga,
+                });
             }
         } catch (e) {
             this.serverData.fromValidationError(e, this.model);

@@ -11,7 +11,8 @@ import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
 import "@fortawesome/fontawesome-free/scss/regular.scss";
 import "@fortawesome/fontawesome-free/scss/solid.scss";
 import "@fortawesome/fontawesome-free/scss/brands.scss";
-import { useOrugaInstance } from "@/api/api";
+import { setStore, setOrugaInstance } from "@/api/api";
+import store from "./store";
 
 // this makes Typescript no longer complain about a missing
 // "this.$oruga" property on Vue components.
@@ -22,6 +23,7 @@ declare module "@vue/runtime-core" {
 }
 
 const app = createApp(App);
+app.use(store);
 app.use(router);
 app.use(Oruga, {
     iconPack: "fas",
@@ -29,4 +31,5 @@ app.use(Oruga, {
 });
 
 let root = app.mount("#app");
-useOrugaInstance(root.$oruga);
+setOrugaInstance(root.$oruga);
+setStore(store);
