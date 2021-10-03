@@ -110,12 +110,6 @@ export default class SignUp extends Vue {
                 this.model
             );
             if (response.data.response === "registration_successful") {
-                this.$oruga.notification.open({
-                    message: "Successfully registered user",
-                    variant: "success",
-                    duration: 10000,
-                    closable: true,
-                });
                 await this.$store.dispatch("login", {
                     token: response.data.token,
                     router: this.$router,

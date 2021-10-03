@@ -93,6 +93,7 @@ export class ServerData {
             return;
         }
         this.errors = {};
+        this.nonFieldErrors = [];
         for (const [field, messages] of Object.entries(errors)) {
             if (field !== "non_field_errors") {
                 this.errors[field] = messages as string[];

@@ -70,16 +70,16 @@ const router = createRouter({
 const APP_TITLE = "Möbius CRM";
 
 router.beforeEach((to, from, next) => {
-    if (
-        !store.dispatch("determineAuthStatus") &&
-        to.meta.allowGuests !== true
-    ) {
-        next({
-            path: "/login",
-        });
-        return;
-    }
-    next();
+    store.dispatch("determineAuthStatus").then((authenticated) => {
+        console.log(authenticated);
+        if (!authenticated && to.meta.allowGuests !== true) {
+            next({
+                path: "/login",
+            });
+            return;
+        }
+        next();
+    });
 });
 
 router.afterEach((to) => {
