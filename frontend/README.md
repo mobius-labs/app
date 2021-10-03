@@ -43,13 +43,13 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 We have a three-pronged approach to code-quality on the frontend.
 
-- TypeScript - better editor support, catch runtime type errors at compile time.
-- ESLint - to catch more bugs, avoid common Vue pitfalls
-- Prettier - for consistent code formatting
+- _TypeScript_ - better editor support, catch runtime type errors at compile time.
+- _ESLint_ - to catch more bugs, avoid common Vue pitfalls
+- _Prettier_ - for consistent code formatting
 
 According to the frontend [GitHub Actions workflow](../.github/workflows/frontend.yml),
 all PRs making changes to the frontend must pass the ESLint check,
-and must match the formatting of Prettier, in order to be accepted.
+and match the formatting of Prettier, and pass unit tests in order to be accepted.
 Though this is quite a harsh rule, it should make it easier to
 maintain code quality in the long run.
 

@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="icon-container">
-            <o-icon v-if="active" icon="spinner" class="spin-always"></o-icon>
+            <o-icon v-if="active" icon="spinner" class="spin-always" />
         </div>
         <div :class="active ? 'hide-text' : ''">
-            <slot></slot>
+            <slot />
         </div>
     </div>
 </template>

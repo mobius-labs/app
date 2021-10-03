@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 
-import django_heroku
+import environ
 
 from pathlib import Path
 
@@ -17,16 +17,24 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, True),
+    # default to restricting to .herokuapp.com in production
+    ALLOWED_HOSTS=(list, []),
+    DATABASE_URL=(str, "pgsql://postgres:mobius@localhost/test_db"),
+    SECRET_KEY=(str, "django-insecure-_ebl0tc6sx*1ltrg-6j8a!ai9i#0z6$h*+o!daj6zkj#to__t^")
+)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_ebl0tc6sx*1ltrg-6j8a!ai9i#0z6$h*+o!daj6zkj#to__t^'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -40,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+     # allows running the frontend from a different domain/port to the backend
+    'corsheaders',
 
     # our installed apps
     'apps.calendar',
@@ -51,10 +61,9 @@ INSTALLED_APPS = [
 # authenticating users with custom authentication instead of default
 AUTH_USER_MODEL = 'account.User'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'spa.middleware.SPAMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -70,8 +79,7 @@ ROOT_URLCONF = 'backend_crm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,6 +94,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_crm.wsgi.application'
 
+if DEBUG:
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        # any local development port
+        r"^http://localhost:80[0-9]+"
+    ]
+
+CORS_URLS_REGEX = r"^/api/.*$"
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -99,18 +115,7 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test_db',
-        'USER': 'postgres',
-        'PASSWORD': 'mobius',
-        'HOST': 'localhost',
-        'PORT': '',
-        # From: https://devcenter.heroku.com/articles/python-concurrency-and-database-connections
-        # Constantly opening new connections is an expensive operation, and
-        # can be mitigated with the use Django’s persistent connections.
-        'CONN_MAX_AGE': 500
-    }
+    'default': env.db(),
 }
 
 # Password validation
@@ -130,6 +135,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# according to `manage.py check --deploy`
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -160,8 +169,4 @@ STATICFILES_STORAGE = 'spa.storage.SPAStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Activate Django-Heroku.
-django_heroku.settings(locals())

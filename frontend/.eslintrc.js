@@ -4,6 +4,7 @@ module.exports = {
         "plugin:vue/vue3-recommended",
         // make ESLint not conflict with Prettier config
         "prettier",
+        "prettier/vue",
     ],
     // gets rid of warnings about undefined `module` and `process` globals
     env: {
