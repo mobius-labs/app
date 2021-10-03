@@ -11,6 +11,7 @@ import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
 import "@fortawesome/fontawesome-free/scss/regular.scss";
 import "@fortawesome/fontawesome-free/scss/solid.scss";
 import "@fortawesome/fontawesome-free/scss/brands.scss";
+import { useOrugaInstance } from "@/api/api";
 
 // this makes Typescript no longer complain about a missing
 // "this.$oruga" property on Vue components.
@@ -27,4 +28,5 @@ app.use(Oruga, {
     ...bulmaConfig,
 });
 
-app.mount("#app");
+let root = app.mount("#app");
+useOrugaInstance(root.$oruga);

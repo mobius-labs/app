@@ -81,7 +81,7 @@
 
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
-import { getInstance, ServerData } from "@/api/api";
+import { getAxiosInstance, ServerData } from "@/api/api";
 import { Options, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
@@ -99,14 +99,13 @@ export default class SignUp extends Vue {
     submitting = false;
 
     async onSubmit() {
-        // would send
-        let axios = getInstance();
-
         try {
             this.submitting = true;
             // we want to "deep copy" the object so changing one doesn't change the other.
-            this.serverData.model = JSON.parse(JSON.stringify(this.model));
-            let response = await axios.post("account/register", this.model);
+            let response = await getAxiosInstance().post(
+                "account/register",
+                this.model
+            );
             if (response.data.response === "registration_successful") {
                 this.$oruga.notification.open({
                     message: "Successfully registered user",
@@ -114,21 +113,13 @@ export default class SignUp extends Vue {
                     duration: 10000,
                     closable: true,
                 });
-                await this.$router.push("/");
+
+                await this.$router.push("/app");
             }
         } catch (e) {
-            if (e.response && e.response.data.errors) {
-                this.serverData.errors = e.response.data.errors;
-            } else if (!e.status) {
-                this.$oruga.notification.open({
-                    message: "Network Error: failed to make API call",
-                    variant: "danger",
-                    indefinite: true,
-                    closable: true,
-                });
-            }
-            console.log(e);
+            this.serverData.fromValidationError(e, this.model);
         }
+
         this.submitting = false;
     }
 }

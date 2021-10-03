@@ -8,7 +8,9 @@ $yellow: #ffec8f;
 $primary: #1e90ff;
 $link: $primary-light;
 $info: $clicked;
-$danger: $faded;
+
+// TODO: @l1king, how do we want "error" conditions to stand out?
+// $danger: $faded;
 $warning: $yellow;
 
 //testing title size
