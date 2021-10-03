@@ -3,3 +3,5 @@ staticfiles
 node_modules
 /.venv
 /venv
+.idea/backend_crm.iml
+
