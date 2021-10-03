@@ -78,7 +78,7 @@ export class ServerData {
 
     nonFieldErrors: string[] = [];
 
-    fromValidationError(e: AxiosError, model: Record<string, any>) {
+    handleError(e: AxiosError, model: Record<string, any>) {
         this.model = JSON.parse(JSON.stringify(model));
         let errors = null;
         if (e.response && e.response.data.errors) {

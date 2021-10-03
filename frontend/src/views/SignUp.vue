@@ -117,7 +117,7 @@ export default class SignUp extends Vue {
                 });
             }
         } catch (e) {
-            this.serverData.fromValidationError(e, this.model);
+            this.serverData.handleError(e, this.model);
         }
 
         this.submitting = false;

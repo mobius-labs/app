@@ -92,17 +92,14 @@ export default class Login extends Vue {
                 "account/login",
                 this.model
             );
-            if (response.data.token) {
-                await this.$store.dispatch("login", {
-                    token: response.data.token,
-                    router: this.$router,
-                    oruga: this.$oruga,
-                });
-            }
+            await this.$store.dispatch("login", {
+                token: response.data.token,
+                router: this.$router,
+                oruga: this.$oruga,
+            });
         } catch (e) {
-            this.serverData.fromValidationError(e, this.model);
+            this.serverData.handleError(e, this.model);
         }
-
         this.submitting = false;
     }
 }
