@@ -12,6 +12,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@oruga-ui/oruga-next": "^0.4.4",
+    "axios": "^0.21.4",
     "core-js": "^3.6.5",
     "my-vue-app": "github:oruga-ui/oruga-bulma",
     "vue": "^3.0.0",
@@ -36,7 +37,6 @@
     "babel-eslint": "^10.1.0",
     "cypress": "^8.3.1",
     "eslint": "^6.7.2",
-    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",

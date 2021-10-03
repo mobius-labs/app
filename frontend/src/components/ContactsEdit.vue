@@ -7,7 +7,7 @@
                     class="floating-close-button"
                     variant="light"
                     @click="$emit('close')"
-                ></o-button>
+                />
                 <div class="hero-body">
                     <div class="is-flex-grow-1">
                         <p
@@ -29,8 +29,10 @@
                             variant="light"
                             class="m-3"
                             @click="$emit('close')"
-                        ></o-button>
-                        <h2 class="title p-3">{{ contact.name }}</h2>
+                        />
+                        <h2 class="title p-3">
+                            {{ contact.name }}
+                        </h2>
                     </div>
                 </div>
 
@@ -41,21 +43,21 @@
                                 name="first_name"
                                 placeholder="First Name"
                                 expanded
-                            ></o-input>
+                            />
                         </o-field>
                         <o-field label="Middle Name">
                             <o-input
                                 name="middle_name"
                                 placeholder="Middle Name"
                                 expanded
-                            ></o-input>
+                            />
                         </o-field>
                         <o-field label="Surname">
                             <o-input
                                 name="surname"
                                 placeholder="Surname"
                                 expanded
-                            ></o-input>
+                            />
                         </o-field>
                     </o-field>
 
@@ -72,8 +74,7 @@
                                                 ? 'caret-up'
                                                 : 'caret-down'
                                         "
-                                    >
-                                    </o-icon>
+                                    />
                                 </a>
                             </div>
                         </template>
@@ -82,22 +83,22 @@
                                 <o-input
                                     name="nickname"
                                     placeholder="Enter a nickname"
-                                ></o-input>
+                                />
                             </o-field>
                             <o-field label="Name Pronunciation">
                                 <o-input
                                     name="pronunciation"
                                     placeholder="Name pronunciation"
-                                ></o-input>
+                                />
                             </o-field>
                             <o-field label="Pronouns">
                                 <o-input
                                     name="pronouns"
                                     placeholder="e.g.: she/her"
-                                ></o-input>
+                                />
                             </o-field>
                             <o-field label="Title">
-                                <o-input name="title" placeholder=""></o-input>
+                                <o-input name="title" placeholder="" />
                             </o-field>
                         </div>
                     </o-collapse>
@@ -105,7 +106,7 @@
                     <hr />
 
                     <o-field label="Job Title">
-                        <o-input name="job_title" placeholder=""></o-input>
+                        <o-input name="job_title" placeholder="" />
                     </o-field>
 
                     <o-field grouped>
@@ -114,22 +115,18 @@
                                 name="department"
                                 expanded
                                 placeholder=""
-                            ></o-input>
+                            />
                         </o-field>
 
                         <o-field label="Company">
-                            <o-input
-                                name="company"
-                                expanded
-                                placeholder=""
-                            ></o-input>
+                            <o-input name="company" expanded placeholder="" />
                         </o-field>
                     </o-field>
 
                     <hr />
 
                     <o-field label="Side Notes">
-                        <o-input type="textarea" style="height: 5rem"></o-input>
+                        <o-input type="textarea" style="height: 5rem" />
                     </o-field>
 
                     <o-field label="Last Time Contacted">
@@ -137,7 +134,7 @@
                             placeholder="select last time contacted"
                             icon="calendar"
                             trap-focus
-                        ></o-datepicker>
+                        />
                     </o-field>
 
                     <hr />
@@ -154,6 +151,7 @@
                             <option value="work">Work</option>
                             <option value="school">School</option>
                         </o-select>
+                        
                         <o-input placeholder="Email address" required>{{
                             email.address
                         }}</o-input>
@@ -182,6 +180,7 @@
                             <option value="work">Work</option>
                             <option value="school">School</option>
                         </o-select>
+
                         <o-input placeholder="Email address" required>{{
                             phone.number
                         }}</o-input>
@@ -211,8 +210,8 @@
                         <o-input
                             placeholder="Enter social media profile here..."
                             required
-                            >{{ social.name }}</o-input
                         >
+                        
                         <button
                             class="delete-social"
                             @click="deleteSocial(i)"
