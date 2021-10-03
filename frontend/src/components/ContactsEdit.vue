@@ -142,7 +142,7 @@
 
                     <hr />
 
-                    <p class="email-subtitle">Email</p>
+                    <p id="email-subtitle" class="subtitle">Email</p>
 
                     <o-field
                         class="edit-email"
@@ -174,7 +174,7 @@
                     <br />
                     <br />
 
-                    <p class="phone-subtitle">Phone Numbers</p>
+                    <p id="phone-subtitle" class="subtitle">Phone Numbers</p>
 
                     <o-field v-for="(phone, i) in phones" :key="i">
                         <o-select placeholder="Type">
@@ -200,7 +200,7 @@
 
                     <hr />
 
-                    <p class="social-subtitle">Social Media</p>
+                    <p id="social-subtitle" class="subtitle">Social Media</p>
 
                     <o-field v-for="(social, i) in socials" :key="social.name">
                         <o-select placeholder="Select a social media">

@@ -216,7 +216,7 @@ describe("ContactsEdit component unit tests", () => {
                 contact: { name: "contactName" },
             },
         });
-        expect(wrapper.find("p.email-subtitle").text()).toBe("Email");
+        expect(wrapper.find("p#email-subtitle").text()).toBe("Email");
     });
 
     // test('Delete email function called when delete email button clicked', () => {
@@ -264,7 +264,7 @@ describe("ContactsEdit component unit tests", () => {
                 contact: { name: "contactName" },
             },
         });
-        expect(wrapper.find("p.phone-subtitle").text()).toBe("Phone Numbers");
+        expect(wrapper.find("p#phone-subtitle").text()).toBe("Phone Numbers");
     });
 
     test("Add phone number button displayed", () => {
@@ -286,7 +286,7 @@ describe("ContactsEdit component unit tests", () => {
                 contact: { name: "contactName" },
             },
         });
-        expect(wrapper.find("p.social-subtitle").text()).toBe("Social Media");
+        expect(wrapper.find("p#social-subtitle").text()).toBe("Social Media");
     });
 
     test("Add social media button displayed", () => {
