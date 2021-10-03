@@ -142,22 +142,22 @@
                     <p id="email-subtitle" class="subtitle">Email</p>
 
                     <o-field
-                        class="edit-email"
                         v-for="(email, i) in emails"
                         :key="i"
+                        class="edit-email"
                     >
                         <o-select placeholder="Type">
                             <option value="home">Home</option>
                             <option value="work">Work</option>
                             <option value="school">School</option>
                         </o-select>
-                        
+
                         <o-input placeholder="Email address" required>{{
                             email.address
                         }}</o-input>
                         <o-button
-                            icon-left="times"
                             id="delete-email"
+                            icon-left="times"
                             @click="deleteEmail(i)"
                         ></o-button>
                     </o-field>
@@ -210,8 +210,9 @@
                         <o-input
                             placeholder="Enter social media profile here..."
                             required
+                            >{{ social.name }}</o-input
                         >
-                        
+
                         <button
                             class="delete-social"
                             @click="deleteSocial(i)"
