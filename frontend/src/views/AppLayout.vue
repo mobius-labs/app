@@ -3,12 +3,13 @@
         <nav class="menu app-menu">
             <div class="level">
                 <div class="level-left">
-                    <router-link to="/app">
+                    <!--<router-link to="/app">
                         <img
                             src="../assets/mobius-logo-example.png"
                             class="app-menu-logo"
                         />
-                    </router-link>
+                    </router-link>-->
+                    <Logo type="is-medium-logo" />
                 </div>
                 <div class="level-right">
                     <div class="user-info">
@@ -57,8 +58,12 @@
 </template>
 
 <script>
+import Logo from "@/components/Logo.vue";
 export default {
     name: "AppLayout",
+    components: {
+        Logo,
+    },
 };
 </script>
 

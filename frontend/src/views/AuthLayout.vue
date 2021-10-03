@@ -1,9 +1,9 @@
 <template>
     <div class="login-page">
         <div class="homepage-link">
-            <router-link to="/" class="has-text-white">
-                Go back to homepage...
-            </router-link>
+            <router-link to="/" class="has-text-warning"
+                >Go back to homepage...</router-link
+            >
         </div>
 
         <router-view v-slot="{ Component }">

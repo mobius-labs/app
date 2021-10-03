@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from apps.account.models import User
 
-# a seralizer allows complex data such as querysets and model instances to be converted to puthon datatypes
+# a serializer allows complex data such as querysets and model instances to be converted to python datatypes
 # these types can be rendered to json
 
 
@@ -23,10 +23,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         user = User(
             email=self.validated_data['email'],
-            #username=self.validated_data['username']
         )
         password = self.validated_data['password']
-        confirm_password = self.validated_data['confirm_password']
 
         user.set_password(password)
         user.save()

@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="box login-box">
-            <Logo />
+            <div class="has-text-centered">
+                <Logo type="is-large-logo" />
+            </div>
 
             <ValidatedField
                 v-slot="{ value, setValue }"

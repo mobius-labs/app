@@ -1,9 +1,18 @@
 // Here we override the default color scheme used by Bulma,
-// with our own colour palette.
-$primary: #2f9df7;
+// with our own colour palette
+$primary-light: #99ccff;
+$clicked: #c2e0ff;
+$faded: #ebf5ff;
+$yellow: #ffec8f;
 
-// TODO: maybe pick a slightly less bold yellow here
-$warning: yellow;
+$primary: #1e90ff;
+$link: $primary-light;
+$info: $clicked;
+$danger: $faded;
+$warning: $yellow;
+
+//testing title size
+$size-1: 4em;
 
 // This stylesheet is provided by the `oruga-bulma` project,
 // https://github.com/oruga-ui/oruga-bulma
