@@ -48,10 +48,11 @@ class EventOccurrence(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
 
 
+'''
 class EventIncludesContact(models.Model):
 
     login_of_host_user = models.ForeignKey(User, on_delete=models.CASCADE)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     contact_id = models.ForeignKey(Contact, on_delete=models.CASCADE)
-
+'''
 

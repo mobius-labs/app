@@ -12,7 +12,9 @@ import environ
 
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
@@ -46,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+     # allows running the frontend from a different domain/port to the backend
+    'corsheaders',
 
     # our installed apps
     'apps.calendar',
@@ -59,6 +63,7 @@ AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'spa.middleware.SPAMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -89,9 +94,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_crm.wsgi.application'
 
+if DEBUG:
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        # any local development port
+        r"^http://localhost:80[0-9]+"
+    ]
+
+CORS_URLS_REGEX = r"^/api/.*$"
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ]
 }
 
@@ -153,5 +169,4 @@ STATICFILES_STORAGE = 'spa.storage.SPAStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
