@@ -11,16 +11,25 @@
                         placeholder="Search for contacts..."
                     />
                 </div>
+
+                <div class="is-flex-grow-1"></div>
+
+                <o-button
+                    variant="primary"
+                    icon-left="plus"
+                    @click="openNewContactPane"
+                    >Add Contact</o-button
+                >
             </div>
 
             <o-table
                 hoverable
                 focusable
-                :data="fakeContacts"
+                :data="contacts"
                 :v-model:selected="selected"
             >
                 <o-table-column v-slot="props" label="Name">
-                    {{ props.row.name }}
+                    {{ getFullName(props.row) }}
                 </o-table-column>
                 <o-table-column v-slot="props" label="Contacts">
                     <span v-if="props.row.email" class="tag mr-2"
@@ -89,34 +98,28 @@
 <script lang="ts">
 import ContactsEdit from "../components/ContactsEdit.vue";
 import { Options, Vue } from "vue-class-component";
-
-// this data doesn't represent what will be returned by the API, instead,
-// it is super simplified just for displaying in this mockup
-const fakeContacts = [
-    {
-        name: "James McAlfey",
-        email: "james@gmail.com",
-        address: "93 Foobar St",
-        phone: "9888 2932",
-        lastContacted: "6 months ago",
-        facebook: "james.mcalfey",
-    },
-    {
-        name: "Foo Bar",
-        email: "james@yahoo.com",
-        address: "93 Foobar St",
-        phone: "9234 2932",
-        lastContacted: "yesterday",
-        instagram: "foo.bar",
-    },
-];
+import { Contact, getFullName } from "@/api/contacts";
+import { getAxiosInstance } from "@/api/api";
 
 @Options({
     components: { ContactsEdit },
 })
 export default class Contacts extends Vue {
-    fakeContacts = fakeContacts;
-    selected = null;
+    contacts = [];
+    selected: Contact | null = null;
+    getFullName = getFullName;
+
+    async mounted() {
+        let response = await getAxiosInstance().get(
+            "contact_book/get_all_contacts"
+        );
+        console.log(response);
+        this.contacts = response.data;
+    }
+
+    openNewContactPane() {
+        this.selected = new Contact();
+    }
 }
 </script>
 

@@ -31,34 +31,37 @@
                             @click="$emit('close')"
                         />
                         <h2 class="title p-3">
-                            {{ contact.name }}
+                            <span v-if="fullName">{{ fullName }}</span>
+                            <span v-else>New Contact</span>
                         </h2>
                     </div>
                 </div>
 
                 <div class="box m-3">
                     <o-field grouped>
-                        <o-field label="First Name">
-                            <o-input
-                                name="first_name"
-                                placeholder="First Name"
-                                expanded
-                            />
-                        </o-field>
-                        <o-field label="Middle Name">
-                            <o-input
-                                name="middle_name"
-                                placeholder="Middle Name"
-                                expanded
-                            />
-                        </o-field>
-                        <o-field label="Surname">
-                            <o-input
-                                name="surname"
-                                placeholder="Surname"
-                                expanded
-                            />
-                        </o-field>
+                        <ValidatedField
+                            v-model="model"
+                            label="First Name"
+                            name="first_name"
+                            :server-data="serverData"
+                            expanded
+                        />
+                        <ValidatedField
+                            v-model="model"
+                            label="Middle Name"
+                            name="middle_name"
+                            :server-data="serverData"
+                            expanded
+                        >
+                        </ValidatedField>
+                        <ValidatedField
+                            v-model="model"
+                            label="Surname"
+                            name="surname"
+                            :server-data="serverData"
+                            expanded
+                        >
+                        </ValidatedField>
                     </o-field>
 
                     <o-collapse animation="slide">
@@ -79,18 +82,20 @@
                             </div>
                         </template>
                         <div class="card-content no-padding">
-                            <o-field label="Nickname">
-                                <o-input
-                                    name="nickname"
-                                    placeholder="Enter a nickname"
-                                />
-                            </o-field>
-                            <o-field label="Name Pronunciation">
-                                <o-input
-                                    name="pronunciation"
-                                    placeholder="Name pronunciation"
-                                />
-                            </o-field>
+                            <ValidatedField
+                                v-model="model"
+                                label="Nickname"
+                                name="nickname"
+                                :server-data="serverData"
+                                placeholder="Enter a nickname"
+                            ></ValidatedField>
+                            <ValidatedField
+                                v-model="model"
+                                label="Name Pronunciation"
+                                name="nickname"
+                                :server-data="serverData"
+                                placeholder="Name pronunciation"
+                            ></ValidatedField>
                             <o-field label="Pronouns">
                                 <o-input
                                     name="pronouns"
@@ -136,6 +141,8 @@
                             trap-focus
                         />
                     </o-field>
+
+                    <o-button @click="submit">Save</o-button>
 
                     <hr />
 
@@ -231,39 +238,75 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "ContactsEdit",
+<script lang="ts">
+import { Contact, getFullName } from "@/api/contacts";
+import { Options, Vue } from "vue-class-component";
+import ValidatedField from "@/components/ValidatedField.vue";
+import { getAxiosInstance, ServerData } from "@/api/api";
+
+class Props {
+    contact: Object | null = null;
+    expanded!: boolean;
+}
+
+@Options({
+    components: { ValidatedField },
+    watch: {
+        contact: "setModel",
+    },
     props: {
-        expanded: {
-            type: Boolean,
-            required: true,
-        },
-        contact: {
-            type: Object,
-            default: null,
-        },
+        expanded: { type: Boolean, required: true },
+        contact: { type: Object, default: null },
     },
     emits: ["close"],
-    data() {
-        return {
-            socials: [],
-            emails: [],
-            phones: [],
-        };
-    },
-    methods: {
-        deleteSocial(index) {
-            this.socials.splice(index, 1);
-        },
-        deleteEmail(index) {
-            this.emails.splice(index, 1);
-        },
-        deletePhone(index) {
-            this.phones.splice(index, 1);
-        },
-    },
-};
+})
+export default class ContactsEdit extends Vue.with(Props) {
+    socials = [];
+    emails = [];
+    phones = [];
+
+    model: Contact = new Contact();
+    serverData = new ServerData();
+
+    get fullName() {
+        return getFullName(this.model);
+    }
+
+    setModel() {
+        console.log(this.contact, this.expanded);
+        this.model = JSON.parse(JSON.stringify(this.contact));
+    }
+
+    deleteSocial(index: number) {
+        this.socials.splice(index, 1);
+    }
+    deleteEmail(index: number) {
+        this.emails.splice(index, 1);
+    }
+    deletePhone(index: number) {
+        this.phones.splice(index, 1);
+    }
+
+    async submit() {
+        try {
+            let response;
+            if (this.model.id) {
+                response = await getAxiosInstance().put(
+                    "contact_book/update_contact_by_id/" + this.model.id,
+                    this.model
+                );
+            } else {
+                response = await getAxiosInstance().post(
+                    "contact_book/create_contact",
+                    this.model
+                );
+            }
+            console.log(response);
+        } catch (e) {
+            this.serverData.handleError(e, this.model);
+        }
+    }
+}
 </script>
 
 <style scoped>

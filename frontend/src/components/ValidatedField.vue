@@ -4,11 +4,19 @@
         :variant="hasErrorsForField ? 'danger' : null"
         :message="validationMessage"
     >
-        <slot :value="currentValue" :set-value="updateValue"></slot>
+        <slot :value="currentValue" :set-value="updateValue">
+            <!-- default content is just a basic text field -->
+            <!--                :name="name"-->
+            <o-input
+                :model-value="currentValue"
+                v-bind="$attrs"
+                @update:model-value="updateValue"
+            />
+        </slot>
     </o-field>
 </template>
 
-<script>
+<script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import { ServerData } from "@/api/api";
 

@@ -87,7 +87,6 @@ export default class Login extends Vue {
     async onSubmit() {
         try {
             this.submitting = true;
-            // we want to "deep copy" the object so changing one doesn't change the other.
             let response = await getAxiosInstance().post(
                 "account/login",
                 this.model
