@@ -8,6 +8,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
 
+
+NOT_PERMITTED_RESPONSE = {'has_permissions': False}
+
 # ---------------------------------------- CONTACTS ----------------------------------------
 
 
@@ -35,7 +38,7 @@ def get_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = ContactSerializer(contact)
     return Response(serializer.data)
@@ -63,12 +66,12 @@ def delete_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = contact.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -78,12 +81,12 @@ def update_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = ContactSerializer(contact, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({'response': 'success'})
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -98,7 +101,7 @@ def create_phone_no(request, contact_id):
     # firstly check if the contact exists, and the contact was created by the author
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     # then created the phone number
     phone_no = Number(contact=contact)
@@ -109,7 +112,7 @@ def create_phone_no(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response({'response': 'already_added'}, status=400)
 
     else:
         data = serializer.errors
@@ -123,7 +126,7 @@ def get_phone_nos_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     numbers = get_list_or_404(Number, contact_id=contact)
     serializer = NumberSerializer(numbers, many=True)
@@ -137,12 +140,12 @@ def delete_phone_no_by_pid(request, number_id):
     number = get_object_or_404(Number, id=number_id)
 
     if str(number.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = number.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -152,12 +155,12 @@ def update_phone_no_by_pid(request, number_id):
     number = get_object_or_404(Number, id=number_id)
 
     if str(number.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = NumberSerializer(number, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({'response': 'success'})
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -171,7 +174,7 @@ def create_address(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     address = Address(contact=contact)
     serializer = AddressSerializer(address, data=request.data)
@@ -181,8 +184,7 @@ def create_address(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
-
+            return Response({'response': 'already_added'}, status=400)
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -195,7 +197,7 @@ def get_addresses_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     addresses = get_list_or_404(Address, contact_id=contact)
     serializer = AddressSerializer(addresses, many=True)
@@ -209,12 +211,12 @@ def delete_address_by_aid(request, address_id):
     address = get_object_or_404(Address, id=address_id)
 
     if str(address.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = address.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -224,12 +226,12 @@ def update_address_by_aid(request, address_id):
     address = get_object_or_404(Address, id=address_id)
 
     if str(address.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = AddressSerializer(address, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({'response': 'success'})
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -243,7 +245,7 @@ def create_email(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     email = Email(contact=contact)
     serializer = EmailSerializer(email, data=request.data)
@@ -267,7 +269,7 @@ def get_emails_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     emails = get_list_or_404(Email, contact_id=contact)
     serializer = EmailSerializer(emails, many=True)
@@ -281,12 +283,12 @@ def delete_email_by_eid(request, email_id):
     email = get_object_or_404(Email, id=email_id)
 
     if str(email.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = email.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -296,13 +298,13 @@ def update_email_by_eid(request, email_id):
     email = get_object_or_404(Email, id=email_id)
 
     if str(email.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = EmailSerializer(email, data=request.data)
     if serializer.is_valid():
         try:
             serializer.save()
-            return Response({'update successful'})
+            return Response({'response': 'success'})
         except IntegrityError:
             return Response({'entry already added'})
 
@@ -310,12 +312,12 @@ def update_email_by_eid(request, email_id):
         data = serializer.errors
         return Response({'errors': data}, status=400)
 
+
 # ----------------------------------------- SOCIAL MEDIA SITE -----------------------------------------
 
 
 @api_view(['POST'])
 def create_social_media_site(request):
-
     social_media_site = SocialMediaSite()
     serializer = SocialMediaSiteSerializer(social_media_site, data=request.data)
 
@@ -324,11 +326,12 @@ def create_social_media_site(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response({'entry already added'}, status=400)
 
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
 
 '''
 @api_view(['GET'])
@@ -343,7 +346,6 @@ def get_social_media_site(request, site):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_social_media_sites(request):
-
     social_media_site = get_list_or_404(SocialMediaSite, is_default=True)
     serializer = SocialMediaSiteSerializer(social_media_site, many=True)
     return Response(serializer.data)
@@ -359,7 +361,7 @@ def create_social_media_contact(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     # try to link social media link to relevant site - create new site if not already in db
     try:
@@ -385,7 +387,7 @@ def create_social_media_contact(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response({'entry already added'}, status=400)
 
     else:
         data = serializer.errors
@@ -399,7 +401,7 @@ def get_socials_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     socials = get_list_or_404(SocialMediaContact, contact_id=contact)
     serializer = SocialMediaContactOutSerializer(socials, many=True)
@@ -413,12 +415,12 @@ def delete_social_by_sid(request, social_media_contact_id):
     social_media_contact = get_object_or_404(SocialMediaContact, id=social_media_contact_id)
 
     if str(social_media_contact.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = social_media_contact.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -428,12 +430,12 @@ def update_social_media_contact(request, social_media_contact_id):
     social_media_contact = get_object_or_404(SocialMediaContact, id=social_media_contact_id)
 
     if str(social_media_contact.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = SocialMediaContactSerializer(social_media_contact, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({'response': 'success'})
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -452,7 +454,7 @@ def create_important_date_type(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response({'entry already added'}, status=400)
 
     else:
         data = serializer.errors
@@ -477,7 +479,7 @@ def create_important_date(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     # try to link important date to relevant label - create new label if not already in db
     try:
@@ -503,7 +505,7 @@ def create_important_date(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response({'entry already added'}, status=400)
 
     else:
         data = serializer.errors
@@ -517,7 +519,7 @@ def get_important_dates(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     important_dates = get_list_or_404(ImportantDate, contact_id=contact)
     serializer = ImportantDateOutSerializer(important_dates, many=True)
@@ -532,12 +534,12 @@ def delete_important_date(request, important_date_id):
     print('herhe')
 
     if str(important_date.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     operation = important_date.delete()
     if operation:
-        return Response({'delete successful'})
-    return Response({'delete unsuccessful'})
+        return Response({'response': 'success'})
+    return Response({'response': 'unsuccessful'}, status=400)
 
 
 @api_view(['PUT'])
@@ -547,12 +549,12 @@ def update_important_date(request, important_date_id):
     important_date = get_object_or_404(ImportantDate, id=important_date_id)
 
     if str(important_date.contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE)
 
     serializer = ImportantDateSerializer(important_date, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({'response': 'success'})
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)

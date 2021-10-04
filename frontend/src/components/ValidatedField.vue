@@ -5,10 +5,9 @@
         :message="validationMessage"
     >
         <slot :value="currentValue" :set-value="updateValue">
-            <!-- default content is just a basic text field -->
-            <!--                :name="name"-->
             <o-input
                 :model-value="currentValue"
+                :name="name"
                 v-bind="$attrs"
                 @update:model-value="updateValue"
             />
@@ -17,27 +16,28 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
+import { prop, Vue } from "vue-class-component";
 import { ServerData } from "@/api/api";
+import { PropType } from "vue";
+
+class Props {
+    label!: string;
+    name!: string;
+    serverData = prop({
+        type: Object as PropType<ServerData>,
+        required: true,
+    });
+    modelValue = prop({
+        type: Object as PropType<Record<string, any>>,
+        required: true,
+    });
+}
 
 // This is a wrapper around Oruga's <o-field> component,
 // which automatically displays validation error messages we receive from
 // the server.
 // The hope is that this will make building various forms in the frontend easier.
-@Options({
-    props: {
-        // a label to display next the field
-        label: { type: String, required: true },
-        // the `name` of the field should match the attribute name in the API / in Django code
-        // i.e.: it probably will be in snake_case
-        name: { type: String, required: true },
-        // a composite of the previous data sent the server, plus any validation errors
-        serverData: { type: ServerData, required: true },
-        // the current object containing the form data
-        modelValue: { type: Object, required: true },
-    },
-})
-export default class ValidatedField extends Vue {
+export default class ValidatedField extends Vue.with(Props) {
     get areErrorsStale() {
         return this.serverData.model[this.name] !== this.modelValue[this.name];
     }
@@ -59,7 +59,7 @@ export default class ValidatedField extends Vue {
         return null;
     }
 
-    updateValue(newValue) {
+    updateValue(newValue: any) {
         let newFormValue = {
             ...this.modelValue,
         };

@@ -18,16 +18,12 @@
                     variant="primary"
                     icon-left="plus"
                     @click="openNewContactPane"
+                    :disabled="selectedId == -1"
                     >Add Contact</o-button
                 >
             </div>
 
-            <o-table
-                hoverable
-                focusable
-                :data="contacts"
-                :v-model:selected="selected"
-            >
+            <o-table hoverable focusable :data="contacts">
                 <o-table-column v-slot="props" label="Name">
                     {{ getFullName(props.row) }}
                 </o-table-column>
@@ -47,14 +43,14 @@
                     {{ props.row.address }}
                 </o-table-column>
                 <o-table-column
-                    v-if="selected === null"
+                    v-if="selectedId === null"
                     v-slot="props"
                     label="Last Contacted"
                 >
                     {{ props.row.lastContacted }}
                 </o-table-column>
                 <o-table-column
-                    v-if="selected === null"
+                    v-if="selectedId === null"
                     v-slot="props"
                     label="Social Media"
                 >
@@ -76,21 +72,33 @@
                     >
                 </o-table-column>
                 <o-table-column v-slot="props" label="Actions">
-                    <o-button
-                        icon-left="pencil-alt"
-                        variant="warning"
-                        @click="selected = props.row"
-                    >
-                        Edit
-                    </o-button>
+                    <div class="buttons">
+                        <o-button
+                            icon-left="pencil-alt"
+                            variant="warning"
+                            @click="
+                                $router.push('/app/contacts/' + props.row.id)
+                            "
+                        >
+                            Edit
+                        </o-button>
+
+                        <o-button
+                            icon-left="trash"
+                            variant="light"
+                            @click="deleteContact(props.row.id)"
+                        >
+                            Delete
+                        </o-button>
+                    </div>
                 </o-table-column>
             </o-table>
         </div>
 
         <ContactsEdit
-            :expanded="selected !== null"
-            :contact="selected"
-            @close="selected = null"
+            :expanded="selectedId !== null"
+            :contact="selectedContact"
+            @close="$router.push('/app/contacts')"
         />
     </div>
 </template>
@@ -100,25 +108,76 @@ import ContactsEdit from "../components/ContactsEdit.vue";
 import { Options, Vue } from "vue-class-component";
 import { Contact, getFullName } from "@/api/contacts";
 import { getAxiosInstance } from "@/api/api";
+import { defaultToast } from "@/toasts";
+
+class Props {
+    selectedId: number | null = null;
+}
 
 @Options({
     components: { ContactsEdit },
+    watch: { selectedId: "loadSelectedContact" },
 })
-export default class Contacts extends Vue {
-    contacts = [];
-    selected: Contact | null = null;
+export default class Contacts extends Vue.with(Props) {
+    contacts: Contact[] = [];
     getFullName = getFullName;
+    selectedContact: Contact | null = null;
 
-    async mounted() {
+    static NEW_CONTACT = -1;
+
+    mounted() {
+        return Promise.all([
+            this.loadAllContacts(),
+            this.loadSelectedContact(),
+        ]);
+    }
+
+    async loadAllContacts() {
         let response = await getAxiosInstance().get(
             "contact_book/get_all_contacts"
         );
-        console.log(response);
         this.contacts = response.data;
     }
 
+    async loadSelectedContact() {
+        if (this.selectedId === null) {
+            this.selectedContact = null;
+        } else if (this.selectedId === Contacts.NEW_CONTACT) {
+            this.selectedContact = new Contact();
+        } else {
+            let matchingContacts = this.contacts.filter(
+                (c) => c.id == this.selectedId
+            );
+            if (matchingContacts.length > 0) {
+                this.selectedContact = matchingContacts[0];
+            } else {
+                this.selectedContact = null;
+                let response = await getAxiosInstance().get(
+                    "contact_book/get_contact_by_id/" + this.selectedId
+                );
+                this.selectedContact = response.data;
+            }
+        }
+    }
+
     openNewContactPane() {
-        this.selected = new Contact();
+        this.$router.push("/app/contacts/new");
+    }
+
+    async deleteContact(id: number) {
+        try {
+            await getAxiosInstance().delete(
+                "contact_book/delete_contact_by_id/" + id
+            );
+            this.$oruga.notification.open(
+                defaultToast("info", "Contact deleted")
+            );
+            await this.loadAllContacts();
+        } catch (e) {
+            this.$oruga.notification.open(
+                defaultToast("danger", "Failed to delete contact")
+            );
+        }
     }
 }
 </script>

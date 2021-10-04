@@ -1,6 +1,6 @@
 <template>
     <div :class="'edit-contacts' + (expanded ? ' expanded' : '')">
-        <transition mode="out-in">
+        <transition mode="out-in" name="fade">
             <div v-if="contact === null" class="hero is-fullheight is-relative">
                 <o-button
                     icon-left="times"
@@ -16,8 +16,11 @@
                                 has-text-grey-light has-text-centered
                             "
                         >
-                            Please select a contact to edit.
+                            Loading Contact
                         </p>
+                        <progress class="progress is-small is-info" max="100">
+                            15%
+                        </progress>
                     </div>
                 </div>
             </div>
@@ -32,8 +35,14 @@
                         />
                         <h2 class="title p-3">
                             <span v-if="fullName">{{ fullName }}</span>
-                            <span v-else>New Contact</span>
+                            <span v-else>Add Contact</span>
                         </h2>
+                    </div>
+                    <div class="level-right">
+                        <o-button @click="submit" variant="primary">
+                            <span v-if="contact.id">Save contact</span>
+                            <span v-else>Save new contact</span>
+                        </o-button>
                     </div>
                 </div>
 
@@ -88,23 +97,39 @@
                                 name="nickname"
                                 :server-data="serverData"
                                 placeholder="Enter a nickname"
-                            ></ValidatedField>
+                            />
                             <ValidatedField
                                 v-model="model"
                                 label="Name Pronunciation"
-                                name="nickname"
+                                name="name_pronunciation"
                                 :server-data="serverData"
                                 placeholder="Name pronunciation"
+                            />
+                            <ValidatedField
+                                v-slot="{ value, setValue }"
+                                v-model="model"
+                                label="Pronouns"
+                                name="pronouns"
+                                :server-data="serverData"
+                            >
+                                <o-select
+                                    :model-value="value"
+                                    placeholder="..."
+                                    @update:model-value="setValue"
+                                >
+                                    <option value=""></option>
+                                    <option value="she/her">she/her</option>
+                                    <option value="he/him">he/him</option>
+                                    <option value="they/them">they/them</option>
+                                </o-select>
+                            </ValidatedField>
+                            <ValidatedField
+                                v-model="model"
+                                label="Title"
+                                name="title"
+                                :server-data="serverData"
+                                placeholder="e.g.: Mr, Mrs, Dr"
                             ></ValidatedField>
-                            <o-field label="Pronouns">
-                                <o-input
-                                    name="pronouns"
-                                    placeholder="e.g.: she/her"
-                                />
-                            </o-field>
-                            <o-field label="Title">
-                                <o-input name="title" placeholder="" />
-                            </o-field>
                         </div>
                     </o-collapse>
 
@@ -115,24 +140,36 @@
                     </o-field>
 
                     <o-field grouped>
-                        <o-field label="Department">
-                            <o-input
-                                name="department"
-                                expanded
-                                placeholder=""
-                            />
-                        </o-field>
+                        <ValidatedField
+                            v-model="model"
+                            name="department"
+                            label="Department"
+                            :server-data="serverData"
+                            placeholder="Department"
+                        >
+                        </ValidatedField>
 
-                        <o-field label="Company">
-                            <o-input name="company" expanded placeholder="" />
-                        </o-field>
+                        <ValidatedField
+                            v-model="model"
+                            name="company"
+                            label="Company"
+                            :server-data="serverData"
+                            placeholder="Company"
+                        >
+                        </ValidatedField>
                     </o-field>
 
                     <hr />
 
-                    <o-field label="Side Notes">
-                        <o-input type="textarea" style="height: 5rem" />
-                    </o-field>
+                    <ValidatedField
+                        v-model="model"
+                        name="side_notes"
+                        label="Side Notes"
+                        :server-data="serverData"
+                        type="textarea"
+                        style="height: 5rem"
+                    >
+                    </ValidatedField>
 
                     <o-field label="Last Time Contacted">
                         <o-datepicker
@@ -141,8 +178,6 @@
                             trap-focus
                         />
                     </o-field>
-
-                    <o-button @click="submit">Save</o-button>
 
                     <hr />
 
@@ -240,12 +275,17 @@
 
 <script lang="ts">
 import { Contact, getFullName } from "@/api/contacts";
-import { Options, Vue } from "vue-class-component";
+import { Options, prop, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance, ServerData } from "@/api/api";
+import { PropType } from "vue";
+import { defaultToast } from "@/toasts";
 
 class Props {
-    contact: Object | null = null;
+    contact = prop({
+        type: Object as PropType<Contact>,
+        default: null,
+    });
     expanded!: boolean;
 }
 
@@ -254,10 +294,10 @@ class Props {
     watch: {
         contact: "setModel",
     },
-    props: {
-        expanded: { type: Boolean, required: true },
-        contact: { type: Object, default: null },
-    },
+    // props: {
+    //     expanded: { type: Boolean, required: true },
+    //     contact: { type: Object, default: null },
+    // },
     emits: ["close"],
 })
 export default class ContactsEdit extends Vue.with(Props) {
@@ -273,7 +313,6 @@ export default class ContactsEdit extends Vue.with(Props) {
     }
 
     setModel() {
-        console.log(this.contact, this.expanded);
         this.model = JSON.parse(JSON.stringify(this.contact));
     }
 
@@ -289,19 +328,26 @@ export default class ContactsEdit extends Vue.with(Props) {
 
     async submit() {
         try {
-            let response;
-            if (this.model.id) {
-                response = await getAxiosInstance().put(
-                    "contact_book/update_contact_by_id/" + this.model.id,
-                    this.model
+            let response = await getAxiosInstance().request({
+                url:
+                    "contact_book/" +
+                    (this.model.id
+                        ? "update_contact_by_id/" + this.model.id
+                        : "create_contact"),
+                method: this.model.id ? "PUT" : "POST",
+                data: this.model,
+            });
+
+            if (response.status === 201) {
+                this.$oruga.notification.open(
+                    defaultToast("success", "Contact created")
                 );
+                await this.$router.push("/app/contacts/" + response.data.id);
             } else {
-                response = await getAxiosInstance().post(
-                    "contact_book/create_contact",
-                    this.model
+                this.$oruga.notification.open(
+                    defaultToast("info", "Contact updated")
                 );
             }
-            console.log(response);
         } catch (e) {
             this.serverData.handleError(e, this.model);
         }
