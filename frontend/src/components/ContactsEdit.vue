@@ -397,6 +397,8 @@ export default class ContactsEdit extends Vue.with(Props) {
                 data: this.model,
             });
 
+            this.$emit("refresh-contacts");
+
             if (response.status === 201) {
                 this.$oruga.notification.open(
                     defaultToast("success", "Contact created")

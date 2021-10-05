@@ -17,8 +17,8 @@
                 <o-button
                     variant="warning"
                     icon-left="plus"
-                    @click="openNewContactPane"
                     :disabled="selectedId == -1"
+                    @click="openNewContactPane"
                     >Add Contact</o-button
                 >
             </div>
@@ -96,12 +96,13 @@
         </div>
 
         <ContactsEdit
+            ref="contactsEdit"
             :expanded="selectedId !== null"
             :contact="selectedContact"
             :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
+            @refresh-contacts="loadAllContacts"
             @discard-changes="discardChanges"
             @cancel-discard="isDiscardChangesDialogActive = false"
-            ref="contactsEdit"
         />
     </div>
 </template>
