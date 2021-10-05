@@ -15,7 +15,7 @@
                 <div class="is-flex-grow-1"></div>
 
                 <o-button
-                    variant="primary"
+                    variant="warning"
                     icon-left="plus"
                     @click="openNewContactPane"
                     :disabled="selectedId == -1"
@@ -75,7 +75,7 @@
                     <div class="buttons">
                         <o-button
                             icon-left="pencil-alt"
-                            variant="warning"
+                            variant="light"
                             @click="
                                 $router.push('/app/contacts/' + props.row.id)
                             "
@@ -98,7 +98,10 @@
         <ContactsEdit
             :expanded="selectedId !== null"
             :contact="selectedContact"
-            @close="$router.push('/app/contacts')"
+            :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
+            @discard-changes="discardChanges"
+            @cancel-discard="isDiscardChangesDialogActive = false"
+            ref="contactsEdit"
         />
     </div>
 </template>
@@ -122,6 +125,8 @@ export default class Contacts extends Vue.with(Props) {
     contacts: Contact[] = [];
     getFullName = getFullName;
     selectedContact: Contact | null = null;
+    isDiscardChangesDialogActive = false;
+    nextFn: () => void = () => {};
 
     static NEW_CONTACT = -1;
 
@@ -178,6 +183,32 @@ export default class Contacts extends Vue.with(Props) {
                 defaultToast("danger", "Failed to delete contact")
             );
         }
+    }
+
+    checkForUnsavedChanges(next: () => void) {
+        let unsaved = (
+            this.$refs.contactsEdit as ContactsEdit
+        ).hasUnsavedChanges();
+        console.log("beforeRouteUpdate", unsaved);
+        if (unsaved) {
+            this.isDiscardChangesDialogActive = true;
+            this.nextFn = next;
+        } else {
+            next();
+        }
+    }
+
+    discardChanges() {
+        this.isDiscardChangesDialogActive = false;
+        this.nextFn();
+    }
+
+    beforeRouteUpdate(to: any, from: any, next: () => void) {
+        this.checkForUnsavedChanges(next);
+    }
+
+    beforeRouteLeave(to: any, from: any, next: () => void) {
+        this.checkForUnsavedChanges(next);
     }
 }
 </script>

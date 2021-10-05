@@ -12,10 +12,4 @@ import { Vue } from "vue-class-component";
 export default class App extends Vue {}
 </script>
 
-<style lang="scss">
-html,
-body,
-#app {
-    height: 100%;
-}
-</style>
+<style lang="scss"></style>

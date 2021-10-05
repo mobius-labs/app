@@ -1,5 +1,5 @@
 <template>
-    <div class="app">
+    <div class="app-layout">
         <nav class="menu app-menu">
             <div class="level">
                 <div class="level-left">
@@ -44,13 +44,17 @@
                 </li>
                 <li>
                     <router-link to="/app/contacts">Contacts</router-link>
-                    <ul>
-                        <li><a>Close Friends</a></li>
-                        <li><a>Family</a></li>
-                        <li><a>Networking</a></li>
-                    </ul>
+                    <!--                    <ul>-->
+                    <!--                        <li><a>Close Friends</a></li>-->
+                    <!--                        <li><a>Family</a></li>-->
+                    <!--                        <li><a>Networking</a></li>-->
+                    <!--                    </ul>-->
                 </li>
-                <li>Calendar</li>
+                <li>
+                    <router-link to="/app"
+                        ><s>Calendar</s> (coming soon)</router-link
+                    >
+                </li>
             </ul>
             <!--              <p class="menu-label">-->
             <!--                Administration-->
@@ -96,8 +100,8 @@ export default class AppLayout extends Vue {
 </script>
 
 <style scoped lang="scss">
-.app {
-    height: 100%;
+.app-layout {
+    height: 100vh;
     display: flex;
     align-items: stretch;
 }

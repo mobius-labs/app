@@ -70,16 +70,40 @@ export const getAxiosInstance = () => {
 
 // used for most API requests
 export class ServerData {
-    // form data which was sent to the server
-    model: Record<string, any> = {};
+    // the server's current copy of this model
+    lastSavedModel: Record<string, any> = {};
+
+    // the last version we submitted to the server
+    // (it may have been rejected if it didn't pass validation)
+    lastSubmittedModel: Record<string, any> = {};
 
     // validation errors returned by the API call, grouped by field name
     errors: Record<string, string[]> = {};
 
     nonFieldErrors: string[] = [];
 
-    handleError(e: AxiosError, model: Record<string, any>) {
-        this.model = JSON.parse(JSON.stringify(model));
+    constructor(model?: Record<string, any>) {
+        if (model) {
+            this.lastSavedModel = model;
+            this.lastSubmittedModel = model;
+        }
+    }
+
+    matchesClientModel(model: Record<string, any>) {
+        console.log(JSON.stringify(this.lastSavedModel), JSON.stringify(model));
+        return JSON.stringify(this.lastSavedModel) === JSON.stringify(model);
+    }
+
+    captureServerResponse(model: Record<string, any>, e?: AxiosError) {
+        this.lastSubmittedModel = model;
+
+        this.errors = {};
+        this.nonFieldErrors = [];
+
+        if (!e) {
+            this.lastSavedModel = model;
+            return;
+        }
         let errors = null;
         if (e.response && e.response.data.errors) {
             errors = e.response.data.errors;
@@ -88,12 +112,9 @@ export class ServerData {
             //       so instead we need to look inside the global object
             errors = e.response.data;
         }
-
         if (errors === null) {
             return;
         }
-        this.errors = {};
-        this.nonFieldErrors = [];
         for (const [field, messages] of Object.entries(errors)) {
             if (field !== "non_field_errors") {
                 this.errors[field] = messages as string[];

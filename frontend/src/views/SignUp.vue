@@ -84,6 +84,7 @@
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { getAxiosInstance, ServerData } from "@/api/api";
+import { deepCopy } from "@/api/utils";
 import { Options, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
@@ -116,7 +117,7 @@ export default class SignUp extends Vue {
                 });
             }
         } catch (e) {
-            this.serverData.handleError(e, this.model);
+            this.serverData.captureServerResponse(deepCopy(this.model), e);
         }
 
         this.submitting = false;

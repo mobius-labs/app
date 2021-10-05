@@ -4,8 +4,8 @@
             <h1 class="title">Möbius CRM</h1>
         </div>
     </div>
-    <div class="content box m-4">
-        <p>Dashboard content goes here.</p>
+    <div class="content m-4">
+        <p>Welcome to Möbius! To get started, use the menu on the left.</p>
     </div>
 </template>
 

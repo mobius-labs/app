@@ -39,7 +39,10 @@ class Props {
 // The hope is that this will make building various forms in the frontend easier.
 export default class ValidatedField extends Vue.with(Props) {
     get areErrorsStale() {
-        return this.serverData.model[this.name] !== this.modelValue[this.name];
+        return (
+            this.serverData.lastSubmittedModel[this.name] !==
+            this.modelValue[this.name]
+        );
     }
 
     get currentValue() {

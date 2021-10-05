@@ -72,6 +72,7 @@ import { getAxiosInstance, ServerData } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import { deepCopy } from "@/api/utils";
 
 @Options({
     components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },
@@ -97,7 +98,7 @@ export default class Login extends Vue {
                 oruga: this.$oruga,
             });
         } catch (e) {
-            this.serverData.handleError(e, this.model);
+            this.serverData.captureServerResponse(deepCopy(this.model), e);
         }
         this.submitting = false;
     }
