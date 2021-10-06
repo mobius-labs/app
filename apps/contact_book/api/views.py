@@ -7,6 +7,11 @@ from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
+from rest_framework.authentication import TokenAuthentication
+
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 # ---------------------------------------- CONTACTS ----------------------------------------
 
@@ -556,3 +561,30 @@ def update_important_date(request, important_date_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
+
+# --------------------------------------- PAGINATION --------------------------------------------
+
+
+class ApiContactList(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        return Contact.objects.filter(author=user.email)
+
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('first_name', 'surname', 'nickname')
+
+
+
+
+
+
+
+
+
+
