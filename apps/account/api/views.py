@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from apps.account.api.serializers import RegistrationSerializer
 from rest_framework.authtoken.models import Token
 
+
 @api_view(['POST'])
 @permission_classes([])
 def registration_view(request):

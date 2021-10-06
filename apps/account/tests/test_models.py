@@ -1,11 +1,10 @@
 from django.test import TestCase
-from apps.account.models import AccountManager
 from apps.account.models import User
-
 # Create your tests here.
 
 
 class AccountManagerTests(TestCase):
+
     def test_create_user(self):
         user = User.objects.create_user(email='shiv@gmail.com', password='foo')
         self.assertEqual(user.email, 'shiv@gmail.com')
@@ -28,5 +27,11 @@ class AccountManagerTests(TestCase):
         with self.assertRaises(ValueError):
             User.objects.create_superuser(
                 email='', password='foo')
+
+
+
+
+
+
 
 
