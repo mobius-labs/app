@@ -448,19 +448,19 @@
 
                         <o-switch
                             :model-value="model.model.is_current"
+                            class="mb-4"
                             @update:model-value="
                                 (v) => updateItem({ is_current: v })
                             "
-                            class="mb-4"
                             >Current Address?</o-switch
                         >
 
                         <o-switch
                             :model-value="model.model.is_hometown"
+                            class="mb-4"
                             @update:model-value="
                                 (v) => updateItem({ is_hometown: v })
                             "
-                            class="mb-4"
                             >Is Hometown?</o-switch
                         >
                     </div>

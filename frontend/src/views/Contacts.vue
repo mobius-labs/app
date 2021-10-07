@@ -34,9 +34,9 @@
                 </o-table-column>
                 <o-table-column v-slot="props" label="Contacts">
                     <ContactsOneToManyList
+                        v-slot="{ item }"
                         api-name="email"
                         :contact-id="props.row.id"
-                        v-slot="{ item }"
                     >
                         <span class="tag mr-2"
                             ><o-icon icon="envelope" class="mr-0" /><a
@@ -47,9 +47,9 @@
                     </ContactsOneToManyList>
 
                     <ContactsOneToManyList
+                        v-slot="{ item }"
                         api-name="phone_no"
                         :contact-id="props.row.id"
-                        v-slot="{ item }"
                     >
                         <span class="tag mr-2"
                             ><o-icon icon="phone" class="mr-0" />{{
@@ -60,9 +60,9 @@
                 </o-table-column>
                 <o-table-column v-slot="props" label="Address">
                     <ContactsOneToManyList
+                        v-slot="{ item }"
                         api-name="address"
                         :contact-id="props.row.id"
-                        v-slot="{ item }"
                     >
                         <p class="is-size-7">
                             {{ item.address_line_one }}<br />{{
@@ -273,7 +273,7 @@ export default class Contacts extends Vue.with(Props) {
     flex: 1;
 }
 
-::v-deep .b-table.table-wrapper {
+:deep(.b-table.table-wrapper) {
     height: 300px;
     overflow-y: scroll;
     flex: 1 1 auto;
