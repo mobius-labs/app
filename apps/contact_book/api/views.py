@@ -10,6 +10,7 @@ from apps.contact_book.models import *
 
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
+ALREADY_ADDED_RESPONSE = {'non_field_errors': ['This item already exists']}
 
 # ---------------------------------------- CONTACTS ----------------------------------------
 
@@ -112,7 +113,7 @@ def create_phone_no(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'response': 'already_added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -128,7 +129,7 @@ def get_phone_nos_by_cid(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    numbers = get_list_or_404(Number, contact_id=contact)
+    numbers = list(Number.objects.all().filter(contact_id=contact))
     serializer = NumberSerializer(numbers, many=True)
     return Response(serializer.data)
 
@@ -184,7 +185,7 @@ def create_address(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'response': 'already_added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -199,7 +200,7 @@ def get_addresses_by_cid(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    addresses = get_list_or_404(Address, contact_id=contact)
+    addresses = list(Address.objects.all().filter(contact_id=contact))
     serializer = AddressSerializer(addresses, many=True)
     return Response(serializer.data)
 
@@ -255,7 +256,7 @@ def create_email(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -271,7 +272,7 @@ def get_emails_by_cid(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    emails = get_list_or_404(Email, contact_id=contact)
+    emails = list(Email.objects.all().filter(contact_id=contact))
     serializer = EmailSerializer(emails, many=True)
     return Response(serializer.data)
 
@@ -306,7 +307,7 @@ def update_email_by_eid(request, email_id):
             serializer.save()
             return Response({'response': 'success'})
         except IntegrityError:
-            return Response({'entry already added'})
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -326,7 +327,7 @@ def create_social_media_site(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -387,7 +388,7 @@ def create_social_media_contact(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -454,7 +455,7 @@ def create_important_date_type(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors
@@ -505,7 +506,7 @@ def create_important_date(request, contact_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'entry already added'}, status=400)
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
 
     else:
         data = serializer.errors

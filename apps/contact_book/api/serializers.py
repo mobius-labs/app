@@ -12,20 +12,20 @@ class ContactSerializer(serializers.ModelSerializer):
 class EmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
-        fields = ['email_address', 'label']
+        fields = ['id', 'email_address', 'label']
 
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['state', 'country', 'postcode', 'address_line_one', 'address_line_two', 'suburb', 'city',
+        fields = ['id', 'state', 'country', 'postcode', 'address_line_one', 'address_line_two', 'suburb', 'city',
                   'start_of_habitation', 'end_of_habitation', 'is_current', 'is_hometown']
 
 
 class NumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Number
-        fields = ['number', 'label']
+        fields = ['id', 'number', 'label']
 
 
 class ImportantDateSerializer(serializers.ModelSerializer):
