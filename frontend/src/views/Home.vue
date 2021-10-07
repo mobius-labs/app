@@ -97,7 +97,7 @@
                     <!--                    </router-link>-->
                 </div>
                 <div class="box has-shadow demo">
-                    <video
+                    <!--<video
                         autoplay
                         loop
                         playsinline
@@ -106,10 +106,19 @@
                         width="800"
                     >
                         <source
-                            src="@/assets/demo_mobius.mp4"
+                            src="https://youtu.be/kzUAZqLWxzw"
                             type="video/mp4"
                         />
-                    </video>
+                    </video>-->
+                    <iframe
+                        id="ytplayer"
+                        type="text/html"
+                        width="800"
+                        height="404"
+                        src="https://www.youtube.com/embed/kzUAZqLWxzw?autoplay=1&controls=0&loop=1&mute=1&modestbranding=1"
+                        frameborder="0"
+                    >
+                    </iframe>
                 </div>
             </div>
         </section>

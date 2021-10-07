@@ -236,7 +236,7 @@
 
                     <o-button
                         class="add-email"
-                        variant="success"
+                        variant="warning"
                         @click="emails.push({})"
                         >Add email address</o-button
                     >
@@ -264,7 +264,7 @@
 
                     <o-button
                         class="add-phone"
-                        variant="success"
+                        variant="warning"
                         @click="phones.push({})"
                         >Add phone number</o-button
                     >
@@ -293,7 +293,7 @@
 
                     <o-button
                         class="add-social"
-                        variant="success"
+                        variant="warning"
                         @click="socials.push({})"
                         >Add social media</o-button
                     >
@@ -401,7 +401,7 @@ export default class ContactsEdit extends Vue.with(Props) {
 
             if (response.status === 201) {
                 this.$oruga.notification.open(
-                    defaultToast("success", "Contact created")
+                    defaultToast("info", "Contact created")
                 );
                 this.serverData.captureServerResponse(response.data);
                 this.model = deepCopy(response.data);

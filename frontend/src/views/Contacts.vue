@@ -15,7 +15,7 @@
                 <div class="is-flex-grow-1"></div>
 
                 <o-button
-                    variant="warning"
+                    variant="primary"
                     icon-left="plus"
                     :disabled="selectedId == -1"
                     @click="openNewContactPane"
@@ -75,7 +75,7 @@
                     <div class="buttons">
                         <o-button
                             icon-left="pencil-alt"
-                            variant="light"
+                            variant="warning"
                             @click="
                                 $router.push('/app/contacts/' + props.row.id)
                             "
@@ -85,7 +85,7 @@
 
                         <o-button
                             icon-left="trash"
-                            variant="light"
+                            variant="info"
                             @click="deleteContact(props.row.id)"
                         >
                             Delete

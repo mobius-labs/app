@@ -16,12 +16,12 @@
                 <div class="level-right">
                     <o-dropdown aria-role="list">
                         <template #trigger>
-                            <o-button variant="white">
+                            <o-button variant="info">
                                 <!--                                <div class="user-info">-->
                                 <o-icon
                                     icon="user"
                                     size="medium"
-                                    class="has-text-grey"
+                                    variant="primary"
                                 />
                                 <!--                                </div>-->
                                 <!--                                <o-icon :icon="active ? 'caret-up' : 'caret-down'"></o-icon>-->
@@ -36,26 +36,27 @@
                     </o-dropdown>
                 </div>
             </div>
-
-            <p class="menu-label">General</p>
-            <ul class="menu-list">
-                <li>
-                    <router-link to="/app">Dashboard</router-link>
-                </li>
-                <li>
-                    <router-link to="/app/contacts">Contacts</router-link>
-                    <!--                    <ul>-->
-                    <!--                        <li><a>Close Friends</a></li>-->
-                    <!--                        <li><a>Family</a></li>-->
-                    <!--                        <li><a>Networking</a></li>-->
-                    <!--                    </ul>-->
-                </li>
-                <li>
-                    <router-link to="/app"
-                        ><s>Calendar</s> (coming soon)</router-link
-                    >
-                </li>
-            </ul>
+            <div class="menu-items">
+                <p class="menu-label">General</p>
+                <ul class="menu-list">
+                    <li>
+                        <router-link to="/app"> Dashboard </router-link>
+                    </li>
+                    <li>
+                        <router-link to="/app/contacts">Contacts</router-link>
+                        <!--                    <ul>-->
+                        <!--                        <li><a>Close Friends</a></li>-->
+                        <!--                        <li><a>Family</a></li>-->
+                        <!--                        <li><a>Networking</a></li>-->
+                        <!--                    </ul>-->
+                    </li>
+                    <li>
+                        <router-link to="/app"
+                            ><s>Calendar</s> (coming soon)
+                        </router-link>
+                    </li>
+                </ul>
+            </div>
             <!--              <p class="menu-label">-->
             <!--                Administration-->
             <!--              </p>-->
@@ -86,6 +87,7 @@
 <script>
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
+
 @Options({
     components: { Logo },
 })
@@ -100,6 +102,14 @@ export default class AppLayout extends Vue {
 </script>
 
 <style scoped lang="scss">
+@import "../styles/app.scss";
+
+.menu-items {
+    background-color: $white;
+    padding: 10px 10px;
+    border-radius: 10px;
+}
+
 .app-layout {
     height: 100vh;
     display: flex;
@@ -108,7 +118,7 @@ export default class AppLayout extends Vue {
 
 .app-menu {
     min-width: 20rem;
-    background-color: #eee;
+    background-color: $info;
     padding: 2rem;
 }
 
