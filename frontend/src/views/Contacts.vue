@@ -88,6 +88,7 @@
 
 <script lang="ts">
 import ContactsEdit from "../components/ContactsEdit.vue";
+import { Options, Vue } from "vue-class-component";
 
 // this data doesn't represent what will be returned by the API, instead,
 // it is super simplified just for displaying in this mockup
@@ -110,16 +111,13 @@ const fakeContacts = [
     },
 ];
 
-export default {
-    name: "Contacts",
+@Options({
     components: { ContactsEdit },
-    data() {
-        return {
-            fakeContacts: fakeContacts,
-            selected: null,
-        };
-    },
-};
+})
+export default class Contacts extends Vue {
+    fakeContacts = fakeContacts;
+    selected = null;
+}
 </script>
 
 <style scoped>

@@ -10,15 +10,17 @@
 </template>
 
 <script>
-export default {
-    name: "SpinnerOverlay",
+import { Options, Vue } from "vue-class-component";
+
+@Options({
     props: {
         active: {
             type: Boolean,
             default: true,
         },
     },
-};
+})
+export default class SpinnerOverlay extends Vue {}
 </script>
 
 <style scoped>

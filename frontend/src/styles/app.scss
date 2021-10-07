@@ -8,7 +8,9 @@ $yellow: #ffec8f;
 $primary: #1e90ff;
 $link: $primary-light;
 $info: $clicked;
-$danger: $faded;
+
+// TODO: @l1king, how do we want "error" conditions to stand out?
+// $danger: $faded;
 $warning: $yellow;
 
 //testing title size
@@ -20,3 +22,5 @@ $size-1: 4em;
 // It ties together the bulma CSS framework,
 // and the 'oruga' Vue UI component framework.
 @import "my-vue-app/src/assets/scss/plugin.scss";
+
+@import "oruga-fixes.scss";
