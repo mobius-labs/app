@@ -21,7 +21,7 @@ env = environ.Env(
     DEBUG=(bool, True),
     # default to restricting to .herokuapp.com in production
     ALLOWED_HOSTS=(list, []),
-    DATABASE_URL=(str, "pgsql://lucasking:mobius@localhost/test_db"),
+    DATABASE_URL=(str, "pgsql://postgres:mobius@localhost/test_db"),
     SECRET_KEY=(str, "django-insecure-_ebl0tc6sx*1ltrg-6j8a!ai9i#0z6$h*+o!daj6zkj#to__t^")
 )
 
