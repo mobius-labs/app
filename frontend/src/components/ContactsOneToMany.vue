@@ -34,7 +34,7 @@
 
         <o-button
             class="add-item"
-            variant="success"
+            variant="warning"
             size="small"
             @click="addItem"
             >{{ addButtonText }}</o-button
