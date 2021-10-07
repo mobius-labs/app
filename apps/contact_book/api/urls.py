@@ -28,7 +28,7 @@ urlpatterns = [
 
     # addresses
     path('create_address/<int:contact_id>', create_address, name="create_address"),
-    path('get_addresses_by_cid/<int:contact_id>', get_addresses_by_cid, name="get_addresses_by_cid"),
+    path('get_addresss_by_cid/<int:contact_id>', get_addresses_by_cid, name="get_addresses_by_cid"),
     path('delete_address_by_aid/<int:address_id>', delete_address_by_aid, name="delete_address_by_aid"),
     path('update_address_by_aid/<int:address_id>', update_address_by_aid, name="update_address_by_aid"),
 

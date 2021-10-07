@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosInstance } from "axios";
 import Oruga from "@oruga-ui/oruga-next";
 import { Store } from "vuex";
 import { State } from "@/store";
+import { deepCopy, valuesEqual } from "@/api/utils";
 
 // TODO: figure out a better solution to these global vars
 let instance: AxiosInstance | null = null;
@@ -55,7 +56,7 @@ export const getAxiosInstance = () => {
                         $oruga.notification.open({
                             message: "Network Error: failed to make API call",
                             variant: "danger",
-                            indefinite: true,
+                            duration: 5000,
                             closable: true,
                         });
                     }
@@ -69,39 +70,84 @@ export const getAxiosInstance = () => {
 };
 
 // used for most API requests
-export class ServerData {
+export class Model<T = Record<string, any>> {
+    model: T;
+
     // the server's current copy of this model
-    lastSavedModel: Record<string, any> = {};
+    lastSavedModel: T;
 
     // the last version we submitted to the server
     // (it may have been rejected if it didn't pass validation)
-    lastSubmittedModel: Record<string, any> = {};
+    lastSubmittedModel: T;
 
     // validation errors returned by the API call, grouped by field name
     errors: Record<string, string[]> = {};
 
     nonFieldErrors: string[] = [];
 
-    constructor(model?: Record<string, any>) {
-        if (model) {
-            this.lastSavedModel = model;
-            this.lastSubmittedModel = model;
-        }
-    }
+    isSubmitting: boolean = false;
 
-    matchesClientModel(model: Record<string, any>) {
-        console.log(JSON.stringify(this.lastSavedModel), JSON.stringify(model));
-        return JSON.stringify(this.lastSavedModel) === JSON.stringify(model);
-    }
-
-    captureServerResponse(model: Record<string, any>, e?: AxiosError) {
+    constructor(model: T) {
+        this.model = deepCopy(model);
+        this.lastSavedModel = model;
         this.lastSubmittedModel = model;
+    }
+
+    hasErrors(): boolean {
+        if (this.nonFieldErrors.length > 0) {
+            return true;
+        }
+        for (const [, errors] of Object.entries(this.errors)) {
+            if (errors) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    hasErrorsForField<Key extends keyof T>(fieldName: Key): boolean {
+        if (this.isSubmittedValueStale(fieldName)) {
+            return false;
+        }
+        return !!this.errors[fieldName as string];
+    }
+
+    isSubmittedValueStale<Key extends keyof T>(fieldName: Key) {
+        return this.lastSubmittedModel[fieldName] !== this.model[fieldName];
+    }
+
+    displayFirstError<Key extends keyof T>(fieldName: Key) {
+        if (this.isSubmittedValueStale(fieldName)) {
+            return null;
+        }
+        let errors = this.errors[fieldName as string];
+        if (errors && errors.length > 0) {
+            return errors[0];
+        }
+        return null;
+    }
+
+    matchesServer() {
+        console.log(
+            JSON.stringify(this.lastSavedModel),
+            JSON.stringify(this.model)
+        );
+        return valuesEqual(this.lastSavedModel, this.model);
+    }
+
+    captureServerResponse(model: T | null, e?: AxiosError) {
+        this.lastSubmittedModel = model ?? deepCopy(this.model);
 
         this.errors = {};
         this.nonFieldErrors = [];
 
         if (!e) {
-            this.lastSavedModel = model;
+            this.lastSavedModel = model ?? deepCopy(this.model);
+            if (model !== null) {
+                for (const [key, value] of Object.entries(model)) {
+                    this.model[key as keyof T] = value;
+                }
+            }
             return;
         }
         let errors = null;
@@ -122,5 +168,17 @@ export class ServerData {
                 this.nonFieldErrors = messages as string[];
             }
         }
+    }
+
+    async tryUpdate(request: () => Promise<void>) {
+        this.isSubmitting = true;
+
+        try {
+            await request();
+        } catch (e) {
+            this.captureServerResponse(null, e);
+        }
+
+        this.isSubmitting = false;
     }
 }

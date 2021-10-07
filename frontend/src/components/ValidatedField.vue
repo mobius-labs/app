@@ -1,8 +1,8 @@
 <template>
     <o-field
         :label="label"
-        :variant="hasErrorsForField ? 'danger' : null"
-        :message="validationMessage"
+        :variant="model.hasErrorsForField(name) ? 'danger' : null"
+        :message="model.displayFirstError(name)"
     >
         <slot :value="currentValue" :set-value="updateValue">
             <o-input
@@ -17,18 +17,14 @@
 
 <script lang="ts">
 import { prop, Vue } from "vue-class-component";
-import { ServerData } from "@/api/api";
+import { Model } from "@/api/api";
 import { PropType } from "vue";
 
 class Props {
     label!: string;
     name!: string;
-    serverData = prop({
-        type: Object as PropType<ServerData>,
-        required: true,
-    });
-    modelValue = prop({
-        type: Object as PropType<Record<string, any>>,
+    model = prop({
+        type: Object as PropType<Model>,
         required: true,
     });
 }
@@ -38,36 +34,12 @@ class Props {
 // the server.
 // The hope is that this will make building various forms in the frontend easier.
 export default class ValidatedField extends Vue.with(Props) {
-    get areErrorsStale() {
-        return (
-            this.serverData.lastSubmittedModel[this.name] !==
-            this.modelValue[this.name]
-        );
-    }
-
     get currentValue() {
-        return this.modelValue[this.name];
+        return this.model.model[this.name];
     }
 
-    get hasErrorsForField() {
-        return !this.areErrorsStale && this.serverData.errors[this.name];
-    }
-
-    // if there are errors, show the first one next to the form field.
-    // otherwise `null` => no error message
-    get validationMessage() {
-        if (this.hasErrorsForField) {
-            return this.serverData.errors[this.name][0];
-        }
-        return null;
-    }
-
-    updateValue(newValue: any) {
-        let newFormValue = {
-            ...this.modelValue,
-        };
-        newFormValue[this.name] = newValue;
-        this.$emit("update:modelValue", newFormValue);
+    updateValue(v: any) {
+        this.model.model[this.name] = v;
     }
 }
 </script>
