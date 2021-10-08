@@ -12,6 +12,9 @@
 <script>
 export default {
     name: "AppDashboard",
+    mounted() {
+        this.$router.replace("/app/contacts");
+    },
 };
 </script>
 

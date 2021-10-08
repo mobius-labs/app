@@ -54,13 +54,22 @@
 
                 <div class="navbar-end">
                     <div class="navbar-item">
-                        <div class="buttons">
+                        <div class="buttons" v-if="authenticated === false">
                             <router-link class="button is-primary" to="/signup">
                                 <strong>Sign up</strong>
                             </router-link>
                             <router-link class="button is-warning" to="/login">
                                 <strong>Log in</strong>
                             </router-link>
+                        </div>
+                        <div
+                            v-else-if="authenticated === true"
+                            class="is-flex is-align-items-center"
+                        >
+                            You're already logged in
+                            <router-link to="/app" class="button is-info ml-3"
+                                ><strong>Open möbius</strong></router-link
+                            >
                         </div>
                     </div>
                 </div>
@@ -87,7 +96,17 @@
                     >Get Connected
                     </o-button>-->
                     <!--                    <router-link >-->
+
                     <o-button
+                        v-if="authenticated === true"
+                        tag="router-link"
+                        to="/app"
+                        variant="white is-large"
+                        outlined
+                        >Open möbius
+                    </o-button>
+                    <o-button
+                        v-else
                         tag="router-link"
                         to="/signup"
                         variant="white is-large"
@@ -126,12 +145,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import Logo from "@/components/Logo.vue";
-export default defineComponent({
-    name: "Home",
+import { Options, Vue } from "vue-class-component";
+
+@Options({
     components: { Logo },
-});
+})
+export default class Home extends Vue {
+    authenticated: boolean | null = null;
+
+    async mounted() {
+        this.authenticated = await this.$store.dispatch("determineAuthStatus");
+    }
+}
 </script>
 
 <style scoped>

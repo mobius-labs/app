@@ -32,7 +32,7 @@
                 <o-table-column v-slot="props" label="Name">
                     {{ getFullName(props.row) }}
                 </o-table-column>
-                <o-table-column v-slot="props" label="Contacts">
+                <o-table-column v-slot="props" label="Phone Nos. & Emails">
                     <ContactsOneToManyList
                         v-slot="{ item }"
                         api-name="email"
@@ -41,6 +41,7 @@
                         <span class="tag mr-2"
                             ><o-icon icon="envelope" class="mr-0" /><a
                                 :href="'mailto:' + item.email_address"
+                                class="has-text-grey-darker"
                                 >{{ item.email_address }}</a
                             ></span
                         >
@@ -75,32 +76,32 @@
                 <o-table-column
                     v-if="selectedId === null"
                     v-slot="props"
-                    label="Last Contacted"
+                    label="Regularity of Contact"
                 >
-                    {{ props.row.lastContacted }}
+                    {{ props.row.regularity_of_contact }}
                 </o-table-column>
-                <o-table-column
-                    v-if="selectedId === null"
-                    v-slot="props"
-                    label="Social Media"
-                >
-                    <span v-if="props.row.facebook" class="tag is-link"
-                        ><o-icon
-                            icon="facebook"
-                            pack="fab"
-                            class="mr-0"
-                        ></o-icon
-                        >{{ props.row.facebook }}</span
-                    >
-                    <span v-if="props.row.instagram" class="tag is-link"
-                        ><o-icon
-                            icon="instagram"
-                            pack="fab"
-                            class="mr-0"
-                        ></o-icon
-                        >{{ props.row.instagram }}</span
-                    >
-                </o-table-column>
+                <!--                <o-table-column-->
+                <!--                    v-if="selectedId === null"-->
+                <!--                    v-slot="props"-->
+                <!--                    label="Social Media"-->
+                <!--                >-->
+                <!--                    <span v-if="props.row.facebook" class="tag is-link"-->
+                <!--                        ><o-icon-->
+                <!--                            icon="facebook"-->
+                <!--                            pack="fab"-->
+                <!--                            class="mr-0"-->
+                <!--                        ></o-icon-->
+                <!--                        >{{ props.row.facebook }}</span-->
+                <!--                    >-->
+                <!--                    <span v-if="props.row.instagram" class="tag is-link"-->
+                <!--                        ><o-icon-->
+                <!--                            icon="instagram"-->
+                <!--                            pack="fab"-->
+                <!--                            class="mr-0"-->
+                <!--                        ></o-icon-->
+                <!--                        >{{ props.row.instagram }}</span-->
+                <!--                    >-->
+                <!--                </o-table-column>-->
                 <o-table-column v-slot="props" label="Actions">
                     <div class="buttons">
                         <o-button
@@ -131,7 +132,7 @@
                 ref="contactsEdit"
                 :contact-id="selectedIdNullIfNew"
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
-                @refresh-contacts="loadAllContacts"
+                @contact-updated="onContactUpdated"
                 @discard-changes="discardChanges"
                 @cancel-discard="isDiscardChangesDialogActive = false"
             />
@@ -147,6 +148,7 @@ import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
 import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
+import { deepCopy } from "@/api/utils";
 
 class Props {
     selectedId: number | null = null;
@@ -207,6 +209,21 @@ export default class Contacts extends Vue.with(Props) {
             this.$oruga.notification.open(
                 defaultToast("danger", "Failed to delete contact")
             );
+        }
+    }
+
+    onContactUpdated(contact: Contact) {
+        let found = false;
+        this.contacts = this.contacts.map((c) => {
+            if (c.id === contact.id) {
+                found = true;
+                return deepCopy(contact);
+            } else {
+                return c;
+            }
+        });
+        if (!found) {
+            this.contacts.push(deepCopy(contact));
         }
     }
 

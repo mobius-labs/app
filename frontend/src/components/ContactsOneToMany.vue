@@ -5,7 +5,7 @@
         <div
             v-for="[id, model] of items.entries()"
             :key="JSON.stringify(id)"
-            class="is-flex is-align-items-start"
+            class="is-flex is-align-items-start space-items"
         >
             <slot
                 :model="model"
@@ -13,6 +13,7 @@
                 :debounce-update-item="(v) => debounceUpdateItem(id, v)"
                 :delete-item="() => deleteItem(id)"
             ></slot>
+            <button class="delete mt-3 ml-2" @click="deleteItem(id)"></button>
             <div class="is-size-7 mt-3 ml-3">
                 <progress
                     v-if="statusMessages.get(id).isProgress"
@@ -128,8 +129,8 @@ export default class ContactsOneToMany extends Vue.with(Props) {
     }
 
     async fetchAllItems() {
+        this.items.clear();
         if (!this.contactId) {
-            this.items.clear();
             return;
         }
         console.log("reloading", this.apiName);
@@ -190,6 +191,8 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         if (item) {
             item.isSubmitting = false;
         }
+
+        this.maybeStopSaving();
 
         // if any new requests to update the item came in whilst we were waiting for a server response,
         // then dispatch those now...
@@ -318,4 +321,8 @@ export default class ContactsOneToMany extends Vue.with(Props) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.space-items > *) {
+    margin-right: 0.5rem;
+}
+</style>

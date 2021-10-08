@@ -39,9 +39,9 @@
             <div class="menu-items">
                 <p class="menu-label">General</p>
                 <ul class="menu-list">
-                    <li>
-                        <router-link to="/app"> Dashboard </router-link>
-                    </li>
+                    <!--                    <li>-->
+                    <!--                        <router-link to="/app"> Dashboard </router-link>-->
+                    <!--                    </li>-->
                     <li>
                         <router-link to="/app/contacts">Contacts</router-link>
                         <!--                    <ul>-->
@@ -102,12 +102,12 @@ export default class AppLayout extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../styles/app.scss";
+@import "../styles/variables.scss";
 
 .menu-items {
     background-color: $white;
-    padding: 10px 10px;
-    border-radius: 10px;
+    padding: 16px 16px;
+    border-radius: 4px;
 }
 
 .app-layout {
