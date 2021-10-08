@@ -1,8 +1,8 @@
 export class Contact {
     id: number | null = null;
-    first_name = "";
-    middle_name = "";
-    surname = "";
+    first_name = null;
+    middle_name = null;
+    surname = null;
 }
 
 export function getFullName(contact: Contact) {

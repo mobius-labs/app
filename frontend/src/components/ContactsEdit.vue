@@ -469,19 +469,19 @@ export default class ContactsEdit extends Vue.with(Props) {
                 data: this.model.model,
             });
 
-            this.$emit("contact-updated", this.model.model);
-
             if (response.status === 201) {
                 this.$oruga.notification.open(
                     defaultToast("info", "Contact created")
                 );
                 this.model.captureServerResponse(response.data);
+                this.$emit("contact-updated", this.model.model);
                 // keep around any phones/emails/socials which the user added,
                 // so they get saved
                 this.skipReloadForId = response.data.id;
                 await this.$router.push("/app/contacts/" + response.data.id);
             } else {
                 this.model.captureServerResponse(null);
+                this.$emit("contact-updated", this.model.model);
                 this.$oruga.notification.open(
                     defaultToast("info", "Contact updated")
                 );

@@ -5,10 +5,11 @@
                 <h1 class="title">Contacts</h1>
                 <div class="ml-6 mr-4">
                     <o-input
-                        class=""
+                        :model-value="searchQuery"
                         type="search"
                         icon="search"
                         placeholder="Search for contacts..."
+                        @update:model-value="debounceUpdateSearchQuery"
                     />
                 </div>
 
@@ -28,7 +29,7 @@
             </o-loading>
 
             <!-- TODO: make this header sticky -->
-            <o-table hoverable focusable :data="contacts">
+            <o-table hoverable focusable :data="filteredContacts">
                 <o-table-column v-slot="props" label="Name">
                     {{ getFullName(props.row) }}
                 </o-table-column>
@@ -78,7 +79,7 @@
                     v-slot="props"
                     label="Regularity of Contact"
                 >
-                    {{ props.row.regularity_of_contact }}
+                    {{ displayRegularity(props.row.regularity_of_contact) }}
                 </o-table-column>
                 <!--                <o-table-column-->
                 <!--                    v-if="selectedId === null"-->
@@ -148,7 +149,7 @@ import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
 import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
-import { deepCopy } from "@/api/utils";
+import { debounce, deepCopy } from "@/api/utils";
 
 class Props {
     selectedId: number | null = null;
@@ -158,13 +159,49 @@ class Props {
     components: { ContactsEdit, Spinner, ContactsOneToManyList },
 })
 export default class Contacts extends Vue.with(Props) {
+    searchQuery = "";
     contacts: Contact[] = [];
     getFullName = getFullName;
     isDiscardChangesDialogActive = false;
     loading = false;
     nextFn: () => void = () => {};
 
+    displayRegularity = (r: number) => {
+        if (r === 104) {
+            return "Twice a week";
+        } else if (r === 52) {
+            return "Weekly";
+        } else if (r === 26) {
+            return "Fortnightly";
+        } else if (r === 12) {
+            return "Monthly";
+        } else if (r === 6) {
+            return "Every 2 months";
+        } else if (r === 2) {
+            return "Twice a year";
+        } else if (r === 1) {
+            return "Once a year";
+        } else if (!r) {
+            return null;
+        } else {
+            return "unknown";
+        }
+    };
+
+    debounceUpdateSearchQuery = debounce((v: string) => {
+        this.searchQuery = v;
+    }, 500);
+
     static NEW_CONTACT = -1;
+
+    get filteredContacts() {
+        if (this.searchQuery === "") {
+            return this.contacts;
+        }
+        return this.contacts.filter((c) => {
+            return JSON.stringify(c).indexOf(this.searchQuery) !== -1;
+        });
+    }
 
     mounted() {
         return Promise.all([this.loadAllContacts()]);
