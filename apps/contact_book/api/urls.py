@@ -8,6 +8,7 @@ urlpatterns = [
     # contacts
     path('create_contact', create_contact, name="create_contact"),
     path('list', ApiContactList.as_view(), name='list'),
+    path('overdue_catchup', ApiNotifyOverdueCatchUp.as_view(), name='overdue_catchup'),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),

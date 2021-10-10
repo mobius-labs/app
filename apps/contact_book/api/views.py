@@ -10,6 +10,7 @@ from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.authentication import TokenAuthentication
+from datetime import date
 
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -91,6 +92,28 @@ def update_contact_by_id(request, contact_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
+
+def is_overdue(contact, today):
+    # check to see if contact is overdue to be contacted
+    # (return contact.last_time_contacted + 365/contact.regularity_of_contact < today)
+    return True
+
+
+class ApiNotifyOverdueCatchUp(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        today = date.today()
+        overdue_to_contact = []
+        for contact in Contact.objects:
+            if contact.author == user.email and is_overdue(contact, today):
+                overdue_to_contact.append(contact)
+        return overdue_to_contact
+
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 # ---------------------------------------- PHONE NUMBERS ----------------------------------------
