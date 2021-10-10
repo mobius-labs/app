@@ -7,6 +7,7 @@ app_name = 'contact_book'
 urlpatterns = [
     # contacts
     path('create_contact', create_contact, name="create_contact"),
+    path('list', ApiContactList.as_view(), name='list'),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),
@@ -46,9 +47,6 @@ urlpatterns = [
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
     path('get_important_dates/<int:contact_id>', get_important_dates, name='get_important_dates'),
     path('delete_important_date/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date'),
+    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date')
 
-
-    # pagination
-    path('list', ApiContactList.as_view(), name='list')
 ]
