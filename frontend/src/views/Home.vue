@@ -54,7 +54,7 @@
 
                 <div class="navbar-end">
                     <div class="navbar-item">
-                        <div class="buttons" v-if="authenticated === false">
+                        <div v-if="authenticated === false" class="buttons">
                             <router-link class="button is-primary" to="/signup">
                                 <strong>Sign up</strong>
                             </router-link>

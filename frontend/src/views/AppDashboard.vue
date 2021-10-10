@@ -1,7 +1,7 @@
 <template>
     <div class="hero is-primary is-medium">
         <div class="hero-body">
-            <h1 class="title" v-if="username">Welcome, {{ username }}.</h1>
+            <h1 v-if="username" class="title">Welcome, {{ username }}.</h1>
             <h1 v-else>
                 Welcome
                 <div class="progress"></div>
