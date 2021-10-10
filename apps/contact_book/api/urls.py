@@ -8,7 +8,6 @@ urlpatterns = [
     # contacts
     path('create_contact', create_contact, name="create_contact"),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
-    path('get_all_contacts', get_all_contacts, name="get_all_contacts"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),
 

@@ -46,19 +46,18 @@ def get_contact_by_id(request, contact_id):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_all_contacts(request):
-    user = request.user
-    contacts = Contact.objects.all()
-    accessible_contacts = []
+class ApiContactList(ListAPIView):
 
-    for contact in contacts:
-        if str(contact.author) == str(user.email):
-            accessible_contacts.append(contact)
+    def get_queryset(self):
+        user = self.request.user
+        return Contact.objects.filter(author=user.email)
 
-    serializer = ContactSerializer(accessible_contacts, many=True)
-    return Response(serializer.data)
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('first_name', 'surname', 'nickname')
 
 
 @api_view(['DELETE'])
@@ -335,14 +334,6 @@ def create_social_media_site(request):
         data = serializer.errors
         return Response({'errors': data}, status=400)
 
-'''
-@api_view(['GET'])
-def get_social_media_site(request, site):
-    
-    social_media_site = get_object_or_404(SocialMediaSite, site=site)
-    serializer = SocialMediaSiteSerializer(social_media_site)
-    return Response(serializer.data)
-'''
 
 
 @api_view(['GET'])
@@ -563,21 +554,7 @@ def update_important_date(request, important_date_id):
         return Response({'errors': data}, status=400)
 
 
-# --------------------------------------- PAGINATION --------------------------------------------
 
-
-class ApiContactList(ListAPIView):
-
-    def get_queryset(self):
-        user = self.request.user
-        return Contact.objects.filter(author=user.email)
-
-    queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
-    permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('first_name', 'surname', 'nickname')
 
 
 
