@@ -1,15 +1,19 @@
 <template>
     <o-field
-        :label="label"
-        :variant="model.hasErrorsForField(name) ? 'danger' : null"
+        :label="derivedLabel"
+        :variant="
+            model.hasErrorsForField(name) || model.nonFieldErrors.length > 0
+                ? 'danger'
+                : null
+        "
         :message="model.displayFirstError(name)"
     >
-        <slot :value="currentValue" :set-value="updateValue">
+        <slot :value="currentValue" :set-value="doUpdateValue">
             <o-input
                 :model-value="currentValue"
                 :name="name"
                 v-bind="$attrs"
-                @update:model-value="updateValue"
+                @update:model-value="doUpdateValue"
             />
         </slot>
     </o-field>
@@ -19,13 +23,19 @@
 import { prop, Vue } from "vue-class-component";
 import { Model } from "@/api/api";
 import { PropType } from "vue";
+import { convertToTitleCase } from "@/api/utils";
 
 class Props {
-    label!: string;
+    label?: string | null;
     name!: string;
     model = prop({
         type: Object as PropType<Model>,
         required: true,
+    });
+    updateValue = prop({
+        // eslint-disable-next-line no-unused-vars
+        type: Function as PropType<(x: Record<string, any>) => void | null>,
+        default: null,
     });
 }
 
@@ -38,7 +48,20 @@ export default class ValidatedField extends Vue.with(Props) {
         return this.model.model[this.name];
     }
 
-    updateValue(v: any) {
+    get derivedLabel() {
+        if (typeof this.label === "undefined") {
+            return convertToTitleCase(this.name.replace("_", " "));
+        }
+        return this.label;
+    }
+
+    doUpdateValue(v: any) {
+        if (this.updateValue !== null) {
+            let update: Record<string, any> = {};
+            update[this.name] = v;
+            this.updateValue(update);
+            return;
+        }
         this.model.model[this.name] = v;
     }
 }

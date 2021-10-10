@@ -85,6 +85,7 @@ import { Options, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
+import { defaultToast } from "@/toasts";
 
 @Options({
     components: { ValidatedField, Logo, SpinnerOverlay, NonFieldErrorsList },
@@ -95,6 +96,18 @@ export default class SignUp extends Vue {
         password: "",
         confirm_password: "",
     });
+
+    async created() {
+        if (await this.$store.dispatch("determineAuthStatus")) {
+            this.$oruga.notification.open(
+                defaultToast(
+                    "info",
+                    "Cannot sign up - you're already logged in."
+                )
+            );
+            await this.$router.replace("/app");
+        }
+    }
 
     async onSubmit() {
         await this.model.tryUpdate(async () => {

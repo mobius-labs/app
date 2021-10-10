@@ -64,6 +64,7 @@ import { getAxiosInstance, Model } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import { defaultToast } from "@/toasts";
 
 @Options({
     components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },
@@ -73,6 +74,15 @@ export default class Login extends Vue {
         username: "",
         password: "",
     });
+
+    async created() {
+        if (await this.$store.dispatch("determineAuthStatus")) {
+            this.$oruga.notification.open(
+                defaultToast("info", "You're already logged in.")
+            );
+            await this.$router.replace("/app");
+        }
+    }
 
     async onSubmit() {
         await this.model.tryUpdate(async () => {

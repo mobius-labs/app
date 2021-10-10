@@ -47,7 +47,7 @@
             </div>
 
             <div class="p-4">
-                <o-field grouped>
+                <div class="space-items">
                     <ValidatedField
                         :model="model"
                         label="First Name"
@@ -68,7 +68,7 @@
                         expanded
                     >
                     </ValidatedField>
-                </o-field>
+                </div>
 
                 <o-collapse v-model:open="extraNameOpen" animation="slide">
                     <template #trigger="props">
@@ -100,7 +100,7 @@
                             :model="model"
                             label="Name Pronunciation"
                             name="name_pronunciation"
-                            placeholder="Name pronunciation"
+                            placeholder="Add pronunciation notes here..."
                         />
                         <ValidatedField
                             v-slot="{ value, setValue }"
@@ -197,12 +197,7 @@
                 <hr />
 
                 <ContactsOneToMany
-                    v-slot="{
-                        model,
-                        updateItem,
-                        deleteItem,
-                        debounceUpdateItem,
-                    }"
+                    v-slot="{ model, updateItem, debounceUpdateItem }"
                     ref="emails"
                     add-button-text="Add Email Address"
                     title="Email Addresses"
@@ -212,60 +207,36 @@
                     :skip-reload="skipReload"
                     @update:saving="(v) => (savingEmails = v)"
                 >
-                    <o-field
-                        :variant="
-                            model.hasErrorsForField('label') ||
-                            model.nonFieldErrors.length > 0
-                                ? 'danger'
-                                : null
-                        "
-                        :message="model.displayFirstError('label')"
+                    <ValidatedField
+                        v-slot="{ value, setValue }"
+                        :label="null"
+                        :model="model"
+                        name="label"
+                        :update-value="updateItem"
+                        placeholder="Type"
                     >
                         <o-select
-                            placeholder="Type"
-                            :model-value="model.model.label"
-                            @update:model-value="
-                                (v) => updateItem({ label: v })
-                            "
+                            :model-value="value"
+                            @update:model-value="setValue"
                         >
                             <option value="business">Business</option>
                             <option value="friend">Friend</option>
                             <option value="family">Family</option>
                             <option value="other">Other</option>
                         </o-select>
-                    </o-field>
-                    <o-field
-                        :variant="
-                            model.hasErrorsForField('email_address') ||
-                            model.nonFieldErrors.length > 0
-                                ? 'danger'
-                                : null
-                        "
-                        :message="model.displayFirstError('email_address')"
-                        class="ml-2"
-                    >
-                        <o-input
-                            placeholder="e.g.: johndoe@gmail.com"
-                            required
-                            :model-value="model.model.email_address"
-                            @update:model-value="
-                                (v) => debounceUpdateItem({ email_address: v })
-                            "
-                        ></o-input>
-                    </o-field>
-                    <button
-                        class="delete mt-3 ml-2"
-                        @click="deleteItem"
-                    ></button>
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="email_address"
+                        :label="null"
+                        :update-value="debounceUpdateItem"
+                        placeholder="e.g.: johndoe@gmail.com"
+                        required
+                    ></ValidatedField>
                 </ContactsOneToMany>
 
                 <ContactsOneToMany
-                    v-slot="{
-                        model,
-                        updateItem,
-                        deleteItem,
-                        debounceUpdateItem,
-                    }"
+                    v-slot="{ model, updateItem, debounceUpdateItem }"
                     ref="phoneNumbers"
                     add-button-text="Add Phone Number"
                     title="Phone Numbers"
@@ -275,60 +246,36 @@
                     :skip-reload="skipReload"
                     @update:saving="(v) => (savingPhones = v)"
                 >
-                    <o-field
-                        :variant="
-                            model.hasErrorsForField('label') ||
-                            model.nonFieldErrors.length > 0
-                                ? 'danger'
-                                : null
-                        "
-                        :message="model.displayFirstError('label')"
+                    <ValidatedField
+                        v-slot="{ value, setValue }"
+                        :label="null"
+                        :model="model"
+                        name="label"
+                        :update-value="updateItem"
+                        placeholder="Type"
                     >
                         <o-select
-                            placeholder="Type"
-                            :model-value="model.model.label"
-                            @update:model-value="
-                                (v) => updateItem({ label: v })
-                            "
+                            :model-value="value"
+                            @update:model-value="setValue"
                         >
                             <option value="business">Business</option>
                             <option value="friend">Friend</option>
                             <option value="family">Family</option>
                             <option value="other">Other</option>
                         </o-select>
-                    </o-field>
-                    <o-field
-                        :variant="
-                            model.hasErrorsForField('number') ||
-                            model.nonFieldErrors.length > 0
-                                ? 'danger'
-                                : null
-                        "
-                        :message="model.displayFirstError('number')"
-                        class="ml-2"
-                    >
-                        <o-input
-                            placeholder="enter a phone number"
-                            required
-                            :model-value="model.model.number"
-                            @update:model-value="
-                                (v) => debounceUpdateItem({ number: v })
-                            "
-                        ></o-input>
-                    </o-field>
-                    <button
-                        class="delete mt-3 ml-2"
-                        @click="deleteItem"
-                    ></button>
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="number"
+                        :label="null"
+                        :update-value="debounceUpdateItem"
+                        placeholder="enter a phone number"
+                        required
+                    ></ValidatedField>
                 </ContactsOneToMany>
 
                 <ContactsOneToMany
-                    v-slot="{
-                        model,
-                        updateItem,
-                        deleteItem,
-                        debounceUpdateItem,
-                    }"
+                    v-slot="{ model, updateItem, debounceUpdateItem }"
                     ref="addresses"
                     add-button-text="Add Address"
                     title="Addresses"
@@ -339,112 +286,40 @@
                     @update:saving="(v) => (savingAddresses = v)"
                 >
                     <div>
-                        <o-field
-                            :variant="
-                                model.hasErrorsForField('address_line_one') ||
-                                model.nonFieldErrors.length > 0
-                                    ? 'danger'
-                                    : null
-                            "
-                            :message="
-                                model.displayFirstError('address_line_one')
-                            "
-                        >
-                            <o-input
-                                placeholder="address line one"
-                                required
-                                :model-value="model.model.address_line_one"
-                                @update:model-value="
-                                    (v) =>
-                                        debounceUpdateItem({
-                                            address_line_one: v,
-                                        })
-                                "
-                            ></o-input>
-                        </o-field>
-                        <o-field
-                            :variant="
-                                model.hasErrorsForField('address_line_two') ||
-                                model.nonFieldErrors.length > 0
-                                    ? 'danger'
-                                    : null
-                            "
-                            :message="
-                                model.displayFirstError('address_line_two')
-                            "
-                        >
-                            <o-input
-                                placeholder="address line two"
-                                required
-                                :model-value="model.model.address_line_two"
-                                @update:model-value="
-                                    (v) =>
-                                        debounceUpdateItem({
-                                            address_line_two: v,
-                                        })
-                                "
-                            ></o-input>
-                        </o-field>
-
-                        <o-field>
-                            <o-field
-                                :variant="
-                                    model.hasErrorsForField('suburb') ||
-                                    model.nonFieldErrors.length > 0
-                                        ? 'danger'
-                                        : null
-                                "
-                                :message="model.displayFirstError('suburb')"
-                            >
-                                <o-input
-                                    placeholder="suburb"
-                                    required
-                                    :model-value="model.model.suburb"
-                                    @update:model-value="
-                                        (v) => debounceUpdateItem({ suburb: v })
-                                    "
-                                ></o-input>
-                            </o-field>
-
-                            <o-field
-                                :variant="
-                                    model.hasErrorsForField('postcode') ||
-                                    model.nonFieldErrors.length > 0
-                                        ? 'danger'
-                                        : null
-                                "
-                                :message="model.displayFirstError('postcode')"
-                            >
-                                <o-input
-                                    placeholder="postcode"
-                                    required
-                                    :model-value="model.model.postcode"
-                                    @update:model-value="
-                                        (v) =>
-                                            debounceUpdateItem({ postcode: v })
-                                    "
-                                ></o-input>
-                            </o-field>
-
-                            <o-field
-                                :variant="
-                                    model.hasErrorsForField('state') ||
-                                    model.nonFieldErrors.length > 0
-                                        ? 'danger'
-                                        : null
-                                "
-                                :message="model.displayFirstError('state')"
-                            >
-                                <o-input
-                                    placeholder="state"
-                                    required
-                                    :model-value="model.model.state"
-                                    @update:model-value="
-                                        (v) => debounceUpdateItem({ state: v })
-                                    "
-                                ></o-input>
-                            </o-field>
-                        </o-field>
+                        <ValidatedField
+                            :model="model"
+                            name="address_line_one"
+                            label="Address Line 1"
+                            :update-value="debounceUpdateItem"
+                            placeholder="Address Line 1"
+                        ></ValidatedField>
+                        <ValidatedField
+                            :model="model"
+                            name="address_line_two"
+                            label="Address Line 2"
+                            :update-value="debounceUpdateItem"
+                            placeholder="Address Line 2"
+                        ></ValidatedField>
+                        <div class="space-items">
+                            <ValidatedField
+                                :model="model"
+                                name="suburb"
+                                :update-value="debounceUpdateItem"
+                                placeholder="Suburb"
+                            ></ValidatedField>
+                            <ValidatedField
+                                :model="model"
+                                name="postcode"
+                                :update-value="debounceUpdateItem"
+                                placeholder="Postcode"
+                            ></ValidatedField>
+                            <ValidatedField
+                                :model="model"
+                                name="state"
+                                :update-value="debounceUpdateItem"
+                                placeholder="State"
+                            ></ValidatedField>
+                        </div>
 
                         <o-switch
                             :model-value="model.model.is_current"
@@ -464,10 +339,6 @@
                             >Is Hometown?</o-switch
                         >
                     </div>
-                    <button
-                        class="delete mt-3 ml-2"
-                        @click="deleteItem"
-                    ></button>
                 </ContactsOneToMany>
             </div>
 
@@ -523,7 +394,7 @@ class Props {
         ValidatedField,
     },
     watch: { contactId: "onContactIdUpdated" },
-    emits: ["discard-changes", "cancel-discard", "refresh-contacts"],
+    emits: ["discard-changes", "cancel-discard", "contact-updated"],
 })
 export default class ContactsEdit extends Vue.with(Props) {
     model = new Model(new Contact());
@@ -543,7 +414,10 @@ export default class ContactsEdit extends Vue.with(Props) {
 
     get saving() {
         return (
-            this.model.isSubmitting || this.savingEmails || this.savingPhones
+            this.model.isSubmitting ||
+            this.savingEmails ||
+            this.savingPhones ||
+            this.savingAddresses
         );
     }
 
@@ -595,19 +469,19 @@ export default class ContactsEdit extends Vue.with(Props) {
                 data: this.model.model,
             });
 
-            this.$emit("refresh-contacts");
-
             if (response.status === 201) {
                 this.$oruga.notification.open(
-                    defaultToast("success", "Contact created")
+                    defaultToast("info", "Contact created")
                 );
                 this.model.captureServerResponse(response.data);
+                this.$emit("contact-updated", this.model.model);
                 // keep around any phones/emails/socials which the user added,
                 // so they get saved
                 this.skipReloadForId = response.data.id;
                 await this.$router.push("/app/contacts/" + response.data.id);
             } else {
                 this.model.captureServerResponse(null);
+                this.$emit("contact-updated", this.model.model);
                 this.$oruga.notification.open(
                     defaultToast("info", "Contact updated")
                 );
@@ -621,7 +495,8 @@ export default class ContactsEdit extends Vue.with(Props) {
             (
                 this.$refs.phoneNumbers as ContactsOneToMany
             ).hasUnsavedChanges() ||
-            (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges()
+            (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges() ||
+            (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges()
         );
     }
     freshEmailAddress(): Record<string, any> {
@@ -631,7 +506,7 @@ export default class ContactsEdit extends Vue.with(Props) {
         return { label: "other", number: "" };
     }
     freshAddress(): Record<string, any> {
-        return {};
+        return { is_current: true };
     }
 }
 </script>
@@ -650,5 +525,13 @@ export default class ContactsEdit extends Vue.with(Props) {
     border-radius: 0;
     background-color: #fafafa;
     border-bottom: 1px solid #ccc;
+}
+
+.space-items {
+    display: flex;
+}
+
+:deep(.space-items > *:not(:last-child)) {
+    margin-right: 0.5rem;
 }
 </style>
