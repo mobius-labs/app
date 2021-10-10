@@ -36,3 +36,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             # appears below the confirm_password field in the UI
             raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email']

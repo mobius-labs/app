@@ -1,7 +1,12 @@
 <template>
     <div class="hero is-primary is-medium">
         <div class="hero-body">
-            <h1 class="title">Möbius CRM</h1>
+            <h1 class="title" v-if="username">Welcome, {{ username }}.</h1>
+            <h1 v-else>
+                Welcome
+                <div class="progress"></div>
+            </h1>
+            <h1 class="subtitle">Here's what's coming up:</h1>
         </div>
     </div>
     <div class="content m-4">
@@ -10,9 +15,26 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "vue";
+import { getAxiosInstance } from "@/api/api";
+
+export default defineComponent({
     name: "AppDashboard",
-};
+    data() {
+        return {
+            username: null,
+        };
+    },
+    mounted() {
+        this.fetchUsername();
+    },
+    methods: {
+        async fetchUsername() {
+            let response = await getAxiosInstance().get("account/getinfo");
+            this.username = response.data;
+        },
+    },
+});
 </script>
 
 <style scoped></style>
