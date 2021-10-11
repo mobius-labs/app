@@ -7,6 +7,11 @@ from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
+from rest_framework.authentication import TokenAuthentication
+
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
@@ -45,19 +50,18 @@ def get_contact_by_id(request, contact_id):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_all_contacts(request):
-    user = request.user
-    contacts = Contact.objects.all()
-    accessible_contacts = []
+class ApiContactList(ListAPIView):
 
-    for contact in contacts:
-        if str(contact.author) == str(user.email):
-            accessible_contacts.append(contact)
+    def get_queryset(self):
+        user = self.request.user
+        return Contact.objects.filter(author=user.email)
 
-    serializer = ContactSerializer(accessible_contacts, many=True)
-    return Response(serializer.data)
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('first_name', 'surname', 'nickname')
 
 
 @api_view(['DELETE'])
@@ -335,16 +339,6 @@ def create_social_media_site(request):
         return Response({'errors': data}, status=400)
 
 
-'''
-@api_view(['GET'])
-def get_social_media_site(request, site):
-    
-    social_media_site = get_object_or_404(SocialMediaSite, site=site)
-    serializer = SocialMediaSiteSerializer(social_media_site)
-    return Response(serializer.data)
-'''
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_social_media_sites(request):
@@ -546,3 +540,16 @@ def update_important_date(request, important_date_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
+
+
+
+
+
+
+
+
+
+
+
+

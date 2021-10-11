@@ -1,22 +1,14 @@
 from django.urls import path
 
-from apps.contact_book.api.views import (
-    create_contact, get_contact_by_id, get_all_contacts, delete_contact_by_id, update_contact_by_id,
-    create_phone_no, get_phone_nos_by_cid, delete_phone_no_by_pid, update_phone_no_by_pid,
-    create_address, get_addresses_by_cid, delete_address_by_aid, update_address_by_aid,
-    create_email, get_emails_by_cid, delete_email_by_eid, update_email_by_eid, create_social_media_site,
-    get_social_media_sites, create_social_media_contact, get_socials_by_cid, delete_social_by_sid,
-    update_social_media_contact, get_important_date_types, create_important_date_type, create_important_date,
-    get_important_dates, delete_important_date, update_important_date
-)
+from apps.contact_book.api.views import *
 
 app_name = 'contact_book'
 
 urlpatterns = [
     # contacts
     path('create_contact', create_contact, name="create_contact"),
+    path('list', ApiContactList.as_view(), name='list'),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
-    path('get_all_contacts', get_all_contacts, name="get_all_contacts"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),
 
@@ -55,7 +47,6 @@ urlpatterns = [
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
     path('get_important_dates_by_cid/<int:contact_id>', get_important_dates, name='get_important_dates'),
     path('delete_important_date_by_iid/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date'),
-
+    path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date')
 
 ]
