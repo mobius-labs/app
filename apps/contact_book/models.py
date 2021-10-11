@@ -43,7 +43,7 @@ class Contact(models.Model):
     side_notes = models.TextField(null=True, blank=True)
     department = models.CharField(max_length=45, null=True, blank=True)
     regularity_of_contact = models.IntegerField(choices=RegularityOfContact.choices, null=True, blank=True)
-    last_time_contacted = models.DateTimeField(null=True, blank=True)
+    last_time_contacted = models.DateField(null=True, blank=True)
 
 
 # each contact has any number of addresses

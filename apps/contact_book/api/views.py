@@ -10,7 +10,7 @@ from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.authentication import TokenAuthentication
-from datetime import date
+from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -96,8 +96,11 @@ def update_contact_by_id(request, contact_id):
 
 def is_overdue(contact, today):
     # check to see if contact is overdue to be contacted
-    # (return contact.last_time_contacted + 365/contact.regularity_of_contact < today)
-    return True
+    if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
+        return False
+
+    return contact.last_time_contacted + timedelta(days=365/contact.regularity_of_contact) < today
+
 
 
 class ApiNotifyOverdueCatchUp(ListAPIView):
@@ -106,9 +109,13 @@ class ApiNotifyOverdueCatchUp(ListAPIView):
         user = self.request.user
         today = date.today()
         overdue_to_contact = []
-        for contact in Contact.objects:
-            if contact.author == user.email and is_overdue(contact, today):
+
+        # goes through all contacts and checks if they are overdue
+        for contact in Contact.objects.all():
+            print(1)
+            if str(contact.author) == str(user.email) and is_overdue(contact, today):
                 overdue_to_contact.append(contact)
+                print("yes: ", contact)
         return overdue_to_contact
 
     queryset = Contact.objects.all()
