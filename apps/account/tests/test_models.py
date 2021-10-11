@@ -28,6 +28,21 @@ class AccountManagerTests(TestCase):
             User.objects.create_superuser(
                 email='', password='foo')
 
+    def test_str(self):
+        user = User.objects.create_user(email='shiv@gmail.com', password='foo')
+        string = user.__str__()
+        self.assertEqual(string, user.email)
+
+    def test_has_perm(self):
+        user = User.objects.create_user(email='shiv@gmail.com', password='foo')
+        new_bool = user.has_perm('x')
+        self.assertEqual(new_bool, True)
+
+    def test_has_module_perms(self):
+        user = User.objects.create_user(email='shiv@gmail.com', password='foo')
+        new_bool = user.has_module_perms('x')
+        self.assertEqual(new_bool, True)
+
 
 
 
