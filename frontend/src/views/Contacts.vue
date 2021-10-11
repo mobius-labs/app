@@ -304,7 +304,10 @@ export default class Contacts extends Vue.with(Props) {
 </script>
 
 <style scoped>
-@import "../styles/app-view.css";
+.app-header {
+    padding: 2rem;
+    display: flex;
+}
 
 .contacts-list {
     flex: 1;

@@ -48,25 +48,10 @@
 
             <div class="p-4">
                 <div class="space-items">
-                    <ValidatedField
-                        :model="model"
-                        label="First Name"
-                        name="first_name"
-                        expanded
-                    />
-                    <ValidatedField
-                        :model="model"
-                        label="Middle Name"
-                        name="middle_name"
-                        expanded
-                    >
+                    <ValidatedField :model="model" name="first_name" expanded />
+                    <ValidatedField :model="model" name="middle_name" expanded>
                     </ValidatedField>
-                    <ValidatedField
-                        :model="model"
-                        label="Surname"
-                        name="surname"
-                        expanded
-                    >
+                    <ValidatedField :model="model" name="surname" expanded>
                     </ValidatedField>
                 </div>
 
@@ -92,20 +77,17 @@
                     <div class="expanded-box">
                         <ValidatedField
                             :model="model"
-                            label="Nickname"
                             name="nickname"
                             placeholder="Enter a nickname"
                         />
                         <ValidatedField
                             :model="model"
-                            label="Name Pronunciation"
                             name="name_pronunciation"
                             placeholder="Add pronunciation notes here..."
                         />
                         <ValidatedField
                             v-slot="{ value, setValue }"
                             :model="model"
-                            label="Pronouns"
                             name="pronouns"
                         >
                             <o-select
@@ -121,78 +103,11 @@
                         </ValidatedField>
                         <ValidatedField
                             :model="model"
-                            label="Title"
                             name="title"
                             placeholder="e.g.: Mr, Mrs, Dr"
                         ></ValidatedField>
                     </div>
                 </o-collapse>
-
-                <hr />
-
-                <ValidatedField
-                    :model="model"
-                    name="job_title"
-                    label="Job Title"
-                    placeholder="e.g. Software Developer"
-                />
-
-                <o-field grouped>
-                    <ValidatedField
-                        :model="model"
-                        name="department"
-                        label="Department"
-                        placeholder="e.g.: Middle Office"
-                    >
-                    </ValidatedField>
-
-                    <ValidatedField
-                        :model="model"
-                        name="company"
-                        label="Company"
-                        placeholder="e.g.: Pied Piper"
-                    >
-                    </ValidatedField>
-                </o-field>
-
-                <hr />
-
-                <ValidatedField
-                    :model="model"
-                    name="side_notes"
-                    label="Side Notes"
-                    placeholder="Take notes about this person here to remember for next time."
-                    type="textarea"
-                >
-                </ValidatedField>
-
-                <ValidatedField
-                    v-slot="{ value, setValue }"
-                    :model="model"
-                    name="regularity_of_contact"
-                    label="How often to keep in touch"
-                >
-                    <o-select
-                        :model-value="value"
-                        @update:model-value="setValue"
-                    >
-                        <option value="104">Twice a week</option>
-                        <option value="52">Weekly</option>
-                        <option value="26">Fortnightly</option>
-                        <option value="12">Monthly</option>
-                        <option value="6">Every two months</option>
-                        <option value="2">Twice a year</option>
-                        <option value="1">Once a year</option>
-                    </o-select>
-                </ValidatedField>
-
-                <!--                    <o-field label="Last Time Contacted">-->
-                <!--                        <o-datepicker-->
-                <!--                            placeholder="select last time contacted"-->
-                <!--                            icon="calendar"-->
-                <!--                            trap-focus-->
-                <!--                        />-->
-                <!--                    </o-field>-->
 
                 <hr />
 
@@ -274,6 +189,13 @@
                     ></ValidatedField>
                 </ContactsOneToMany>
 
+                <SocialMediaEdit
+                    ref="socialMedia"
+                    :contact-id="contactId"
+                    :skip-reload="skipReload"
+                    @update:saving="(v) => (savingSocials = v)"
+                ></SocialMediaEdit>
+
                 <ContactsOneToMany
                     v-slot="{ model, updateItem, debounceUpdateItem }"
                     ref="addresses"
@@ -285,7 +207,7 @@
                     :skip-reload="skipReload"
                     @update:saving="(v) => (savingAddresses = v)"
                 >
-                    <div>
+                    <div class="has-background-white-ter p-3 mb-3">
                         <ValidatedField
                             :model="model"
                             name="address_line_one"
@@ -340,6 +262,74 @@
                         >
                     </div>
                 </ContactsOneToMany>
+
+                <ImportantDatesEdit
+                    ref="importantDates"
+                    :contact-id="contactId"
+                    :skip-reload="skipReload"
+                    @update:saving="(v) => (savingImportantDates = v)"
+                ></ImportantDatesEdit>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    name="job_title"
+                    placeholder="e.g. Software Developer"
+                />
+
+                <o-field grouped>
+                    <ValidatedField
+                        :model="model"
+                        name="department"
+                        placeholder="e.g.: Middle Office"
+                    >
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="company"
+                        placeholder="e.g.: Pied Piper"
+                    >
+                    </ValidatedField>
+                </o-field>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    name="side_notes"
+                    placeholder="Take notes about this person here to remember for next time."
+                    type="textarea"
+                >
+                </ValidatedField>
+
+                <ValidatedField
+                    v-slot="{ value, setValue }"
+                    :model="model"
+                    name="regularity_of_contact"
+                    label="How often to keep in touch"
+                >
+                    <o-select
+                        :model-value="value"
+                        @update:model-value="setValue"
+                    >
+                        <option value="104">Twice a week</option>
+                        <option value="52">Weekly</option>
+                        <option value="26">Fortnightly</option>
+                        <option value="12">Monthly</option>
+                        <option value="6">Every two months</option>
+                        <option value="2">Twice a year</option>
+                        <option value="1">Once a year</option>
+                    </o-select>
+                </ValidatedField>
+
+                <!--                    <o-field label="Last Time Contacted">-->
+                <!--                        <o-datepicker-->
+                <!--                            placeholder="select last time contacted"-->
+                <!--                            icon="calendar"-->
+                <!--                            trap-focus-->
+                <!--                        />-->
+                <!--       -->
             </div>
 
             <o-modal :active="isDiscardChangesDialogActive" width="400">
@@ -379,6 +369,8 @@ import { defaultToast } from "@/toasts";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
+import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
 
 class Props {
     contactId!: number | null;
@@ -388,10 +380,12 @@ class Props {
 
 @Options({
     components: {
+        SocialMediaEdit,
         NonFieldErrorsList,
         SpinnerOverlay,
         ContactsOneToMany,
         ValidatedField,
+        ImportantDatesEdit,
     },
     watch: { contactId: "onContactIdUpdated" },
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
@@ -403,6 +397,8 @@ export default class ContactsEdit extends Vue.with(Props) {
     savingEmails = false;
     savingPhones = false;
     savingAddresses = false;
+    savingSocials = false;
+    savingImportantDates = false;
     loading = false;
 
     // There is a tricky edge case, whereby we fill out a valid contact, but
@@ -417,7 +413,9 @@ export default class ContactsEdit extends Vue.with(Props) {
             this.model.isSubmitting ||
             this.savingEmails ||
             this.savingPhones ||
-            this.savingAddresses
+            this.savingAddresses ||
+            this.savingSocials ||
+            this.savingImportantDates
         );
     }
 
@@ -429,7 +427,7 @@ export default class ContactsEdit extends Vue.with(Props) {
     }
 
     skipReload(id: number | null) {
-        return id === this.skipReloadForId;
+        return id !== null && id === this.skipReloadForId;
     }
 
     async onContactIdUpdated(newId: number | null) {
@@ -496,7 +494,9 @@ export default class ContactsEdit extends Vue.with(Props) {
                 this.$refs.phoneNumbers as ContactsOneToMany
             ).hasUnsavedChanges() ||
             (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges() ||
-            (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges()
+            (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges() ||
+            (this.$refs.socialMedia as SocialMediaEdit).hasUnsavedChanges() ||
+            (this.$refs.socialMedia as ImportantDatesEdit).hasUnsavedChanges()
         );
     }
     freshEmailAddress(): Record<string, any> {
@@ -531,6 +531,7 @@ export default class ContactsEdit extends Vue.with(Props) {
     display: flex;
 }
 
+/* TODO: make this code cleaner */
 :deep(.space-items > *:not(:last-child)) {
     margin-right: 0.5rem;
 }

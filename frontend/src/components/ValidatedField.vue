@@ -11,7 +11,6 @@
         <slot :value="currentValue" :set-value="doUpdateValue">
             <o-input
                 :model-value="currentValue"
-                :name="name"
                 v-bind="$attrs"
                 @update:model-value="doUpdateValue"
             />
@@ -33,7 +32,6 @@ class Props {
         required: true,
     });
     updateValue = prop({
-        // eslint-disable-next-line no-unused-vars
         type: Function as PropType<(x: Record<string, any>) => void | null>,
         default: null,
     });
@@ -45,6 +43,7 @@ class Props {
 // The hope is that this will make building various forms in the frontend easier.
 export default class ValidatedField extends Vue.with(Props) {
     get currentValue() {
+        // console.log(this.name, 'changed', this.model.model[this.name]);
         return this.model.model[this.name];
     }
 

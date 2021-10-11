@@ -1,6 +1,15 @@
 <template>
-    <div class="mb-3">
-        <p class="subtitle">{{ title }}</p>
+    <div class="mb-5">
+        <p class="subtitle mb-2">
+            {{ title }}
+            <button
+                class="button is-text is-small ml-3"
+                style="text-decoration: none"
+                @click="addItem"
+            >
+                <o-icon icon="plus"></o-icon><span>{{ addButtonText }}</span>
+            </button>
+        </p>
 
         <div
             v-for="[id, model] of items.entries()"
@@ -14,32 +23,23 @@
                 :delete-item="() => deleteItem(id)"
             ></slot>
             <button class="delete mt-3 ml-2" @click="deleteItem(id)"></button>
-            <div class="is-size-7 mt-3 ml-3">
-                <progress
-                    v-if="statusMessages.get(id).isProgress"
-                    class="progress is-small is-info"
-                    max="100"
-                ></progress>
-                <span
-                    v-else-if="statusMessages.get(id).successMessage"
-                    class="has-text-success"
-                    >{{ statusMessages.get(id).successMessage }}</span
-                >
-                <span
-                    v-else-if="statusMessages.get(id).dangerMessage"
-                    class="has-text-danger"
-                    >{{ statusMessages.get(id).dangerMessage }}</span
-                >
-            </div>
+            <span
+                :class="{
+                    'is-size-7': true,
+                    'mt-3': true,
+                    'ml-3': true,
+                    'has-text-success': statusMessages.get(id).successMessage,
+                    'has-text-danger': statusMessages.get(id).dangerMessage,
+                }"
+                style="width: 4rem"
+            >
+                {{
+                    statusMessages.get(id).successMessage
+                        ? statusMessages.get(id).successMessage
+                        : statusMessages.get(id).dangerMessage
+                }}
+            </span>
         </div>
-
-        <o-button
-            class="add-item"
-            variant="warning"
-            size="small"
-            @click="addItem"
-            >{{ addButtonText }}</o-button
-        >
     </div>
 </template>
 
@@ -57,7 +57,6 @@ class Props {
     apiName!: string;
     // If this flag is true, then emails/phones/socials/address will *not*
     // be refreshed when contactId changes.
-    // eslint-disable-next-line no-unused-vars
     skipReload!: (a: number | null) => boolean;
 }
 
@@ -76,7 +75,6 @@ type ItemId = ClientId | ServerId;
 class Status {
     dangerMessage: string = "";
     successMessage: string = "";
-    isProgress: boolean = false;
 }
 
 // when we first create an item, it gets a client id (local to this editing session)
@@ -288,14 +286,15 @@ export default class ContactsOneToMany extends Vue.with(Props) {
     );
 
     async updateItem(id: ItemId, newValue: Record<string, any>) {
-        console.log("request to update", id.kind + "#" + id.id);
+        console.log("request to update", id.kind + "#" + id.id, newValue);
         let item = this.items.get(id);
         if (!item) {
             return;
         }
-        for (const [key, value] of Object.entries(newValue)) {
-            item.model[key] = value;
-        }
+        item.model = {
+            ...item.model,
+            ...newValue,
+        };
         await this.updateItemOnServer(id);
     }
 

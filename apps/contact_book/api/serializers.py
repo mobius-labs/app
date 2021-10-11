@@ -31,34 +31,22 @@ class NumberSerializer(serializers.ModelSerializer):
 class ImportantDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDate
-        fields = ['date', 'get_alert']
-
-
-class ImportantDateOutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImportantDate
-        fields = ['date', 'get_alert', 'contact', 'important_date_type']
+        fields = ['date', 'get_alert', 'id', 'important_date_type']
 
 
 class ImportantDateTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDateType
-        fields = ['label', 'icon', 'is_default']
+        fields = ['label', 'icon']
 
 
 class SocialMediaContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaContact
-        fields = ['link']
-
-
-class SocialMediaContactOutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SocialMediaContact
-        fields = ['link', 'social_media_site']
+        fields = ['link', 'id', 'social_media_site']
 
 
 class SocialMediaSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaSite
-        fields = ['site', 'icon', 'is_default']
+        fields = ['site', 'url_format', 'icon']

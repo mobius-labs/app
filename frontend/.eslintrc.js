@@ -6,6 +6,10 @@ module.exports = {
         "prettier",
         "prettier/vue",
     ],
+    rules: {
+        // this doesn't work well with Typescript higher-order functions
+        "no-unused-vars": "off",
+    },
     // gets rid of warnings about undefined `module` and `process` globals
     env: {
         browser: true,

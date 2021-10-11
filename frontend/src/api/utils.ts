@@ -54,6 +54,12 @@ export function valuesEqual(a: any, b: any): boolean {
     return false;
 }
 
+// from MDN docs:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+export function escapeRegExp(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
+
 export function convertToTitleCase(str: string) {
     return str.replace(/\w\S*/g, function (txt: string) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();

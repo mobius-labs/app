@@ -320,6 +320,7 @@ def update_email_by_eid(request, email_id):
 @api_view(['POST'])
 def create_social_media_site(request):
     social_media_site = SocialMediaSite()
+    social_media_site.author = request.user
     serializer = SocialMediaSiteSerializer(social_media_site, data=request.data)
 
     if serializer.is_valid():
@@ -347,8 +348,10 @@ def get_social_media_site(request, site):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_social_media_sites(request):
-    social_media_site = get_list_or_404(SocialMediaSite, is_default=True)
-    serializer = SocialMediaSiteSerializer(social_media_site, many=True)
+    sites_user_has_created = SocialMediaSite.objects.all().filter(author=request.user)
+    built_in_sites = SocialMediaSite.objects.all().filter(author__isnull=True)
+    sites = sites_user_has_created.union(built_in_sites)
+    serializer = SocialMediaSiteSerializer(sites, many=True)
     return Response(serializer.data)
 
 
@@ -364,21 +367,10 @@ def create_social_media_contact(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    # try to link social media link to relevant site - create new site if not already in db
-    try:
-        social_media_site = SocialMediaSite.objects.get(site=request.data.__getitem__('site'))
-
-    except SocialMediaSite.DoesNotExist:
-        # could put this into its own function.
-        social_media_site = SocialMediaSite()
-        serializer = SocialMediaSiteSerializer(social_media_site, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            data = serializer.errors
-            return Response({'errors': data}, status=400)
-
-        social_media_site = SocialMediaSite.objects.get(site=request.data.__getitem__('site'))
+    # try to link social media link to relevant site
+    if 'social_media_site' not in request.data:
+        return Response({'errors': {'social_media_site': ['Social media site is required.']}}, status=400)
+    social_media_site = SocialMediaSite.objects.get(site=request.data['social_media_site'])
 
     social_media_contact = SocialMediaContact(contact=contact, social_media_site=social_media_site)
     serializer = SocialMediaContactSerializer(social_media_contact, data=request.data)
@@ -404,8 +396,8 @@ def get_socials_by_cid(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    socials = get_list_or_404(SocialMediaContact, contact_id=contact)
-    serializer = SocialMediaContactOutSerializer(socials, many=True)
+    socials = list(SocialMediaContact.objects.all().filter(contact_id=contact))
+    serializer = SocialMediaContactSerializer(socials, many=True)
     return Response(serializer.data)
 
 
@@ -435,8 +427,11 @@ def update_social_media_contact(request, social_media_contact_id):
 
     serializer = SocialMediaContactSerializer(social_media_contact, data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        return Response({'response': 'success'})
+        try:
+            serializer.save()
+            return Response({'response': 'success'})
+        except IntegrityError:
+            return Response(ALREADY_ADDED_RESPONSE, status=400)
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
@@ -448,6 +443,7 @@ def update_social_media_contact(request, social_media_contact_id):
 @api_view(['POST'])
 def create_important_date_type(request):
     important_date_type = ImportantDateType()
+    important_date_type.author = request.user
     serializer = ImportantDateTypeSerializer(important_date_type, data=request.data)
 
     if serializer.is_valid():
@@ -465,8 +461,10 @@ def create_important_date_type(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_important_date_types(request):
-    important_date_type = get_list_or_404(ImportantDateType, is_default=True)
-    serializer = ImportantDateTypeSerializer(important_date_type, many=True)
+    types_user_has_created = ImportantDateType.objects.all().filter(author=request.user)
+    built_in_types = ImportantDateType.objects.all().filter(author__isnull=True)
+    types = types_user_has_created.union(built_in_types)
+    serializer = ImportantDateTypeSerializer(types, many=True)
     return Response(serializer.data)
 
 
@@ -482,21 +480,10 @@ def create_important_date(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    # try to link important date to relevant label - create new label if not already in db
-    try:
-        important_date_type = ImportantDateType.objects.get(label=request.data.__getitem__('label'))
-
-    except ImportantDateType.DoesNotExist:
-        # could put this into its own function.
-        important_date_type = ImportantDateType()
-        serializer = ImportantDateTypeSerializer(important_date_type, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            data = serializer.errors
-            return Response({'errors': data}, status=400)
-
-        important_date_type = ImportantDateType.objects.get(label=request.data.__getitem__('label'))
+    # try to link important date to relevant label
+    if 'important_date_type' not in request.data:
+        return Response({'errors': {'important_date_type': ['Label is required.']}}, status=400)
+    important_date_type = ImportantDateType.objects.get(label=request.data['important_date_type'])
 
     important_date = ImportantDate(contact=contact, important_date_type=important_date_type)
     serializer = ImportantDateSerializer(important_date, data=request.data)
@@ -522,8 +509,8 @@ def get_important_dates(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE)
 
-    important_dates = get_list_or_404(ImportantDate, contact_id=contact)
-    serializer = ImportantDateOutSerializer(important_dates, many=True)
+    important_dates = list(ImportantDate.objects.all().filter(contact_id=contact))
+    serializer = ImportantDateSerializer(important_dates, many=True)
     return Response(serializer.data)
 
 
