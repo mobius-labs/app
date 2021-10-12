@@ -25,10 +25,13 @@
                         icon-left="times"
                         variant="light"
                         class="m-3"
+                        data-test="close-button"
                         @click="$router.push('/app/contacts')"
                     />
                     <h2 class="title p-3">
-                        <span v-if="fullName">{{ fullName }}</span>
+                        <span v-if="fullName" data-test="contact-name">{{
+                            fullName
+                        }}</span>
                         <span v-else>Add Contact</span>
                     </h2>
                 </div>
@@ -48,10 +51,25 @@
 
             <div class="p-4">
                 <div class="space-items">
-                    <ValidatedField :model="model" name="first_name" expanded />
-                    <ValidatedField :model="model" name="middle_name" expanded>
+                    <ValidatedField
+                        :model="model"
+                        name="first_name"
+                        placeholder="First Name"
+                        expanded
+                    />
+                    <ValidatedField
+                        :model="model"
+                        name="middle_name"
+                        placeholder="Middle Name"
+                        expanded
+                    >
                     </ValidatedField>
-                    <ValidatedField :model="model" name="surname" expanded>
+                    <ValidatedField
+                        :model="model"
+                        name="surname"
+                        placeholder="Surname"
+                        expanded
+                    >
                     </ValidatedField>
                 </div>
 
@@ -92,6 +110,7 @@
                         >
                             <o-select
                                 :model-value="value"
+                                ref="pronouns"
                                 placeholder="..."
                                 @update:model-value="setValue"
                             >
@@ -298,6 +317,7 @@
                 <ValidatedField
                     :model="model"
                     name="side_notes"
+                    data-test="side_notes"
                     placeholder="Take notes about this person here to remember for next time."
                     type="textarea"
                 >
@@ -364,13 +384,14 @@
 import { Contact, getFullName } from "@/api/contacts";
 import { Options, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
-import { getAxiosInstance, Model } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
 import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
+import { Model } from "@/api/model";
 
 class Props {
     contactId!: number | null;

@@ -60,11 +60,12 @@
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
-import { getAxiosInstance, Model } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
 
 @Options({
     components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },

@@ -13,7 +13,7 @@
 <script lang="ts">
 import { prop, Vue } from "vue-class-component";
 import { PropType } from "vue";
-import { Model } from "@/api/api";
+import { Model } from "@/api/model";
 
 class Props {
     model = prop({

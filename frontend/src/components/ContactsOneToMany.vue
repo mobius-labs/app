@@ -1,9 +1,10 @@
 <template>
     <div class="mb-5">
-        <p class="subtitle mb-2">
+        <p class="subtitle mb-2" data-test="title">
             {{ title }}
             <button
                 class="button is-text is-small ml-3"
+                data-test="add-button"
                 style="text-decoration: none"
                 @click="addItem"
             >
@@ -22,7 +23,11 @@
                 :debounce-update-item="(v) => debounceUpdateItem(id, v)"
                 :delete-item="() => deleteItem(id)"
             ></slot>
-            <button class="delete mt-3 ml-2" @click="deleteItem(id)"></button>
+            <button
+                class="delete mt-3 ml-2"
+                data-test="delete-button"
+                @click="deleteItem(id)"
+            ></button>
             <span
                 :class="{
                     'is-size-7': true,
@@ -46,8 +51,9 @@
 <script lang="ts">
 import { debounce, delay } from "@/api/utils";
 import { Options, Vue } from "vue-class-component";
-import { getAxiosInstance, Model } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
 
 class Props {
     title!: string;
@@ -60,17 +66,9 @@ class Props {
     skipReload!: (a: number | null) => boolean;
 }
 
-interface ServerId {
-    kind: "server";
-    id: number;
-}
-
-interface ClientId {
-    kind: "client";
-    id: number;
-}
-
-type ItemId = ClientId | ServerId;
+// negative numbers are "client IDs", specific to this component, positive numbers \
+// are registered with the server.
+type ItemId = number;
 
 class Status {
     dangerMessage: string = "";
@@ -88,7 +86,7 @@ class Status {
 export default class ContactsOneToMany extends Vue.with(Props) {
     items: Map<ItemId, Model> = new Map<ItemId, Model>();
 
-    clientId = 1;
+    clientId = -1;
     recentlyUpdated: Set<ItemId> = new Set<ItemId>();
     queuedUpdates: Set<ItemId> = new Set<ItemId>();
 
@@ -131,13 +129,11 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         if (!this.contactId) {
             return;
         }
-        console.log("reloading", this.apiName);
         let response = await getAxiosInstance().get(
             "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
         );
-        console.log("loaded", this.apiName, "items", response.data);
         for (let item of response.data) {
-            this.items.set({ kind: "server", id: item.id }, new Model(item));
+            this.items.set(item.id, new Model(item));
         }
     }
 
@@ -158,10 +154,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
 
     addItem() {
         let freshItem = this.freshItem();
-        this.items.set(
-            { kind: "client", id: this.clientId++ },
-            new Model(freshItem)
-        );
+        this.items.set(this.clientId--, new Model(freshItem));
     }
 
     markRequestAsInFlight(model: Model) {
@@ -256,6 +249,13 @@ export default class ContactsOneToMany extends Vue.with(Props) {
 
     async deleteItem(id: ItemId) {
         let item = this.items.get(id);
+        if (!item) {
+            console.warn(
+                "Attempting to delete non-existent item ",
+                id,
+                this.items
+            );
+        }
         this.items.delete(id);
         if (this.contactId !== null && item && item.model.id) {
             this.markRequestAsInFlight(item);
@@ -269,6 +269,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
                         item.model.id
                 );
             } catch (e) {
+                console.error(e);
                 this.$oruga.notification.open(
                     defaultToast("danger", "Failed to delete item")
                 );
@@ -286,7 +287,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
     );
 
     async updateItem(id: ItemId, newValue: Record<string, any>) {
-        console.log("request to update", id.kind + "#" + id.id, newValue);
+        console.log("request to update", id, newValue);
         let item = this.items.get(id);
         if (!item) {
             return;

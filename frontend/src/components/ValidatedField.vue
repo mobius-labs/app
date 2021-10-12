@@ -10,6 +10,7 @@
     >
         <slot :value="currentValue" :set-value="doUpdateValue">
             <o-input
+                :name="name"
                 :model-value="currentValue"
                 v-bind="$attrs"
                 @update:model-value="doUpdateValue"
@@ -20,9 +21,9 @@
 
 <script lang="ts">
 import { prop, Vue } from "vue-class-component";
-import { Model } from "@/api/api";
 import { PropType } from "vue";
 import { convertToTitleCase } from "@/api/utils";
+import { Model } from "@/api/model";
 
 class Props {
     label?: string | null;

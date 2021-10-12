@@ -83,7 +83,6 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from "vue-class-component";
-import { Model } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import {
     formatSocialLink,
@@ -92,6 +91,7 @@ import {
     tryRecogniseSocialLink,
 } from "@/api/social";
 import { PropType } from "vue";
+import { Model } from "@/api/model";
 
 class Props {
     model!: Model;
