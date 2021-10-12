@@ -44,7 +44,7 @@ def get_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = ContactSerializer(contact)
     return Response(serializer.data)
@@ -71,7 +71,7 @@ def delete_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = contact.delete()
     if operation:
@@ -86,7 +86,7 @@ def update_contact_by_id(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = ContactSerializer(contact, data=request.data)
     if serializer.is_valid():
@@ -106,7 +106,7 @@ def create_phone_no(request, contact_id):
     # firstly check if the contact exists, and the contact was created by the author
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     # then created the phone number
     phone_no = Number(contact=contact)
@@ -131,7 +131,7 @@ def get_phone_nos_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     numbers = list(Number.objects.all().filter(contact_id=contact))
     serializer = NumberSerializer(numbers, many=True)
@@ -145,7 +145,7 @@ def delete_phone_no_by_pid(request, number_id):
     number = get_object_or_404(Number, id=number_id)
 
     if str(number.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = number.delete()
     if operation:
@@ -160,7 +160,7 @@ def update_phone_no_by_pid(request, number_id):
     number = get_object_or_404(Number, id=number_id)
 
     if str(number.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = NumberSerializer(number, data=request.data)
     if serializer.is_valid():
@@ -179,7 +179,7 @@ def create_address(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     address = Address(contact=contact)
     serializer = AddressSerializer(address, data=request.data)
@@ -202,7 +202,7 @@ def get_addresses_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     addresses = list(Address.objects.all().filter(contact_id=contact))
     serializer = AddressSerializer(addresses, many=True)
@@ -216,7 +216,7 @@ def delete_address_by_aid(request, address_id):
     address = get_object_or_404(Address, id=address_id)
 
     if str(address.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = address.delete()
     if operation:
@@ -231,7 +231,7 @@ def update_address_by_aid(request, address_id):
     address = get_object_or_404(Address, id=address_id)
 
     if str(address.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = AddressSerializer(address, data=request.data)
     if serializer.is_valid():
@@ -250,7 +250,7 @@ def create_email(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     email = Email(contact=contact)
     serializer = EmailSerializer(email, data=request.data)
@@ -274,7 +274,7 @@ def get_emails_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     emails = list(Email.objects.all().filter(contact_id=contact))
     serializer = EmailSerializer(emails, many=True)
@@ -288,7 +288,7 @@ def delete_email_by_eid(request, email_id):
     email = get_object_or_404(Email, id=email_id)
 
     if str(email.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = email.delete()
     if operation:
@@ -303,7 +303,7 @@ def update_email_by_eid(request, email_id):
     email = get_object_or_404(Email, id=email_id)
 
     if str(email.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = EmailSerializer(email, data=request.data)
     if serializer.is_valid():
@@ -359,7 +359,7 @@ def create_social_media_contact(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     # try to link social media link to relevant site
     if 'social_media_site' not in request.data:
@@ -388,7 +388,7 @@ def get_socials_by_cid(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     socials = list(SocialMediaContact.objects.all().filter(contact_id=contact))
     serializer = SocialMediaContactSerializer(socials, many=True)
@@ -402,7 +402,7 @@ def delete_social_by_sid(request, social_media_contact_id):
     social_media_contact = get_object_or_404(SocialMediaContact, id=social_media_contact_id)
 
     if str(social_media_contact.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = social_media_contact.delete()
     if operation:
@@ -417,7 +417,7 @@ def update_social_media_contact(request, social_media_contact_id):
     social_media_contact = get_object_or_404(SocialMediaContact, id=social_media_contact_id)
 
     if str(social_media_contact.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = SocialMediaContactSerializer(social_media_contact, data=request.data)
     if serializer.is_valid():
@@ -472,7 +472,7 @@ def create_important_date(request, contact_id):
 
     contact = get_object_or_404(Contact, id=contact_id)
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     # try to link important date to relevant label
     if 'important_date_type' not in request.data:
@@ -501,7 +501,7 @@ def get_important_dates(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
     if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     important_dates = list(ImportantDate.objects.all().filter(contact_id=contact))
     serializer = ImportantDateSerializer(important_dates, many=True)
@@ -516,7 +516,7 @@ def delete_important_date(request, important_date_id):
     print('herhe')
 
     if str(important_date.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     operation = important_date.delete()
     if operation:
@@ -531,7 +531,7 @@ def update_important_date(request, important_date_id):
     important_date = get_object_or_404(ImportantDate, id=important_date_id)
 
     if str(important_date.contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE)
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = ImportantDateSerializer(important_date, data=request.data)
     if serializer.is_valid():
