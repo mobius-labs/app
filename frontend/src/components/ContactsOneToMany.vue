@@ -3,7 +3,7 @@
         <p class="subtitle mb-2" data-test="title">
             {{ title }}
             <button
-                class="button is-text is-small ml-3"
+                class="button is-warning is-small ml-3"
                 data-test="add-button"
                 style="text-decoration: none"
                 @click="addItem"

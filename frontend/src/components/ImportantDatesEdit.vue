@@ -41,6 +41,9 @@
                 >
                     <o-icon :icon="ty.icon"></o-icon> {{ ty.label }}
                 </o-dropdown-item>
+                <o-dropdown-item v-if="importantDateTypes.size === 0"
+                    >No items</o-dropdown-item
+                >
             </o-dropdown>
         </ValidatedField>
         <ValidatedField

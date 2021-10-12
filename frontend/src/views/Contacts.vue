@@ -1,6 +1,6 @@
 <template>
     <div class="is-flex is-align-items-stretch is-full-height">
-        <div class="contacts-list is-relative is-flex is-flex-direction-column">
+        <div class="is-flex-1 is-relative is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
                 <div class="ml-6 mr-4">
@@ -18,8 +18,8 @@
                 <o-button
                     variant="primary"
                     icon-left="plus"
-                    :disabled="selectedId == -1"
-                    @click="openNewContactPane"
+                    :disabled="selectedId === NEW_CONTACT"
+                    @click="$router.push('/app/contacts/new')"
                     >Add Contact</o-button
                 >
             </div>
@@ -31,13 +31,14 @@
             <!-- TODO: make this header sticky -->
             <o-table hoverable focusable :data="filteredContacts">
                 <o-table-column v-slot="props" label="Name">
-                    {{ getFullName(props.row) }}
+                    {{ getFullName(props.row.contact) }}
                 </o-table-column>
                 <o-table-column v-slot="props" label="Phone Nos. & Emails">
                     <ContactsOneToManyList
                         v-slot="{ item }"
                         api-name="email"
-                        :contact-id="props.row.id"
+                        :contact-id="props.row.contact.id"
+                        :version="props.row.version"
                     >
                         <span class="tag mr-2"
                             ><o-icon icon="envelope" class="mr-0" /><a
@@ -51,7 +52,8 @@
                     <ContactsOneToManyList
                         v-slot="{ item }"
                         api-name="phone_no"
-                        :contact-id="props.row.id"
+                        :contact-id="props.row.contact.id"
+                        :version="props.row.version"
                     >
                         <span class="tag mr-2"
                             ><o-icon icon="phone" class="mr-0" />{{
@@ -64,7 +66,8 @@
                     <ContactsOneToManyList
                         v-slot="{ item }"
                         api-name="address"
-                        :contact-id="props.row.id"
+                        :contact-id="props.row.contact.id"
+                        :version="props.row.version"
                     >
                         <p class="is-size-7">
                             {{ item.address_line_one }}<br />{{
@@ -79,37 +82,21 @@
                     v-slot="props"
                     label="Regularity of Contact"
                 >
-                    {{ displayRegularity(props.row.regularity_of_contact) }}
+                    {{
+                        displayRegularity(
+                            props.row.contact.regularity_of_contact
+                        )
+                    }}
                 </o-table-column>
-                <!--                <o-table-column-->
-                <!--                    v-if="selectedId === null"-->
-                <!--                    v-slot="props"-->
-                <!--                    label="Social Media"-->
-                <!--                >-->
-                <!--                    <span v-if="props.row.facebook" class="tag is-link"-->
-                <!--                        ><o-icon-->
-                <!--                            icon="facebook"-->
-                <!--                            pack="fab"-->
-                <!--                            class="mr-0"-->
-                <!--                        ></o-icon-->
-                <!--                        >{{ props.row.facebook }}</span-->
-                <!--                    >-->
-                <!--                    <span v-if="props.row.instagram" class="tag is-link"-->
-                <!--                        ><o-icon-->
-                <!--                            icon="instagram"-->
-                <!--                            pack="fab"-->
-                <!--                            class="mr-0"-->
-                <!--                        ></o-icon-->
-                <!--                        >{{ props.row.instagram }}</span-->
-                <!--                    >-->
-                <!--                </o-table-column>-->
                 <o-table-column v-slot="props" label="Actions">
                     <div class="buttons">
                         <o-button
                             icon-left="pencil-alt"
                             variant="warning"
                             @click="
-                                $router.push('/app/contacts/' + props.row.id)
+                                $router.push(
+                                    '/app/contacts/' + props.row.contact.id
+                                )
                             "
                         >
                             Edit
@@ -118,7 +105,7 @@
                         <o-button
                             icon-left="trash"
                             variant="info"
-                            @click="deleteContact(props.row.id)"
+                            @click="deleteContact(props.row.contact.id)"
                         >
                             Delete
                         </o-button>
@@ -144,7 +131,7 @@
 <script lang="ts">
 import ContactsEdit from "../components/ContactsEdit.vue";
 import { Options, Vue } from "vue-class-component";
-import { Contact, getFullName } from "@/api/contacts";
+import { Contact, displayRegularity, getFullName } from "@/api/contacts";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
@@ -155,56 +142,37 @@ class Props {
     selectedId: number | null = null;
 }
 
+interface LocalContact {
+    contact: Contact;
+    version: number;
+}
+
 @Options({
     components: { ContactsEdit, Spinner, ContactsOneToManyList },
+    watch: { searchQuery: "loadAllContacts" },
 })
 export default class Contacts extends Vue.with(Props) {
     searchQuery = "";
-    contacts: Contact[] = [];
+    contacts: LocalContact[] = [];
     getFullName = getFullName;
+    displayRegularity = displayRegularity;
     isDiscardChangesDialogActive = false;
     loading = false;
     nextFn: () => void = () => {};
-
-    displayRegularity = (r: number) => {
-        if (r === 104) {
-            return "Twice a week";
-        } else if (r === 52) {
-            return "Weekly";
-        } else if (r === 26) {
-            return "Fortnightly";
-        } else if (r === 12) {
-            return "Monthly";
-        } else if (r === 6) {
-            return "Every 2 months";
-        } else if (r === 2) {
-            return "Twice a year";
-        } else if (r === 1) {
-            return "Once a year";
-        } else if (!r) {
-            return null;
-        } else {
-            return "unknown";
-        }
-    };
 
     debounceUpdateSearchQuery = debounce((v: string) => {
         this.searchQuery = v;
     }, 500);
 
     static NEW_CONTACT = -1;
+    NEW_CONTACT = Contacts.NEW_CONTACT;
 
     get filteredContacts() {
-        if (this.searchQuery === "") {
-            return this.contacts;
-        }
-        return this.contacts.filter((c) => {
-            return JSON.stringify(c).indexOf(this.searchQuery) !== -1;
-        });
+        return this.contacts;
     }
 
-    mounted() {
-        return Promise.all([this.loadAllContacts()]);
+    async mounted() {
+        await this.loadAllContacts();
     }
 
     get selectedIdNullIfNew() {
@@ -222,15 +190,13 @@ export default class Contacts extends Vue.with(Props) {
 
     async loadAllContacts() {
         this.loading = true;
-        let response = await getAxiosInstance().get(
-            "contact_book/get_all_contacts"
-        );
-        this.contacts = response.data;
+        let response = await getAxiosInstance().get("contact_book/list", {
+            params: { search: this.searchQuery },
+        });
+        this.contacts = response.data.results.map((contact: Contact) => {
+            return { contact, version: 1 };
+        });
         this.loading = false;
-    }
-
-    openNewContactPane() {
-        this.$router.push("/app/contacts/new");
     }
 
     async deleteContact(id: number) {
@@ -252,15 +218,15 @@ export default class Contacts extends Vue.with(Props) {
     onContactUpdated(contact: Contact) {
         let found = false;
         this.contacts = this.contacts.map((c) => {
-            if (c.id === contact.id) {
+            if (c.contact.id === contact.id) {
                 found = true;
-                return deepCopy(contact);
+                return { contact: deepCopy(contact), version: c.version + 1 };
             } else {
                 return c;
             }
         });
         if (!found) {
-            this.contacts.push(deepCopy(contact));
+            this.contacts.push({ contact: deepCopy(contact), version: 1 });
         }
     }
 
@@ -309,12 +275,12 @@ export default class Contacts extends Vue.with(Props) {
     display: flex;
 }
 
-.contacts-list {
-    flex: 1;
-}
-
 .is-full-height {
     height: 100%;
+}
+
+.is-flex-1 {
+    flex: 1;
 }
 
 .edit-contacts {

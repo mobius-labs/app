@@ -18,3 +18,25 @@ export function getFullName(contact: Contact) {
     }
     return s;
 }
+
+export function displayRegularity(r: number) {
+    if (r === 104) {
+        return "Twice a week";
+    } else if (r === 52) {
+        return "Weekly";
+    } else if (r === 26) {
+        return "Fortnightly";
+    } else if (r === 12) {
+        return "Monthly";
+    } else if (r === 6) {
+        return "Every 2 months";
+    } else if (r === 2) {
+        return "Twice a year";
+    } else if (r === 1) {
+        return "Once a year";
+    } else if (!r) {
+        return null;
+    } else {
+        return "unknown";
+    }
+}

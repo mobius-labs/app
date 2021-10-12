@@ -13,11 +13,12 @@ import { getAxiosInstance } from "@/api/api";
 
 class Props {
     contactId!: number | null;
+    version!: number;
     apiName!: string;
 }
 
 @Options({
-    watch: { contactId: "fetchAllItems" },
+    watch: { contactId: "fetchAllItems", version: "fetchAllItems" },
 })
 export default class ContactsOneToManyList extends Vue.with(Props) {
     items = [];
@@ -54,6 +55,10 @@ export default class ContactsOneToManyList extends Vue.with(Props) {
     }
 
     async fetchAllItems() {
+        if (!this.contactId) {
+            return;
+        }
+        console.log("fetching", this.contactId);
         let response = await getAxiosInstance().get(
             "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
         );

@@ -408,7 +408,7 @@ class Props {
         ValidatedField,
         ImportantDatesEdit,
     },
-    watch: { contactId: "onContactIdUpdated" },
+    watch: { contactId: "onContactIdUpdated", saving: "onSavingUpdated" },
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
 })
 export default class ContactsEdit extends Vue.with(Props) {
@@ -445,6 +445,13 @@ export default class ContactsEdit extends Vue.with(Props) {
             return null;
         }
         return getFullName(this.model.model as Contact);
+    }
+
+    onSavingUpdated(newVal: boolean, oldVal: boolean) {
+        if (!newVal && oldVal && this.model.model.id) {
+            // if `saving` switched from `true` to `false`, then the contact has just been updated
+            this.$emit("contact-updated", this.model.model);
+        }
     }
 
     skipReload(id: number | null) {
@@ -493,14 +500,12 @@ export default class ContactsEdit extends Vue.with(Props) {
                     defaultToast("info", "Contact created")
                 );
                 this.model.captureServerResponse(response.data);
-                this.$emit("contact-updated", this.model.model);
                 // keep around any phones/emails/socials which the user added,
                 // so they get saved
                 this.skipReloadForId = response.data.id;
                 await this.$router.push("/app/contacts/" + response.data.id);
             } else {
                 this.model.captureServerResponse(null);
-                this.$emit("contact-updated", this.model.model);
                 this.$oruga.notification.open(
                     defaultToast("info", "Contact updated")
                 );
@@ -517,7 +522,9 @@ export default class ContactsEdit extends Vue.with(Props) {
             (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges() ||
             (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges() ||
             (this.$refs.socialMedia as SocialMediaEdit).hasUnsavedChanges() ||
-            (this.$refs.socialMedia as ImportantDatesEdit).hasUnsavedChanges()
+            (
+                this.$refs.importantDates as ImportantDatesEdit
+            ).hasUnsavedChanges()
         );
     }
     freshEmailAddress(): Record<string, any> {

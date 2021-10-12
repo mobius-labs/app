@@ -33,6 +33,9 @@
                     <o-icon :icon="site.icon" pack="fab"></o-icon>
                     {{ site.site }}
                 </o-dropdown-item>
+                <o-dropdown-item v-if="socialMediaSites.size === 0"
+                    >No items</o-dropdown-item
+                >
             </o-dropdown>
         </ValidatedField>
         <ValidatedField
