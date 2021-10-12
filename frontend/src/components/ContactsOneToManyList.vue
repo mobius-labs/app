@@ -17,6 +17,10 @@ class Props {
     apiName!: string;
 }
 
+// ContactsOneToManyList displays a read-only list of items associated with a contact.
+//
+// It is simpler than ContactsOneToMany since it doesn't handle editing
+// However, it has the additional feature of only fetching items when visible.
 @Options({
     watch: { contactId: "fetchAllItems", version: "fetchAllItems" },
 })
@@ -58,7 +62,6 @@ export default class ContactsOneToManyList extends Vue.with(Props) {
         if (!this.contactId) {
             return;
         }
-        console.log("fetching", this.contactId);
         let response = await getAxiosInstance().get(
             "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
         );

@@ -18,7 +18,7 @@
                 <o-button
                     variant="primary"
                     icon-left="plus"
-                    :disabled="selectedId === NEW_CONTACT"
+                    :disabled="isAddContactButtonDisabled"
                     @click="$router.push('/app/contacts/new')"
                     >Add Contact</o-button
                 >
@@ -165,7 +165,6 @@ export default class Contacts extends Vue.with(Props) {
     }, 500);
 
     static NEW_CONTACT = -1;
-    NEW_CONTACT = Contacts.NEW_CONTACT;
 
     get filteredContacts() {
         return this.contacts;
@@ -173,6 +172,10 @@ export default class Contacts extends Vue.with(Props) {
 
     async mounted() {
         await this.loadAllContacts();
+    }
+
+    get isAddContactButtonDisabled() {
+        return this.selectedId === Contacts.NEW_CONTACT;
     }
 
     get selectedIdNullIfNew() {
@@ -215,6 +218,8 @@ export default class Contacts extends Vue.with(Props) {
         }
     }
 
+    // updates the contact info for a particular contact in-place,
+    // without reloading all the contacts from scratch
     onContactUpdated(contact: Contact) {
         let found = false;
         this.contacts = this.contacts.map((c) => {
@@ -260,6 +265,8 @@ export default class Contacts extends Vue.with(Props) {
         window.removeEventListener("beforeunload", this.beforeWindowUnload);
     }
 
+    // if the user tries to close the tab / force refresh the page,
+    // check for unsaved changes
     beforeWindowUnload(e: BeforeUnloadEvent) {
         if (this.hasUnsavedChanges()) {
             e.preventDefault();

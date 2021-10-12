@@ -34,6 +34,7 @@ class Props {
     skipReload!: (a: number | null) => boolean;
 }
 
+// A specialized version of ContactsOneToMany, for editing SocialMediaContacts
 @Options({
     components: { SocialMediaEditItem, ContactsOneToMany, ValidatedField },
 })

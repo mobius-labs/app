@@ -5,19 +5,20 @@ import { State } from "@/store";
 
 // TODO: figure out a better solution to these global vars
 let instance: AxiosInstance | null = null;
-let $oruga: typeof Oruga | null = null;
+let orugaInstance: typeof Oruga | null = null;
 let vuexStore: Store<State> | null = null;
 
 const BASE_URL = "/api";
 
 export const setOrugaInstance = (oruga: typeof Oruga) => {
-    $oruga = oruga;
+    orugaInstance = oruga;
 };
 
 export const setStore = (store: Store<State>) => {
     vuexStore = store;
 };
 
+// returns the base URL which should be used for all API calls
 export function getBaseURL() {
     // we default to the base API URL being the same host
     // as the frontend is running on
@@ -58,8 +59,8 @@ export const getAxiosInstance = () => {
                     console.warn(
                         "No response from API, potential network error"
                     );
-                    if ($oruga !== null) {
-                        $oruga.notification.open({
+                    if (orugaInstance !== null) {
+                        orugaInstance.notification.open({
                             message: "Network Error: failed to make API call",
                             variant: "danger",
                             duration: 5000,

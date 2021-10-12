@@ -1,7 +1,9 @@
+// sometimes due to Vue's reactivity rules, we need a completely fresh copy of an object.
 export function deepCopy<T>(x: T): T {
     return JSON.parse(JSON.stringify(x));
 }
 
+// ensures `func` is only called max once every `timeout` milliseconds
 export function debounce(this: any, func: any, timeout = 200) {
     let timer: number;
     return (...args: any[]) => {
@@ -12,6 +14,7 @@ export function debounce(this: any, func: any, timeout = 200) {
     };
 }
 
+// `setTimeout`, except as a promise
 export async function delay(ms: number) {
     return new Promise((resolve) => {
         setTimeout(() => {

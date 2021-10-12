@@ -1,8 +1,9 @@
 import { AxiosError } from "axios";
 import { deepCopy, valuesEqual } from "@/api/utils";
 
-// here we have extracted out common functionality used for most API requests
+// common functionality used for CRUD operations on a single struct of data (of type T)
 export class Model<T = Record<string, any>> {
+    // the state of the model the user is currently editing
     model: T;
 
     // the server's current copy of this model
@@ -12,11 +13,13 @@ export class Model<T = Record<string, any>> {
     // (it may have been rejected if it didn't pass validation)
     lastSubmittedModel: T;
 
-    // validation errors returned by the API call, grouped by field name
+    // validation errors returned by API calls, grouped by field name
     errors: Record<string, string[]> = {};
 
+    // validation errors returned by API calls, which don't pertain to any specific field
     nonFieldErrors: string[] = [];
 
+    // true if a request is currently in-flight
     isSubmitting: boolean = false;
 
     constructor(model: T) {
@@ -25,6 +28,7 @@ export class Model<T = Record<string, any>> {
         this.lastSubmittedModel = model;
     }
 
+    // true if there are validation errors
     hasErrors(): boolean {
         if (this.nonFieldErrors.length > 0) {
             return true;
@@ -37,6 +41,7 @@ export class Model<T = Record<string, any>> {
         return false;
     }
 
+    // true if there are validation errors for a particular field
     hasErrorsForField<Key extends keyof T>(fieldName: Key): boolean {
         if (this.isSubmittedValueStale(fieldName)) {
             return false;
@@ -44,10 +49,12 @@ export class Model<T = Record<string, any>> {
         return !!this.errors[fieldName as string];
     }
 
+    // true if the user has changed this field since last submitting
     isSubmittedValueStale<Key extends keyof T>(fieldName: Key) {
         return this.lastSubmittedModel[fieldName] !== this.model[fieldName];
     }
 
+    // returns the first validation message for a particular field
     displayFirstError<Key extends keyof T>(fieldName: Key) {
         if (this.isSubmittedValueStale(fieldName)) {
             return null;
@@ -59,7 +66,8 @@ export class Model<T = Record<string, any>> {
         return null;
     }
 
-    matchesServer() {
+    // true if there are no unsaved changes
+    matchesServer(): boolean {
         console.log(
             JSON.stringify(this.lastSavedModel),
             JSON.stringify(this.model)
@@ -67,6 +75,7 @@ export class Model<T = Record<string, any>> {
         return valuesEqual(this.lastSavedModel, this.model);
     }
 
+    // marks that `model` was submitted to the server, and optionally an error `e` was thrown
     captureServerResponse(model: T | null, e?: AxiosError) {
         this.lastSubmittedModel = model ?? deepCopy(this.model);
 
@@ -102,6 +111,7 @@ export class Model<T = Record<string, any>> {
         }
     }
 
+    // a convenience function to try and make an API call, handling errors appropriately.
     async tryUpdate(request: () => Promise<void>) {
         this.isSubmitting = true;
 

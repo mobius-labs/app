@@ -66,8 +66,8 @@ class Props {
     skipReload!: (a: number | null) => boolean;
 }
 
-// negative numbers are "client IDs", specific to this component, positive numbers \
-// are registered with the server.
+// negative numbers are "client IDs", specific to this component,
+// positive numbers are actual IDs registered with the server.
 type ItemId = number;
 
 class Status {
@@ -75,10 +75,13 @@ class Status {
     successMessage: string = "";
 }
 
-// when we first create an item, it gets a client id (local to this editing session)
+// ContactsOneToMany abstracts over all of the one-to-many relationships which a contact has.
+// It allows for CRUD operations on those nested models (e.g.: addresses, phone numbers)
+//
+// When we first create an item, it gets a client id (local to this editing session)
 // we can use it to identify items in the list
 // as soon as the user types something, we try to POST the object to the server, and receive a
-// server ID, which we then continue to use.
+// server ID, which we then continue to use for future PUT updates
 @Options({
     emits: ["update:saving"],
     watch: { contactId: "onContactIdUpdated" },
@@ -86,13 +89,9 @@ class Status {
 export default class ContactsOneToMany extends Vue.with(Props) {
     items: Map<ItemId, Model> = new Map<ItemId, Model>();
 
-    clientId = -1;
+    nextClientId = -1;
     recentlyUpdated: Set<ItemId> = new Set<ItemId>();
     queuedUpdates: Set<ItemId> = new Set<ItemId>();
-
-    get firstLetterOfApiName() {
-        return this.apiName[0];
-    }
 
     get statusMessages() {
         let entries: [ItemId, Status][] = Array.from(this.items).map(
@@ -109,12 +108,16 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         return new Map<ItemId, Status>(entries);
     }
 
+    get firstLetterOfApiName() {
+        return this.apiName[0];
+    }
+
     async onContactIdUpdated(newId: number | null, oldId: number | null) {
         if (this.skipReload(newId)) {
             // instead of reloading items FROM the server,
             // we try and POST all items TO the server.
             console.warn("skipping list reload since skip-reload=true");
-            await this.postAll();
+            await this.forceUpdateAll();
             return;
         }
         console.log(newId, oldId);
@@ -154,7 +157,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
 
     addItem() {
         let freshItem = this.freshItem();
-        this.items.set(this.clientId--, new Model(freshItem));
+        this.items.set(this.nextClientId--, new Model(freshItem));
     }
 
     markRequestAsInFlight(model: Model) {
@@ -209,7 +212,6 @@ export default class ContactsOneToMany extends Vue.with(Props) {
             return;
         }
 
-        // let model = this.items.get()
         if (model.isSubmitting) {
             console.log("queuing update request...");
             this.queuedUpdates.add(itemId);
@@ -279,12 +281,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         }
     }
 
-    debounceUpdateItem = debounce(
-        (id: ItemId, newValue: Record<string, any>) => {
-            this.updateItem(id, newValue);
-        },
-        700
-    );
+    debounceUpdateItem = debounce(this.updateItem.bind(this), 700);
 
     async updateItem(id: ItemId, newValue: Record<string, any>) {
         console.log("request to update", id, newValue);
@@ -299,7 +296,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         await this.updateItemOnServer(id);
     }
 
-    async postAll() {
+    async forceUpdateAll() {
         let promises = [];
         for (let id of this.items.keys()) {
             promises.push(this.updateItemOnServer(id));

@@ -412,7 +412,7 @@ class Props {
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
 })
 export default class ContactsEdit extends Vue.with(Props) {
-    model = new Model(new Contact());
+    model = new Model<Contact>(new Contact());
 
     extraNameOpen = false;
     savingEmails = false;
@@ -501,7 +501,7 @@ export default class ContactsEdit extends Vue.with(Props) {
                 );
                 this.model.captureServerResponse(response.data);
                 // keep around any phones/emails/socials which the user added,
-                // so they get saved
+                // rather than reloading them from scratch
                 this.skipReloadForId = response.data.id;
                 await this.$router.push("/app/contacts/" + response.data.id);
             } else {

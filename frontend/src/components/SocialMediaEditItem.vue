@@ -76,8 +76,8 @@
                 <o-icon
                     size="small"
                     icon="pencil-alt"
-                    @click="editLink"
                     class="has-text-grey"
+                    @click="editLink"
                 ></o-icon>
             </button>
         </ValidatedField>
@@ -136,6 +136,8 @@ export default class SocialMediaEditItem extends Vue.with(Props) {
         this.shouldEditLink = true;
     }
 
+    // When submitting a link/username, we try to autodetect which social media site it is for,
+    // and set the info accordingly.
     submit() {
         let recognition: Recognition | null = tryRecogniseSocialLink(
             this.socialMediaSites,

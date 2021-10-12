@@ -8,6 +8,7 @@ import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
 describe("ContactsEdit component unit tests", () => {
     let mockAxios;
 
+    // an example mock contact object to use
     const MOCK_CONTACT = {
         id: 33,
         first_name: "Shivanah",
@@ -22,16 +23,21 @@ describe("ContactsEdit component unit tests", () => {
     ];
 
     beforeAll(() => {
+        // all calls to our `axios` instance should be mocked, since we are testing
+        // without a functioning backend server
+        // see https://next.vue-test-utils.vuejs.org/guide/advanced/http-requests.html
         mockAxios = new MockAdapter(getAxiosInstance(), {
             onNoMatch: "throwException",
         });
     });
 
     beforeEach(() => {
+        // mocks general info required by this component
         mockAxios.onGet("/contact_book/get_social_media_sites/").reply(200, {});
         mockAxios
             .onGet("/contact_book/get_important_date_types/")
             .reply(200, {});
+        // mocks requests for contact #33 (referred to in subsequent tests)
         mockAxios
             .onGet(`/contact_book/get_contact_by_id/33`)
             .reply(200, MOCK_CONTACT);
@@ -49,6 +55,7 @@ describe("ContactsEdit component unit tests", () => {
     });
 
     afterEach(() => {
+        // resets the requests we handle
         mockAxios.reset();
     });
 
@@ -77,6 +84,7 @@ describe("ContactsEdit component unit tests", () => {
         });
         wrapper.get("[data-test='close-button']").trigger("click");
         expect(mockRouter.push).toHaveBeenCalledTimes(1);
+        // upon close, we expect to be navigated to this URL
         expect(mockRouter.push).toHaveBeenCalledWith("/app/contacts");
     });
 
@@ -285,10 +293,13 @@ describe("ContactsEdit component unit tests", () => {
                 contactId: 33,
             },
         });
+        // wait for the contact to load
         await flushPromises();
+        // expect this API to be called
         mockAxios
             .onDelete("/contact_book/delete_email_by_eid/39")
             .reply(200, {});
+        // when the "delete" button is clicked
         wrapper
             .getComponent({ ref: "emails" })
             .get('[data-test="delete-button"]')
@@ -296,6 +307,7 @@ describe("ContactsEdit component unit tests", () => {
         await flushPromises();
 
         expect(deleteItem).toHaveBeenCalledWith(39);
+        // expect one DELETE request
         expect(mockAxios.history.delete.length).toBe(1);
     });
 
@@ -308,9 +320,11 @@ describe("ContactsEdit component unit tests", () => {
         });
         await flushPromises();
         for (let component of wrapper.findAllComponents(ContactsOneToMany)) {
+            // check the title is as expected
             expect(component.find('[data-test="title"]').text()).toContain(
                 component.props("title")
             );
+            // check the button text is as expected
             expect(component.find('[data-test="add-button"]').text()).toContain(
                 component.props("addButtonText")
             );

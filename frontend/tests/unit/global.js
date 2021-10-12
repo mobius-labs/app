@@ -2,6 +2,8 @@ import Oruga from "@oruga-ui/oruga-next";
 
 import { mount as defaultMount } from "@vue/test-utils";
 
+// most of our components explicitly require Oruga components to be defined,
+// so let's make a custom `mount` function which handles that.
 export function mount(component, options) {
     if (!options) {
         options = {};
@@ -16,7 +18,9 @@ export function mount(component, options) {
     return defaultMount(component, options);
 }
 
-// window.watchMedia is not implemented by JSDOM
+// window.watchMedia is not implemented by JSDOM,
+// so we mock it here to avoid errors
+//
 // see: https://stackoverflow.com/questions/39830580/jest-test-fails-typeerror-window-matchmedia-is-not-a-function
 Object.defineProperty(window, "matchMedia", {
     writable: true,

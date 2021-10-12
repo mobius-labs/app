@@ -85,6 +85,7 @@ interface ImportantDateType {
     icon: string;
 }
 
+// A specialized version of ContactsOneToMany, for editing ImportantDates
 @Options({
     components: { ContactsOneToMany, ValidatedField },
 })
