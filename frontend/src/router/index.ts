@@ -12,6 +12,8 @@ import AppDashboard from "../views/AppDashboard.vue";
 import Contacts from "../views/Contacts.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import AuthLayout from "../views/AuthLayout.vue";
+import OnboardLayout from "../views/OnboardLayout.vue";
+
 import { nextTick } from "vue";
 import store from "@/store";
 
@@ -45,6 +47,11 @@ const routes = [
                 meta: { title: "Forgot password", allowGuests: true },
             },
         ],
+    },
+    {
+        path: "/onboard",
+        name: "Onboard",
+        component: OnboardLayout,
     },
     {
         path: "/app",

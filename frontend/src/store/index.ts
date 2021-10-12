@@ -33,17 +33,27 @@ const store = createStore({
             }
             return false;
         },
-        async login({ commit }, { token, router, oruga }) {
+        async login({ commit }, { token, router, oruga, isSignUp }) {
             commit("setToken", token);
             console.log("redirecting...");
-            await router.push("/app");
             persistToken(token);
-            oruga.notification.open({
-                message: "Welcome!",
-                variant: "success",
-                rootClass: "toast-notification",
-                duration: 5000,
-            });
+            if (isSignUp) {
+                await router.push("/onboard/congratulations");
+                oruga.notification.open({
+                    message: "Yay!",
+                    variant: "link",
+                    rootClass: "toast-notification",
+                    duration: 5000,
+                });
+            } else {
+                await router.push("/app");
+                oruga.notification.open({
+                    message: "Welcome!",
+                    variant: "link",
+                    rootClass: "toast-notification",
+                    duration: 5000,
+                });
+            }
         },
         async logout({ commit }, { router, oruga }) {
             commit("setToken", null);
