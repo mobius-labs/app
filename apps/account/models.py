@@ -6,10 +6,12 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 
-# Create your models here.
+# Models related to accounts, and the registration and logging in of users.
 
-# this is where we create our user
+# Manages the creation of users or superusers.
 class AccountManager(BaseUserManager):
+
+    # registers a new user, as per user email login and password, and returns that User object
     def create_user(self, email, password=None):
         if not email:
             raise ValueError("User did not enter an email address.")
@@ -22,6 +24,7 @@ class AccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    # creates an administrative 'superuser' (to be reserved for developers), returns it as User object
     def create_superuser(self, email,  password):
         if not email:
             raise ValueError("User did not enter an email address.")
@@ -36,9 +39,9 @@ class AccountManager(BaseUserManager):
         user.is_staff = True
         user.save(using=self._db)
         return user
-        # add staff and admin too ?
 
 
+# Models a user of the app, or developer/superuser of the app
 class User(AbstractBaseUser):
     email = models.CharField(max_length=50, primary_key=True)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
@@ -47,8 +50,6 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    # linkedToContactId = models.OneToOneField('Contact', on_delete=models.CASCADE)
-    # more user fields
 
     # the field the user logs in with
     USERNAME_FIELD = 'email'
@@ -58,7 +59,7 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-    # can ignore for now
+    # can ignore for MVP sprint
     def has_perm(self, perm, obj=None):
         return True
 
@@ -66,6 +67,7 @@ class User(AbstractBaseUser):
         return True
 
 
+# Creates an authentication token, to be used for API calls, access to user's database, for now and future sessions.
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:

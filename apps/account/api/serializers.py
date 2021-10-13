@@ -32,6 +32,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
-            # returning a json message
-            raise serializers.ValidationError({'password': 'Passwords do not match.'})
+            # we use "confirm_password" so the error message
+            # appears below the confirm_password field in the UI
+            raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email']
