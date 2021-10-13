@@ -23,7 +23,6 @@
                 <div class="level-left">
                     <o-button
                         icon-left="times"
-                        variant="light"
                         class="m-3"
                         data-test="close-button"
                         @click="$router.push('/app/contacts')"
@@ -39,6 +38,7 @@
                     <o-button
                         variant="primary"
                         :disabled="saving"
+                        class="mr-3"
                         @click="submit"
                     >
                         <SpinnerOverlay :active="saving">
@@ -539,11 +539,13 @@ export default class ContactsEdit extends Vue.with(Props) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "../styles/variables.scss";
+
 .expanded-box {
     margin-top: 10px;
     padding-top: 20px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid $grey-lighter;
 }
 
 .top-header {
@@ -551,8 +553,8 @@ export default class ContactsEdit extends Vue.with(Props) {
     z-index: 10;
     top: 0;
     border-radius: 0;
-    background-color: #fafafa;
-    border-bottom: 1px solid #ccc;
+    background-color: $info;
+    border-bottom: 1px solid $grey-lighter;
 }
 
 .space-items {
