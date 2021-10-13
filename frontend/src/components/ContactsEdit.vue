@@ -516,10 +516,14 @@ export default class ContactsEdit extends Vue.with(Props) {
         return (
             !this.model.matchesServer() ||
             (
-                this.$refs.phoneNumbers as ContactsOneToMany
+                this.$refs.phoneNumbers as typeof ContactsOneToMany
             ).hasUnsavedChanges() ||
-            (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges() ||
-            (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges() ||
+            (
+                this.$refs.emails as typeof ContactsOneToMany
+            ).hasUnsavedChanges() ||
+            (
+                this.$refs.addresses as typeof ContactsOneToMany
+            ).hasUnsavedChanges() ||
             (this.$refs.socialMedia as SocialMediaEdit).hasUnsavedChanges() ||
             (
                 this.$refs.importantDates as ImportantDatesEdit

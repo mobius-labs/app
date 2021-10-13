@@ -114,7 +114,9 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     hasUnsavedChanges() {
-        return (this.$refs.oneToMany as ContactsOneToMany).hasUnsavedChanges();
+        return (
+            this.$refs.oneToMany as typeof ContactsOneToMany
+        ).hasUnsavedChanges();
     }
 
     setDateValue(v: Date, setValue: (v: string) => void) {

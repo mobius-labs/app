@@ -57,7 +57,9 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     }
 
     hasUnsavedChanges() {
-        return (this.$refs.oneToMany as ContactsOneToMany).hasUnsavedChanges();
+        return (
+            this.$refs.oneToMany as typeof ContactsOneToMany
+        ).hasUnsavedChanges();
     }
 }
 </script>
