@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.account.models import User
+# from apps.account.models import User
 from backend_crm import settings
 
 
@@ -45,6 +45,9 @@ class Contact(models.Model):
     regularity_of_contact = models.IntegerField(choices=RegularityOfContact.choices, null=True, blank=True)
     last_time_contacted = models.DateField(null=True, blank=True)
 
+
+def save(connected_contact, user):
+    user.connected_contact = connected_contact
 
 # each contact has any number of addresses
 class Address(models.Model):

@@ -35,3 +35,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             # returning a json message
             raise serializers.ValidationError({'password': 'Passwords do not match.'})
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['business_card']
