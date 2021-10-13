@@ -6,8 +6,8 @@
         title="Important Dates"
         :fresh-item="freshImportantDate"
         api-name="important_date"
-        :contact-id="contactId"
-        :skip-reload="skipReload"
+        :local-id="localId"
+        :server-id="serverId"
         @update:saving="(v) => $emit('update:saving', v)"
     >
         <ValidatedField
@@ -74,10 +74,11 @@ import { Options, Vue } from "vue-class-component";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
+import { ContactId, ServerContactId } from "@/api/contacts";
 
 class Props {
-    contactId!: number | null;
-    skipReload!: (a: number | null) => boolean;
+    localId!: ContactId;
+    serverId!: ServerContactId;
 }
 
 interface ImportantDateType {

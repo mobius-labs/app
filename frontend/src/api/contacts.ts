@@ -1,5 +1,11 @@
+// +ve if a proper server ID, -ve if just a local client ID for this editing session
+export type ContactId = number;
+
+// +ve if a proper server ID, null if doesn't exist on the server yet
+export type ServerContactId = number | null;
+
 export class Contact {
-    id: number | null = null;
+    id: ServerContactId | null = null;
     first_name = null;
     middle_name = null;
     surname = null;

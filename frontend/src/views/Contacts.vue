@@ -19,7 +19,7 @@
                     variant="primary"
                     icon-left="plus"
                     :disabled="isAddContactButtonDisabled"
-                    @click="$router.push('/app/contacts/new')"
+                    @click="addContact"
                     >Add Contact</o-button
                 >
             </div>
@@ -105,7 +105,7 @@
                         <o-button
                             icon-left="trash"
                             variant="info"
-                            @click="deleteContact(props.row.contact.id)"
+                            @click="deleteContact(props.row.localId)"
                         >
                             Delete
                         </o-button>
@@ -114,11 +114,14 @@
             </o-table>
         </div>
 
-        <div :class="{ 'edit-contacts': true, expanded: selectedId !== null }">
+        <div
+            :class="{ 'edit-contacts': true, expanded: isContactsEditExpanded }"
+        >
             <ContactsEdit
-                v-if="selectedId !== null"
+                v-if="isContactsEditExpanded"
                 ref="contactsEdit"
-                :contact-id="selectedIdNullIfNew"
+                :local-id="selectedLocalId"
+                :server-id="selectedServerId"
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
                 @contact-updated="onContactUpdated"
                 @discard-changes="discardChanges"
@@ -131,7 +134,12 @@
 <script lang="ts">
 import ContactsEdit from "../components/ContactsEdit.vue";
 import { Options, Vue } from "vue-class-component";
-import { Contact, displayRegularity, getFullName } from "@/api/contacts";
+import {
+    Contact,
+    ContactId,
+    displayRegularity,
+    getFullName,
+} from "@/api/contacts";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
@@ -144,6 +152,8 @@ class Props {
 
 interface LocalContact {
     contact: Contact;
+    localId: ContactId;
+    // when this version # is incremented, the contact will refresh from the server
     version: number;
 }
 
@@ -153,7 +163,8 @@ interface LocalContact {
 })
 export default class Contacts extends Vue.with(Props) {
     searchQuery = "";
-    contacts: LocalContact[] = [];
+    contacts = new Map<ContactId, LocalContact>();
+    nextClientContactId = -1;
     getFullName = getFullName;
     displayRegularity = displayRegularity;
     isDiscardChangesDialogActive = false;
@@ -167,22 +178,37 @@ export default class Contacts extends Vue.with(Props) {
     static NEW_CONTACT = -1;
 
     get filteredContacts() {
-        return this.contacts;
+        return Array.from(this.contacts.values());
     }
 
     async mounted() {
         await this.loadAllContacts();
     }
 
+    get isContactsEditExpanded() {
+        return this.selectedId !== null;
+    }
+
     get isAddContactButtonDisabled() {
         return this.selectedId === Contacts.NEW_CONTACT;
     }
 
-    get selectedIdNullIfNew() {
+    get selectedLocalId() {
         if (this.selectedId === Contacts.NEW_CONTACT) {
-            return null;
+            return this.nextClientContactId;
+        }
+        for (let contact of this.contacts.values()) {
+            if (contact.contact.id === this.selectedId) {
+                return contact.localId;
+            }
         }
         return this.selectedId;
+    }
+
+    get selectedServerId() {
+        return this.selectedId === Contacts.NEW_CONTACT
+            ? null
+            : this.selectedId;
     }
 
     hasUnsavedChanges(): boolean {
@@ -196,43 +222,51 @@ export default class Contacts extends Vue.with(Props) {
         let response = await getAxiosInstance().get("contact_book/list", {
             params: { search: this.searchQuery },
         });
-        this.contacts = response.data.results.map((contact: Contact) => {
-            return { contact, version: 1 };
-        });
+        this.contacts.clear();
+        for (let contact of response.data.results) {
+            this.contacts.set(contact.id, {
+                contact,
+                localId: contact.id,
+                version: 1,
+            });
+        }
         this.loading = false;
     }
 
-    async deleteContact(id: number) {
-        try {
-            await getAxiosInstance().delete(
-                "contact_book/delete_contact_by_id/" + id
-            );
-            this.$oruga.notification.open(
-                defaultToast("info", "Contact deleted")
-            );
-            await this.loadAllContacts();
-        } catch (e) {
-            this.$oruga.notification.open(
-                defaultToast("danger", "Failed to delete contact")
-            );
+    async deleteContact(id: ContactId) {
+        let contact = this.contacts.get(id);
+        if (contact) {
+            try {
+                await getAxiosInstance().delete(
+                    "contact_book/delete_contact_by_id/" + contact.contact.id
+                );
+                this.$oruga.notification.open(
+                    defaultToast("info", "Contact deleted")
+                );
+                this.contacts.delete(id);
+            } catch (e) {
+                this.$oruga.notification.open(
+                    defaultToast("danger", "Failed to delete contact")
+                );
+            }
         }
     }
 
     // updates the contact info for a particular contact in-place,
     // without reloading all the contacts from scratch
-    onContactUpdated(contact: Contact) {
-        let found = false;
-        this.contacts = this.contacts.map((c) => {
-            if (c.contact.id === contact.id) {
-                found = true;
-                return { contact: deepCopy(contact), version: c.version + 1 };
-            } else {
-                return c;
-            }
+    onContactUpdated(localId: ContactId, contact: Contact) {
+        console.log("Contacts: received updated event for ", localId);
+        let existing = this.contacts.get(localId);
+        this.contacts.set(localId, {
+            contact: deepCopy(contact),
+            localId: localId,
+            version: existing ? existing.version + 1 : 1,
         });
-        if (!found) {
-            this.contacts.push({ contact: deepCopy(contact), version: 1 });
-        }
+    }
+
+    addContact() {
+        this.nextClientContactId--;
+        this.$router.push("/app/contacts/new");
     }
 
     checkForUnsavedChanges(next: () => void) {

@@ -50,20 +50,26 @@
 
 <script lang="ts">
 import { debounce, delay } from "@/api/utils";
-import { Options, Vue } from "vue-class-component";
+import { Options, prop, Vue } from "vue-class-component";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import { Model } from "@/api/model";
+import { ContactId, ServerContactId } from "@/api/contacts";
+import { PropType } from "vue";
 
 class Props {
     title!: string;
     addButtonText!: string;
-    contactId!: number | null;
+    localId = prop({
+        type: Number as PropType<ContactId>,
+        required: true,
+    });
+    serverId = prop({
+        type: Number as PropType<ServerContactId>,
+        default: null,
+    });
     freshItem!: () => Record<string, any>;
     apiName!: string;
-    // If this flag is true, then emails/phones/socials/address will *not*
-    // be refreshed when contactId changes.
-    skipReload!: (a: number | null) => boolean;
 }
 
 // negative numbers are "client IDs", specific to this component,
@@ -84,7 +90,7 @@ class Status {
 // server ID, which we then continue to use for future PUT updates
 @Options({
     emits: ["update:saving"],
-    watch: { contactId: "onContactIdUpdated" },
+    watch: { localId: "fetchAllItems" },
 })
 export default class ContactsOneToMany extends Vue.with(Props) {
     items: Map<ItemId, Model> = new Map<ItemId, Model>();
@@ -112,28 +118,28 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         return this.apiName[0];
     }
 
-    async onContactIdUpdated(newId: number | null, oldId: number | null) {
-        if (this.skipReload(newId)) {
-            // instead of reloading items FROM the server,
-            // we try and POST all items TO the server.
-            console.warn("skipping list reload since skip-reload=true");
-            await this.forceUpdateAll();
-            return;
-        }
-        console.log(newId, oldId);
-        if (newId === oldId) {
-            return;
-        }
-        await this.fetchAllItems();
-    }
+    // onServerIdUpdated(newId: ServerContactId, oldId: ServerContactId) {
+    //     console.log(oldId, '->', newId);
+    //     if (!newId || oldId) {
+    //         return;
+    //     }
+    //
+    //     // we now have a server ID, let's try and POST all the items
+    //     console.log('ContactsOneToMany: trying to POST all items');
+    //     for (const [id, entry] of this.items.entries()) {
+    //         if(!entry.matchesServer()) {
+    //             this.updateItemOnServer(id)
+    //         }
+    //     }
+    // }
 
     async fetchAllItems() {
         this.items.clear();
-        if (!this.contactId) {
+        if (!this.serverId) {
             return;
         }
         let response = await getAxiosInstance().get(
-            "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
+            "/contact_book/get_" + this.apiName + "s_by_cid/" + this.serverId
         );
         for (let item of response.data) {
             this.items.set(item.id, new Model(item));
@@ -145,12 +151,10 @@ export default class ContactsOneToMany extends Vue.with(Props) {
     }
 
     clearRecentlyUpdatedAfterDelay = debounce((id: ItemId) => {
-        console.log("clear updated");
         this.recentlyUpdated.delete(id);
     }, 3000);
 
     markRecentlyUpdated(itemId: ItemId) {
-        console.log("added updated");
         this.recentlyUpdated.add(itemId);
         this.clearRecentlyUpdatedAfterDelay(itemId);
     }
@@ -191,33 +195,36 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         // if any new requests to update the item came in whilst we were waiting for a server response,
         // then dispatch those now...
         if (this.queuedUpdates.has(itemId)) {
-            console.log("dispatching update request...");
+            console.log("ContactsOneToMany: dispatching update request...");
             this.queuedUpdates.delete(itemId);
             await this.updateItemOnServer(itemId);
         }
     }
 
     async updateItemOnServer(itemId: ItemId): Promise<void> {
-        if (!this.contactId) {
+        console.log("server id", this.$props.serverId, this.serverId);
+        if (!this.serverId) {
             console.log(
-                "aborting update since parent model doesnt exist yet",
-                this.contactId
+                "ContactsOneToMany: aborting update since parent model doesnt exist yet",
+                this.serverId
             );
             return;
         }
 
         let model = this.items.get(itemId);
         if (!model) {
-            console.log("aborting update since model has disappeared");
+            console.log(
+                "ContactsOneToMany: aborting update since model has disappeared"
+            );
             return;
         }
 
         if (model.isSubmitting) {
-            console.log("queuing update request...");
+            console.log("ContactsOneToMany: queuing update request...");
             this.queuedUpdates.add(itemId);
             return;
         }
-        // want to never send more than one request at a time for this item id...
+        // we want to never send more than one request at a time for this item id...
         this.markRequestAsInFlight(model);
         let error = undefined;
         try {
@@ -231,7 +238,7 @@ export default class ContactsOneToMany extends Vue.with(Props) {
                           this.firstLetterOfApiName +
                           "id/" +
                           model.model.id
-                        : "/" + this.contactId),
+                        : "/" + this.serverId),
                 method: model.model.id ? "PUT" : "POST",
                 data: model.model,
             });
@@ -253,38 +260,42 @@ export default class ContactsOneToMany extends Vue.with(Props) {
         let item = this.items.get(id);
         if (!item) {
             console.warn(
-                "Attempting to delete non-existent item ",
+                "ContactsOneToMany: attempting to delete non-existent item ",
                 id,
                 this.items
             );
+            return;
         }
         this.items.delete(id);
-        if (this.contactId !== null && item && item.model.id) {
-            this.markRequestAsInFlight(item);
-            try {
-                await getAxiosInstance().delete(
-                    "/contact_book/delete_" +
-                        this.apiName +
-                        "_by_" +
-                        this.firstLetterOfApiName +
-                        "id/" +
-                        item.model.id
-                );
-            } catch (e) {
-                console.error(e);
-                this.$oruga.notification.open(
-                    defaultToast("danger", "Failed to delete item")
-                );
-                return;
-            }
-            await this.markRequestFinished(id);
+        if (this.serverId === null || !item.model.id) {
+            // nothing to delete
+            return;
         }
+
+        this.markRequestAsInFlight(item);
+        try {
+            await getAxiosInstance().delete(
+                "/contact_book/delete_" +
+                    this.apiName +
+                    "_by_" +
+                    this.firstLetterOfApiName +
+                    "id/" +
+                    item.model.id
+            );
+        } catch (e) {
+            console.error(e);
+            this.$oruga.notification.open(
+                defaultToast("danger", "Failed to delete item")
+            );
+            return;
+        }
+        await this.markRequestFinished(id);
     }
 
     debounceUpdateItem = debounce(this.updateItem.bind(this), 700);
 
     async updateItem(id: ItemId, newValue: Record<string, any>) {
-        console.log("request to update", id, newValue);
+        console.log("ContactsOneToMany: request to update", id, newValue);
         let item = this.items.get(id);
         if (!item) {
             return;
@@ -294,14 +305,6 @@ export default class ContactsOneToMany extends Vue.with(Props) {
             ...newValue,
         };
         await this.updateItemOnServer(id);
-    }
-
-    async forceUpdateAll() {
-        let promises = [];
-        for (let id of this.items.keys()) {
-            promises.push(this.updateItemOnServer(id));
-        }
-        return Promise.all(promises);
     }
 
     hasUnsavedChanges() {

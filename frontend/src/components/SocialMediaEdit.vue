@@ -7,8 +7,8 @@
             title="Social Media Links"
             :fresh-item="freshSocialMedia"
             api-name="social_media_contact"
-            :contact-id="contactId"
-            :skip-reload="skipReload"
+            :local-id="localId"
+            :server-id="serverId"
             @update:saving="(v) => $emit('update:saving', v)"
         >
             <SocialMediaEditItem
@@ -28,10 +28,11 @@ import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SocialMediaEditItem from "@/components/SocialMediaEditItem.vue";
 import { SocialMediaSite } from "@/api/social";
+import { ContactId, ServerContactId } from "@/api/contacts";
 
 class Props {
-    contactId!: number | null;
-    skipReload!: (a: number | null) => boolean;
+    localId!: ContactId;
+    serverId!: ServerContactId;
 }
 
 // A specialized version of ContactsOneToMany, for editing SocialMediaContacts

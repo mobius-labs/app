@@ -42,7 +42,7 @@
                         @click="submit"
                     >
                         <SpinnerOverlay :active="saving">
-                            <span v-if="contactId">Save contact</span>
+                            <span v-if="serverId">Save contact</span>
                             <span v-else>Save new contact</span>
                         </SpinnerOverlay>
                     </o-button>
@@ -137,8 +137,8 @@
                     title="Email Addresses"
                     :fresh-item="freshEmailAddress"
                     api-name="email"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingEmails = v)"
                 >
                     <ValidatedField
@@ -176,8 +176,8 @@
                     title="Phone Numbers"
                     :fresh-item="freshPhoneNumber"
                     api-name="phone_no"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingPhones = v)"
                 >
                     <ValidatedField
@@ -210,8 +210,8 @@
 
                 <SocialMediaEdit
                     ref="socialMedia"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingSocials = v)"
                 ></SocialMediaEdit>
 
@@ -222,8 +222,8 @@
                     title="Addresses"
                     :fresh-item="freshAddress"
                     api-name="address"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingAddresses = v)"
                 >
                     <div class="has-background-white-ter p-3 mb-3">
@@ -284,8 +284,8 @@
 
                 <ImportantDatesEdit
                     ref="importantDates"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingImportantDates = v)"
                 ></ImportantDatesEdit>
 
@@ -381,8 +381,13 @@
 </template>
 
 <script lang="ts">
-import { Contact, getFullName } from "@/api/contacts";
-import { Options, Vue } from "vue-class-component";
+import {
+    Contact,
+    ContactId,
+    getFullName,
+    ServerContactId,
+} from "@/api/contacts";
+import { Options, prop, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
@@ -392,10 +397,17 @@ import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
 import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
 import { Model } from "@/api/model";
+import { PropType } from "vue";
 
 class Props {
-    contactId!: number | null;
-    expanded!: boolean;
+    localId = prop({
+        type: Number as PropType<ContactId>,
+        required: true,
+    });
+    serverId = prop({
+        type: Number as PropType<ServerContactId>,
+        default: null,
+    });
     isDiscardChangesDialogActive!: boolean;
 }
 
@@ -408,7 +420,7 @@ class Props {
         ValidatedField,
         ImportantDatesEdit,
     },
-    watch: { contactId: "onContactIdUpdated", saving: "onSavingUpdated" },
+    watch: { localId: "loadContact", saving: "onSavingUpdated" },
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
 })
 export default class ContactsEdit extends Vue.with(Props) {
@@ -421,13 +433,6 @@ export default class ContactsEdit extends Vue.with(Props) {
     savingSocials = false;
     savingImportantDates = false;
     loading = false;
-
-    // There is a tricky edge case, whereby we fill out a valid contact, but
-    // with invalid email/phone/social/address, and then click "create contact".
-    // POSTing the contact will succeed, but POSTing the email/phone will not.
-    // We need to navigate the user to the contacts "edit" URL, but keep the
-    // email/phone/social/address which has failed validation, so the user can fix it.
-    skipReloadForId: number | null = null;
 
     get saving() {
         return (
@@ -450,40 +455,33 @@ export default class ContactsEdit extends Vue.with(Props) {
     onSavingUpdated(newVal: boolean, oldVal: boolean) {
         if (!newVal && oldVal && this.model.model.id) {
             // if `saving` switched from `true` to `false`, then the contact has just been updated
-            this.$emit("contact-updated", this.model.model);
+            console.log(
+                "ContactsEdit: emitting contact-updated event for contact",
+                this.localId
+            );
+            this.$emit("contact-updated", this.localId, this.model.model);
         }
     }
 
-    skipReload(id: number | null) {
-        return id !== null && id === this.skipReloadForId;
-    }
-
-    async onContactIdUpdated(newId: number | null) {
-        if (!newId) {
+    async loadContact() {
+        if (this.serverId === null) {
             this.model = new Model(new Contact());
             return;
         }
-        // on the next page change, clear this flag
-        if (newId !== this.skipReloadForId) {
-            this.skipReloadForId = null;
-        } else if (newId === this.skipReloadForId) {
-            console.log("skipping reload");
-            return;
-        }
-
         this.loading = true;
         let response = await getAxiosInstance().get(
-            "contact_book/get_contact_by_id/" + this.contactId
+            "contact_book/get_contact_by_id/" + this.serverId
         );
         this.model = new Model(response.data);
         this.loading = false;
     }
 
     async mounted() {
-        await this.onContactIdUpdated(this.contactId);
+        await this.loadContact();
     }
 
     async submit() {
+        let created = false;
         await this.model.tryUpdate(async () => {
             let response = await getAxiosInstance().request({
                 url:
@@ -500,10 +498,7 @@ export default class ContactsEdit extends Vue.with(Props) {
                     defaultToast("info", "Contact created")
                 );
                 this.model.captureServerResponse(response.data);
-                // keep around any phones/emails/socials which the user added,
-                // rather than reloading them from scratch
-                this.skipReloadForId = response.data.id;
-                await this.$router.push("/app/contacts/" + response.data.id);
+                created = true;
             } else {
                 this.model.captureServerResponse(null);
                 this.$oruga.notification.open(
@@ -511,6 +506,10 @@ export default class ContactsEdit extends Vue.with(Props) {
                 );
             }
         });
+        if (created) {
+            console.log("ContactsEdit: switching to edit view");
+            await this.$router.push("/app/contacts/" + this.model.model.id);
+        }
     }
 
     hasUnsavedChanges(): boolean {

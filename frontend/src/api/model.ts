@@ -69,8 +69,10 @@ export class Model<T = Record<string, any>> {
     // true if there are no unsaved changes
     matchesServer(): boolean {
         console.log(
-            JSON.stringify(this.lastSavedModel),
-            JSON.stringify(this.model)
+            "checking if model",
+            JSON.stringify(this.model),
+            "matches server",
+            JSON.stringify(this.lastSavedModel)
         );
         return valuesEqual(this.lastSavedModel, this.model);
     }
