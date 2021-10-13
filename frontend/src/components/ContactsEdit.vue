@@ -109,8 +109,8 @@
                             name="pronouns"
                         >
                             <o-select
-                                :model-value="value"
                                 ref="pronouns"
+                                :model-value="value"
                                 placeholder="..."
                                 @update:model-value="setValue"
                             >
