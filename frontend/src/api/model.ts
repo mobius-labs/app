@@ -1,6 +1,10 @@
 import { AxiosError } from "axios";
 import { deepCopy, valuesEqual } from "@/api/utils";
 
+interface ValidationResponse {
+    errors: Record<string, string[]>;
+}
+
 // common functionality used for CRUD operations on a single struct of data (of type T)
 export class Model<T = Record<string, any>> {
     // the state of the model the user is currently editing
@@ -20,7 +24,7 @@ export class Model<T = Record<string, any>> {
     nonFieldErrors: string[] = [];
 
     // true if a request is currently in-flight
-    isSubmitting: boolean = false;
+    isSubmitting = false;
 
     constructor(model: T) {
         this.model = deepCopy(model);
@@ -59,7 +63,7 @@ export class Model<T = Record<string, any>> {
         if (this.isSubmittedValueStale(fieldName)) {
             return null;
         }
-        let errors = this.errors[fieldName as string];
+        const errors = this.errors[fieldName as string];
         if (errors && errors.length > 0) {
             return errors[0];
         }
@@ -94,12 +98,12 @@ export class Model<T = Record<string, any>> {
             return;
         }
         let errors = null;
-        if (e.response && e.response.data.errors) {
-            errors = e.response.data.errors;
+        if (e.response && (e.response.data as ValidationResponse).errors) {
+            errors = (e.response.data as ValidationResponse).errors;
         } else if (e.response && e.response.status === 400) {
             // TODO: the "login" route doesn't nest all errors inside some "errors" object,
             //       so instead we need to look inside the global object
-            errors = e.response.data;
+            errors = e.response.data as Record<string, string[]>;
         }
         if (errors === null) {
             return;

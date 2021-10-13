@@ -30,12 +30,12 @@ export function valuesEqual(a: any, b: any): boolean {
     if (a === b) return true;
 
     // Otherwise they're Objects, Functions or Arrays or some kind of host object
-    if (typeof a == "object" || typeof a == "function") {
-        let aKeys = Object.keys(a);
-        let bKeys = Object.keys(b);
+    if (typeof a === "object" || typeof a === "function") {
+        const aKeys = Object.keys(a);
+        const bKeys = Object.keys(b);
 
         // If they don't have the same number of keys, return false
-        if (aKeys.length != bKeys.length) {
+        if (aKeys.length !== bKeys.length) {
             return false;
         }
 

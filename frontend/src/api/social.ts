@@ -4,19 +4,25 @@ export interface SocialMediaSite {
     site: string;
     url_format: string;
     icon: string;
-    compiled_regex?: RegExp;
+    compiledRegex?: RegExp;
 }
 
 // compiles a regex which matches profile links for a given social media site
 function getRegexForSite(site: SocialMediaSite) {
-    if (!site.compiled_regex) {
-        let regexp = escapeRegExp(site.url_format).replace(
+    if (!site.compiledRegex) {
+        const regexp = escapeRegExp(site.url_format).replace(
             "\\{username\\}",
             "([^/]+)\\/?"
         );
-        site.compiled_regex = new RegExp(regexp);
+        site.compiledRegex = new RegExp(regexp);
     }
-    return site.compiled_regex;
+    return site.compiledRegex;
+}
+
+// the return type of `tryRecogniseSocialLink`
+export interface Recognition {
+    site: SocialMediaSite;
+    username: string;
 }
 
 // tries to match a pasted URL with a particular social media site.
@@ -25,9 +31,9 @@ export function tryRecogniseSocialLink(
     sites: Map<string, SocialMediaSite>,
     link: string
 ): Recognition | null {
-    for (let site of sites.values()) {
-        let re = getRegexForSite(site);
-        let result = re.exec(link);
+    for (const site of sites.values()) {
+        const re = getRegexForSite(site);
+        const result = re.exec(link);
         console.log(re, link, result);
         if (result !== null) {
             // we have a match
@@ -35,12 +41,6 @@ export function tryRecogniseSocialLink(
         }
     }
     return null;
-}
-
-// the return type of `tryRecogniseSocialLink`
-export interface Recognition {
-    site: SocialMediaSite;
-    username: string;
 }
 
 // e.g.: for Facebook, will return

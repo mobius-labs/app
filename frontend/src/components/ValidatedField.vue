@@ -32,6 +32,7 @@ class Props {
         type: Object as PropType<Model>,
         required: true,
     });
+
     updateValue = prop({
         type: Function as PropType<(x: Record<string, any>) => void | null>,
         default: null,
@@ -56,7 +57,7 @@ export default class ValidatedField extends Vue.with(Props) {
 
     doUpdateValue(v: any) {
         if (this.updateValue !== null) {
-            let update: Record<string, any> = {};
+            const update: Record<string, any> = {};
             update[this.name] = v;
             this.updateValue(update);
             return;

@@ -1,24 +1,35 @@
 module.exports = {
-    extends: [
-        "eslint:recommended",
-        "plugin:vue/vue3-recommended",
-        // make ESLint not conflict with Prettier config
-        "prettier",
-        "prettier/vue",
-    ],
-    rules: {
-        // this doesn't work well with Typescript higher-order functions
-        "no-unused-vars": "off",
-    },
-    // gets rid of warnings about undefined `module` and `process` globals
+    root: true,
     env: {
-        browser: true,
-        amd: true,
         node: true,
-        jest: true,
     },
-    // gets rid of errors parsing Typescript
+    extends: [
+        "plugin:vue/vue3-essential",
+        "eslint:recommended",
+        "@vue/typescript",
+        "@vue/typescript/recommended",
+        "@vue/standard",
+        "prettier",
+    ],
     parserOptions: {
         parser: "@typescript-eslint/parser",
+        ecmaVersion: 2020,
     },
+    rules: {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        camelcase: "off",
+    },
+    overrides: [
+        {
+            files: [
+                "**/__tests__/*.{j,t}s?(x)",
+                "**/tests/unit/**/*.{j,t}s?(x)",
+            ],
+            env: {
+                jest: true,
+            },
+        },
+    ],
 };

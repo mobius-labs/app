@@ -122,7 +122,7 @@ export default class SocialMediaEditItem extends Vue.with(Props) {
     }
 
     get computedLink() {
-        let site = this.socialMediaSites.get(
+        const site = this.socialMediaSites.get(
             this.model.model.social_media_site
         );
         if (!site) {
@@ -139,7 +139,7 @@ export default class SocialMediaEditItem extends Vue.with(Props) {
     // When submitting a link/username, we try to autodetect which social media site it is for,
     // and set the info accordingly.
     submit() {
-        let recognition: Recognition | null = tryRecogniseSocialLink(
+        const recognition: Recognition | null = tryRecogniseSocialLink(
             this.socialMediaSites,
             this.newLinkValue
         );

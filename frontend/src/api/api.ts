@@ -42,9 +42,9 @@ export const getAxiosInstance = () => {
         instance.interceptors.request.use(
             (config) => {
                 if (vuexStore !== null && vuexStore.state.authToken !== null) {
-                    config.headers[
-                        "Authorization"
-                    ] = `Token ${vuexStore.state.authToken}`;
+                    if (config.headers) {
+                        config.headers.Authorization = `Token ${vuexStore.state.authToken}`;
+                    }
                 }
                 return config;
             },

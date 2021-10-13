@@ -25,7 +25,7 @@ class Props {
     watch: { contactId: "fetchAllItems", version: "fetchAllItems" },
 })
 export default class ContactsOneToManyList extends Vue.with(Props) {
-    items = [];
+    items: Record<string, any>[] = [];
     fetched = false;
     observer: IntersectionObserver | null = null;
 
@@ -46,7 +46,7 @@ export default class ContactsOneToManyList extends Vue.with(Props) {
     }
 
     async onIntersectionObserved(entries: IntersectionObserverEntry[]) {
-        for (let entry of entries) {
+        for (const entry of entries) {
             if (!entry.isIntersecting) {
                 return;
             }
@@ -62,10 +62,10 @@ export default class ContactsOneToManyList extends Vue.with(Props) {
         if (!this.contactId) {
             return;
         }
-        let response = await getAxiosInstance().get(
+        const response = await getAxiosInstance().get(
             "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
         );
-        this.items = response.data;
+        this.items = response.data as Record<string, any>[];
     }
 }
 </script>

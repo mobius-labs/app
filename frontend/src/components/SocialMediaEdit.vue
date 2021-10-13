@@ -43,11 +43,11 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     socialMediaSites = new Map<string, SocialMediaSite>();
 
     async mounted() {
-        let response = await getAxiosInstance().get(
+        const response = await getAxiosInstance().get(
             "/contact_book/get_social_media_sites/"
         );
         this.socialMediaSites.clear();
-        for (let site of response.data) {
+        for (const site of response.data as SocialMediaSite[]) {
             this.socialMediaSites.set(site.site, site);
         }
     }

@@ -61,8 +61,12 @@ import { defineComponent, PropType } from "vue";
 type LocalItemId = number;
 
 class Status {
-    dangerMessage: string = "";
-    successMessage: string = "";
+    dangerMessage = "";
+    successMessage = "";
+}
+
+interface ItemCreatedResponse {
+    id: number;
 }
 
 // ContactsOneToMany abstracts over all of the one-to-many relationships which a contact has.
@@ -112,9 +116,9 @@ export default defineComponent({
     },
     computed: {
         statusMessages() {
-            let entries: [LocalItemId, Status][] = Array.from(this.items).map(
+            const entries: [LocalItemId, Status][] = Array.from(this.items).map(
                 ([id, model]: [LocalItemId, Model]) => {
-                    let status = new Status();
+                    const status = new Status();
                     if (model.nonFieldErrors.length > 0) {
                         status.dangerMessage = model.nonFieldErrors.join(", ");
                     } else if (this.recentlyUpdated.has(id)) {
@@ -154,13 +158,13 @@ export default defineComponent({
                 console.log("ContactsOneToMany: no serverId, not fetching");
                 return;
             }
-            let response = await getAxiosInstance().get(
+            const response = await getAxiosInstance().get(
                 "/contact_book/get_" +
                     this.apiName +
                     "s_by_cid/" +
                     this.serverId
             );
-            for (let item of response.data) {
+            for (const item of response.data as Record<string, any>[]) {
                 this.items.set(item.id, new Model(item));
             }
         },
@@ -181,7 +185,7 @@ export default defineComponent({
 
         maybeStopSaving() {
             let updating = false;
-            for (let item of this.items.values()) {
+            for (const item of this.items.values()) {
                 if (item.isSubmitting) {
                     updating = true;
                     break;
@@ -195,7 +199,7 @@ export default defineComponent({
         async markRequestFinished(itemId: LocalItemId) {
             // this delay is just to make the UI 'feel' better
             await delay(700);
-            let item = this.items.get(itemId);
+            const item = this.items.get(itemId);
             if (item) {
                 item.isSubmitting = false;
             }
@@ -234,7 +238,7 @@ export default defineComponent({
                 return;
             }
 
-            let model = this.items.get(itemId);
+            const model = this.items.get(itemId);
             if (!model) {
                 console.warn("ContactsOneToMany: model disappeared");
                 return;
@@ -247,16 +251,17 @@ export default defineComponent({
             }
             // we want to never send more than one request at a time for this item id...
             this.markRequestAsInFlight(model);
-            let error = undefined;
+            let error;
             try {
-                let response = await getAxiosInstance().request({
+                const response = await getAxiosInstance().request({
                     url: this.getUpdateUrlForModel(model),
                     method: model.model.id ? "PUT" : "POST",
                     data: model.model,
                 });
-                if (response.data.id) {
+                const data = response.data as ItemCreatedResponse;
+                if (data.id) {
                     // let's add the id from the server...
-                    model.model.id = response.data.id;
+                    model.model.id = data.id;
                 }
                 this.markRecentlyUpdated(itemId);
             } catch (e) {
@@ -269,7 +274,7 @@ export default defineComponent({
         },
 
         async deleteItem(id: LocalItemId) {
-            let item = this.items.get(id);
+            const item = this.items.get(id);
             if (!item) {
                 console.warn(
                     "ContactsOneToMany: attempting to delete non-existent item ",
@@ -306,7 +311,7 @@ export default defineComponent({
 
         async updateItem(id: LocalItemId, newValue: Record<string, any>) {
             console.log("ContactsOneToMany: request to update", id, newValue);
-            let item = this.items.get(id);
+            const item = this.items.get(id);
             if (!item) {
                 return;
             }
@@ -321,7 +326,7 @@ export default defineComponent({
             if (this.queuedUpdates.size > 0) {
                 return true;
             }
-            for (let model of this.items.values()) {
+            for (const model of this.items.values()) {
                 if (model.hasErrors()) {
                     return true;
                 }

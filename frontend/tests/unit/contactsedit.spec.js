@@ -319,7 +319,7 @@ describe("ContactsEdit component unit tests", () => {
             },
         });
         await flushPromises();
-        for (let component of wrapper.findAllComponents(ContactsOneToMany)) {
+        for (const component of wrapper.findAllComponents(ContactsOneToMany)) {
             // check the title is as expected
             expect(component.find('[data-test="title"]').text()).toContain(
                 component.props("title")

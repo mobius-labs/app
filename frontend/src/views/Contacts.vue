@@ -157,6 +157,10 @@ interface LocalContact {
     version: number;
 }
 
+interface ContactsListResponse {
+    results: Contact[];
+}
+
 @Options({
     components: { ContactsEdit, Spinner, ContactsOneToManyList },
     watch: { searchQuery: "loadAllContacts" },
@@ -169,7 +173,7 @@ export default class Contacts extends Vue.with(Props) {
     displayRegularity = displayRegularity;
     isDiscardChangesDialogActive = false;
     loading = false;
-    nextFn: () => void = () => {};
+    nextFn?: () => void;
 
     debounceUpdateSearchQuery = debounce((v: string) => {
         this.searchQuery = v;
@@ -197,7 +201,7 @@ export default class Contacts extends Vue.with(Props) {
         if (this.selectedId === Contacts.NEW_CONTACT) {
             return this.nextClientContactId;
         }
-        for (let contact of this.contacts.values()) {
+        for (const contact of this.contacts.values()) {
             if (contact.contact.id === this.selectedId) {
                 return contact.localId;
             }
@@ -219,14 +223,15 @@ export default class Contacts extends Vue.with(Props) {
 
     async loadAllContacts() {
         this.loading = true;
-        let response = await getAxiosInstance().get("contact_book/list", {
+        const response = await getAxiosInstance().get("contact_book/list", {
             params: { search: this.searchQuery },
         });
         this.contacts.clear();
-        for (let contact of response.data.results) {
-            this.contacts.set(contact.id, {
+        for (const contact of (response.data as ContactsListResponse).results) {
+            const localId = contact.id!;
+            this.contacts.set(localId, {
                 contact,
-                localId: contact.id,
+                localId,
                 version: 1,
             });
         }
@@ -234,7 +239,7 @@ export default class Contacts extends Vue.with(Props) {
     }
 
     async deleteContact(id: ContactId) {
-        let contact = this.contacts.get(id);
+        const contact = this.contacts.get(id);
         if (contact) {
             try {
                 await getAxiosInstance().delete(
@@ -256,7 +261,7 @@ export default class Contacts extends Vue.with(Props) {
     // without reloading all the contacts from scratch
     onContactUpdated(localId: ContactId, contact: Contact) {
         console.log("Contacts: received updated event for ", localId);
-        let existing = this.contacts.get(localId);
+        const existing = this.contacts.get(localId);
         this.contacts.set(localId, {
             contact: deepCopy(contact),
             localId: localId,
@@ -280,7 +285,9 @@ export default class Contacts extends Vue.with(Props) {
 
     discardChanges() {
         this.isDiscardChangesDialogActive = false;
-        this.nextFn();
+        if (this.nextFn) {
+            this.nextFn();
+        }
     }
 
     beforeRouteUpdate(to: any, from: any, next: () => void) {

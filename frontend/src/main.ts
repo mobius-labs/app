@@ -31,6 +31,6 @@ app.use(Oruga, {
     ...bulmaConfig,
 });
 
-let root = app.mount("#app");
+const root = app.mount("#app");
 setOrugaInstance(root.$oruga);
 setStore(store);

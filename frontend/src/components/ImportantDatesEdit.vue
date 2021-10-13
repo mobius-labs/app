@@ -100,11 +100,11 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     async mounted() {
-        let response = await getAxiosInstance().get(
+        const response = await getAxiosInstance().get(
             "/contact_book/get_important_date_types/"
         );
         this.importantDateTypes.clear();
-        for (let dateType of response.data) {
+        for (const dateType of response.data as ImportantDateType[]) {
             this.importantDateTypes.set(dateType.label, dateType);
         }
     }

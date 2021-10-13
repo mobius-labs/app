@@ -88,6 +88,11 @@ import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import { defaultToast } from "@/toasts";
 import { Model } from "@/api/model";
 
+interface SuccessfulRegisterResponse {
+    response: string;
+    token: string;
+}
+
 @Options({
     components: { ValidatedField, Logo, SpinnerOverlay, NonFieldErrorsList },
 })
@@ -112,13 +117,14 @@ export default class SignUp extends Vue {
 
     async onSubmit() {
         await this.model.tryUpdate(async () => {
-            let response = await getAxiosInstance().post(
+            const response = await getAxiosInstance().post(
                 "account/register",
                 this.model.model
             );
-            if (response.data.response === "registration_successful") {
+            const data = response.data as SuccessfulRegisterResponse;
+            if (data.response === "registration_successful") {
                 await this.$store.dispatch("login", {
-                    token: response.data.token,
+                    token: data.token,
                     router: this.$router,
                     oruga: this.$oruga,
                 });
