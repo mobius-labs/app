@@ -13,9 +13,7 @@ export default class App extends Vue {}
 </script>
 
 <style lang="scss">
-html,
-body,
 #app {
-    height: 100%;
+    height: 100vh;
 }
 </style>

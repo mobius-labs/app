@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import "./class-component-hooks";
 import App from "./App.vue";
 import Oruga from "@oruga-ui/oruga-next";
 import "@oruga-ui/oruga-next/dist/oruga-full.css";
@@ -30,6 +31,6 @@ app.use(Oruga, {
     ...bulmaConfig,
 });
 
-let root = app.mount("#app");
+const root = app.mount("#app");
 setOrugaInstance(root.$oruga);
 setStore(store);

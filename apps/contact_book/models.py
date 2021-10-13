@@ -90,11 +90,13 @@ class Email(models.Model):
 class SocialMediaSite(models.Model):
 
     site = models.CharField(max_length=45, primary_key=True)
-    icon = models.ImageField(null=True, blank=True)
-    is_default = models.BooleanField(default=False)         # to be False for any type added by a user
+    url_format = models.CharField(max_length=255, default="")
+    # refers to a particular icon from the FE icon pack, by its name
+    icon = models.CharField(max_length=30, default="")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        unique_together = ['site', 'is_default']
+        unique_together = ['site', 'author']
 
 
 # each user has any number of social media links
@@ -112,11 +114,12 @@ class SocialMediaContact(models.Model):
 class ImportantDateType(models.Model):
 
     label = models.CharField(max_length=45, primary_key=True)
-    icon = models.ImageField(null=True, blank=True)
-    is_default = models.BooleanField(default=False)          # to be False for any type added by a user
+    # refers to a particular icon from the FE icon pack, by its name
+    icon = models.CharField(max_length=30)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        unique_together = ['label', 'is_default']
+        unique_together = ['label', 'author']
 
 
 # each user has any number of important dates associated with it, defined by an important date type.

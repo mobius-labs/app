@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+    createRouter,
+    createWebHistory,
+    RouteLocationNormalized,
+} from "vue-router";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import SignUp from "../views/SignUp.vue";
@@ -53,9 +57,19 @@ const routes = [
                 meta: { title: "Dashboard" },
             },
             {
-                path: "contacts",
+                path: "contacts/:id?",
                 component: Contacts,
                 meta: { title: "Contacts" },
+                props: (route: RouteLocationNormalized) => {
+                    if (route.params.id === "new") {
+                        return { selectedId: Contacts.NEW_CONTACT };
+                    }
+                    return {
+                        selectedId: !route.params.id
+                            ? null
+                            : Number.parseInt(route.params.id as string),
+                    };
+                },
             },
         ],
     },
@@ -71,7 +85,6 @@ const APP_TITLE = "Möbius CRM";
 
 router.beforeEach((to, from, next) => {
     store.dispatch("determineAuthStatus").then((authenticated) => {
-        console.log(authenticated);
         if (!authenticated && to.meta.allowGuests !== true) {
             next({
                 path: "/login",

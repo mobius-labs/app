@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="icon-container">
-            <o-icon v-if="active" icon="spinner" class="spin-always" />
+            <Spinner v-if="active" />
         </div>
         <div :class="active ? 'hide-text' : ''">
             <slot />
@@ -11,6 +11,7 @@
 
 <script>
 import { Options, Vue } from "vue-class-component";
+import Spinner from "@/components/Spinner";
 
 @Options({
     props: {
@@ -19,20 +20,12 @@ import { Options, Vue } from "vue-class-component";
             default: true,
         },
     },
+    components: { Spinner },
 })
 export default class SpinnerOverlay extends Vue {}
 </script>
 
 <style scoped>
-@keyframes spin {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .icon-container {
     position: absolute;
     top: 0;
@@ -46,10 +39,5 @@ export default class SpinnerOverlay extends Vue {}
 
 .hide-text {
     visibility: hidden;
-}
-
-.spin-always {
-    z-index: 10;
-    animation: spin 1s linear infinite;
 }
 </style>

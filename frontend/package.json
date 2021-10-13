@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit --coverage",
+    "build": "env NODE_ENV=development npx vue-cli-service build --mode development",
+    "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint && npx prettier --check ."
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@oruga-ui/oruga-next": "^0.4.4",
-    "axios": "^0.21.4",
+    "axios": "^0.23.0",
     "core-js": "^3.6.5",
     "my-vue-app": "github:oruga-ui/oruga-bulma",
     "vue": "^3.0.0",
@@ -21,92 +21,50 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.19",
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "@typescript-eslint/parser": "^4.18.0",
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-e2e-cypress": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-typescript": "~4.5.0",
-    "@vue/cli-plugin-unit-jest": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@types/jest": "^27.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "@vue/cli-plugin-babel": "~5.0.0-beta.5",
+    "@vue/cli-plugin-e2e-cypress": "~5.0.0-beta.5",
+    "@vue/cli-plugin-eslint": "~5.0.0-beta.5",
+    "@vue/cli-plugin-typescript": "~5.0.0-beta.5",
+    "@vue/cli-plugin-unit-jest": "~5.0.0-beta.5",
+    "@vue/cli-plugin-vuex": "~5.0.0-beta.5",
+    "@vue/cli-service": "~5.0.0-beta.5",
     "@vue/compiler-sfc": "^3.0.0",
     "@vue/eslint-config-prettier": "^6.0.0",
-    "@vue/eslint-config-standard": "^5.1.2",
+    "@vue/eslint-config-standard": "^6.1.0",
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "^2.0.0-rc.14",
+    "@vue/vue3-jest": "^27.0.0-alpha.1",
+    "axios-mock-adapter": "^1.20.0",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^27.2.5",
     "cypress": "^8.3.1",
-    "eslint": "^6.7.2",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^7.0.0",
+    "jest": "^27.0.5",
     "lint-staged": "^11.1.2",
-    "prettier": "2.3.2",
+    "prettier": "2.4.1",
     "sass": "^1.38.0",
     "sass-loader": "^10.2.0",
+    "ts-jest": "^27.0.4",
     "typescript": "~4.1.5",
-    "vue-jest": "^5.0.0-0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended",
-      "@vue/typescript",
-      "@vue/typescript/recommended",
-      "@vue/standard",
-      "prettier"
-    ],
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser",
-      "ecmaVersion": 2020
-    },
-    "rules": {},
-    "overrides": [
-      {
-        "files": [
-          "**/__tests__/*.{j,t}s?(x)",
-          "**/tests/unit/**/*.spec.{j,t}s?(x)"
-        ],
-        "env": {
-          "jest": true
-        }
-      }
-    ]
+    "webpack": "~5.58.1"
   },
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not dead"
   ],
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "vue"
-    ],
-    "transform": {
-      "^.+\\.js$": "babel-jest",
-      "^.+\\.vue$": "vue-jest"
-    },
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.{js,vue}",
-      "!**/node_modules/**"
-    ],
-    "coverageReporters": [
-      "text-summary"
-    ]
-  },
   "lint-staged": {
-    "*.{js,json,vue,ts,html,md}": [
+    "*.{js,json,vue,ts,html,md,scss}": [
       "npx prettier --write"
     ]
   }

@@ -1,42 +1,50 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
 import Oruga from "@oruga-ui/oruga-next";
 import { Store } from "vuex";
 import { State } from "@/store";
 
 // TODO: figure out a better solution to these global vars
 let instance: AxiosInstance | null = null;
-let $oruga: typeof Oruga | null = null;
+let orugaInstance: typeof Oruga | null = null;
 let vuexStore: Store<State> | null = null;
 
+const BASE_URL = "/api";
+
 export const setOrugaInstance = (oruga: typeof Oruga) => {
-    $oruga = oruga;
+    orugaInstance = oruga;
 };
 
 export const setStore = (store: Store<State>) => {
     vuexStore = store;
 };
 
+// returns the base URL which should be used for all API calls
+export function getBaseURL() {
+    // we default to the base API URL being the same host
+    // as the frontend is running on
+    let baseURL = BASE_URL;
+    if (parseInt(window.location.port) > 8000) {
+        // for local development, Django should be running on port 8000,
+        // whereas the frontend (`npm run serve`) is running on a higher port
+        baseURL = "http://localhost:8000" + BASE_URL;
+    }
+    return baseURL;
+}
+
 export const getAxiosInstance = () => {
     // Set config defaults when creating the instance
     if (instance === null) {
-        // we default to the base API URL being the same host
-        // as the frontend is running on
-        let baseURL = "/api";
-        if (parseInt(window.location.port) > 8000) {
-            // for local development, Django should run on port 8000
-            baseURL = "http://localhost:8000" + baseURL;
-        }
         instance = axios.create({
-            baseURL: baseURL,
+            baseURL: getBaseURL(),
         });
 
         // we pass the 'Authorization' header if needed
         instance.interceptors.request.use(
             (config) => {
                 if (vuexStore !== null && vuexStore.state.authToken !== null) {
-                    config.headers[
-                        "Authorization"
-                    ] = `Token ${vuexStore.state.authToken}`;
+                    if (config.headers) {
+                        config.headers.Authorization = `Token ${vuexStore.state.authToken}`;
+                    }
                 }
                 return config;
             },
@@ -51,11 +59,11 @@ export const getAxiosInstance = () => {
                     console.warn(
                         "No response from API, potential network error"
                     );
-                    if ($oruga !== null) {
-                        $oruga.notification.open({
+                    if (orugaInstance !== null) {
+                        orugaInstance.notification.open({
                             message: "Network Error: failed to make API call",
                             variant: "danger",
-                            indefinite: true,
+                            duration: 5000,
                             closable: true,
                         });
                     }
@@ -67,39 +75,3 @@ export const getAxiosInstance = () => {
 
     return instance;
 };
-
-// used for most API requests
-export class ServerData {
-    // form data which was sent to the server
-    model: Record<string, any> = {};
-
-    // validation errors returned by the API call, grouped by field name
-    errors: Record<string, string[]> = {};
-
-    nonFieldErrors: string[] = [];
-
-    handleError(e: AxiosError, model: Record<string, any>) {
-        this.model = JSON.parse(JSON.stringify(model));
-        let errors = null;
-        if (e.response && e.response.data.errors) {
-            errors = e.response.data.errors;
-        } else if (e.response && e.response.status === 400) {
-            // TODO: the "login" route doesn't nest all errors inside some "errors" object,
-            //       so instead we need to look inside the global object
-            errors = e.response.data;
-        }
-
-        if (errors === null) {
-            return;
-        }
-        this.errors = {};
-        this.nonFieldErrors = [];
-        for (const [field, messages] of Object.entries(errors)) {
-            if (field !== "non_field_errors") {
-                this.errors[field] = messages as string[];
-            } else {
-                this.nonFieldErrors = messages as string[];
-            }
-        }
-    }
-}

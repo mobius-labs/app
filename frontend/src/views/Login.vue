@@ -5,30 +5,22 @@
                 <Logo type="is-large-logo" />
             </div>
 
-            <NonFieldErrorsList :non-field-errors="serverData.nonFieldErrors" />
+            <NonFieldErrorsList :model="model" />
 
             <ValidatedField
-                v-slot="{ value, setValue }"
-                v-model="model"
+                :model="model"
                 name="username"
                 label="Email"
-                :server-data="serverData"
-            >
-                <o-input
-                    :model-value="value"
-                    placeholder="Enter your email"
-                    icon="envelope"
-                    required
-                    @update:model-value="setValue"
-                />
-            </ValidatedField>
+                placeholder="Enter your email"
+                icon="envelope"
+                required
+            ></ValidatedField>
 
             <ValidatedField
                 v-slot="{ value, setValue }"
-                v-model="model"
+                :model="model"
                 label="Password"
                 name="password"
-                :server-data="serverData"
             >
                 <o-input
                     :model-value="value"
@@ -47,10 +39,10 @@
                 <o-button
                     class="is-fullwidth is-medium is-primary"
                     variant=""
-                    :disabled="submitting"
+                    :disabled="model.isSubmitting"
                     @click="onSubmit"
                 >
-                    <SpinnerOverlay :active="submitting">
+                    <SpinnerOverlay :active="model.isSubmitting">
                         Login
                     </SpinnerOverlay>
                 </o-button>
@@ -68,39 +60,47 @@
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
-import { getAxiosInstance, ServerData } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
+
+interface SuccessfulLoginResponse {
+    token: string;
+}
 
 @Options({
     components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },
 })
 export default class Login extends Vue {
-    model = {
+    model = new Model({
         username: "",
         password: "",
-    };
-    serverData = new ServerData();
-    submitting = false;
+    });
+
+    async created() {
+        if (await this.$store.dispatch("determineAuthStatus")) {
+            this.$oruga.notification.open(
+                defaultToast("info", "You're already logged in.")
+            );
+            await this.$router.replace("/app");
+        }
+    }
 
     async onSubmit() {
-        try {
-            this.submitting = true;
-            // we want to "deep copy" the object so changing one doesn't change the other.
-            let response = await getAxiosInstance().post(
+        await this.model.tryUpdate(async () => {
+            const response = await getAxiosInstance().post(
                 "account/login",
-                this.model
+                this.model.model
             );
             await this.$store.dispatch("login", {
-                token: response.data.token,
+                token: (response.data as SuccessfulLoginResponse).token,
                 router: this.$router,
                 oruga: this.$oruga,
             });
-        } catch (e) {
-            this.serverData.handleError(e, this.model);
-        }
-        this.submitting = false;
+        });
     }
 }
 </script>

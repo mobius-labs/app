@@ -10,13 +10,27 @@
     </div>
 </template>
 
-<script>
-import { Options, Vue } from "vue-class-component";
+<script lang="ts">
+import { prop, Vue } from "vue-class-component";
+import { PropType } from "vue";
+import { Model } from "@/api/model";
 
-@Options({
-    props: { nonFieldErrors: Array, default: [] },
-})
-export default class NonFieldErrorsList extends Vue {}
+class Props {
+    model = prop({
+        type: Object as PropType<Model>,
+        required: true,
+    });
+}
+
+export default class NonFieldErrorsList extends Vue.with(Props) {
+    get nonFieldErrors() {
+        if (!this.model.matchesServer()) {
+            return [];
+        } else {
+            return this.model.nonFieldErrors;
+        }
+    }
+}
 </script>
 
 <style scoped></style>
