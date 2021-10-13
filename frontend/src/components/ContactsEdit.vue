@@ -387,164 +387,160 @@ import {
     getFullName,
     ServerContactId,
 } from "@/api/contacts";
-import { Options, prop, Vue } from "vue-class-component";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
-import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
 import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
 import { Model } from "@/api/model";
-import { PropType } from "vue";
+import { defineComponent, PropType } from "vue";
 
-class Props {
-    localId = prop({
-        type: Number as PropType<ContactId>,
-        required: true,
-    });
-
-    serverId = prop({
-        type: Number as PropType<ServerContactId>,
-        default: null,
-    });
-
-    isDiscardChangesDialogActive!: boolean;
-}
-
-@Options({
+export default defineComponent({
+    name: "ContactsEdit",
     components: {
         SocialMediaEdit,
-        NonFieldErrorsList,
         SpinnerOverlay,
         ContactsOneToMany,
         ValidatedField,
         ImportantDatesEdit,
     },
-    watch: { localId: "loadContact", saving: "onSavingUpdated" },
+    props: {
+        localId: {
+            type: Number as PropType<ContactId>,
+            required: true,
+        },
+        serverId: {
+            type: Number as PropType<ServerContactId>,
+            default: null,
+        },
+        isDiscardChangesDialogActive: { type: Boolean, default: false },
+    },
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
-})
-export default class ContactsEdit extends Vue.with(Props) {
-    model = new Model<Contact>(new Contact());
-
-    extraNameOpen = false;
-    savingEmails = false;
-    savingPhones = false;
-    savingAddresses = false;
-    savingSocials = false;
-    savingImportantDates = false;
-    loading = false;
-
-    get saving() {
-        return (
-            this.model.isSubmitting ||
-            this.savingEmails ||
-            this.savingPhones ||
-            this.savingAddresses ||
-            this.savingSocials ||
-            this.savingImportantDates
-        );
-    }
-
-    get fullName() {
-        if (!this.model) {
-            return null;
-        }
-        return getFullName(this.model.model as Contact);
-    }
-
-    onSavingUpdated(newVal: boolean, oldVal: boolean) {
-        if (!newVal && oldVal && this.model.model.id) {
-            // if `saving` switched from `true` to `false`, then the contact has just been updated
-            console.log(
-                "ContactsEdit: emitting contact-updated event for contact",
-                this.localId
+    data() {
+        return {
+            model: new Model<Contact>(new Contact()),
+            extraNameOpen: false,
+            savingEmails: false,
+            savingPhones: false,
+            savingAddresses: false,
+            savingSocials: false,
+            savingImportantDates: false,
+            loading: false,
+        };
+    },
+    computed: {
+        saving() {
+            return (
+                this.model.isSubmitting ||
+                this.savingEmails ||
+                this.savingPhones ||
+                this.savingAddresses ||
+                this.savingSocials ||
+                this.savingImportantDates
             );
-            this.$emit("contact-updated", this.localId, this.model.model);
-        }
-    }
-
-    async loadContact() {
-        if (this.serverId === null) {
-            this.model = new Model(new Contact());
-            return;
-        }
-        this.loading = true;
-        const response = await getAxiosInstance().get(
-            "contact_book/get_contact_by_id/" + this.serverId
-        );
-        this.model = new Model(response.data as Contact);
-        this.loading = false;
-    }
-
-    async mounted() {
-        await this.loadContact();
-    }
-
-    async submit() {
-        let created = false;
-        await this.model.tryUpdate(async () => {
-            const response = await getAxiosInstance().request({
-                url:
-                    "contact_book/" +
-                    (this.model.model.id
-                        ? "update_contact_by_id/" + this.model.model.id
-                        : "create_contact"),
-                method: this.model.model.id ? "PUT" : "POST",
-                data: this.model.model,
-            });
-
-            if (response.status === 201) {
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact created")
-                );
-                this.model.captureServerResponse(response.data as Contact);
-                created = true;
-            } else {
-                this.model.captureServerResponse(null);
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact updated")
-                );
+        },
+        fullName() {
+            if (!this.model) {
+                return null;
             }
-        });
-        if (created) {
-            console.log("ContactsEdit: switching to edit view");
-            await this.$router.push("/app/contacts/" + this.model.model.id);
-        }
-    }
+            return getFullName(this.model.model as Contact);
+        },
+    },
+    watch: { localId: "loadContact", saving: "onSavingUpdated" },
+    methods: {
+        onSavingUpdated(newVal: boolean, oldVal: boolean) {
+            if (!newVal && oldVal && this.model.model.id) {
+                // if `saving` switched from `true` to `false`, then the contact has just been updated
+                console.log(
+                    "ContactsEdit: emitting contact-updated event for contact",
+                    this.localId
+                );
+                this.$emit("contact-updated", this.localId, this.model.model);
+            }
+        },
 
-    hasUnsavedChanges(): boolean {
-        return (
-            !this.model.matchesServer() ||
-            (
-                this.$refs.phoneNumbers as typeof ContactsOneToMany
-            ).hasUnsavedChanges() ||
-            (
-                this.$refs.emails as typeof ContactsOneToMany
-            ).hasUnsavedChanges() ||
-            (
-                this.$refs.addresses as typeof ContactsOneToMany
-            ).hasUnsavedChanges() ||
-            (this.$refs.socialMedia as SocialMediaEdit).hasUnsavedChanges() ||
-            (
-                this.$refs.importantDates as ImportantDatesEdit
-            ).hasUnsavedChanges()
-        );
-    }
+        async loadContact() {
+            if (this.serverId === null) {
+                this.model = new Model(new Contact());
+                return;
+            }
+            this.loading = true;
+            let response = await getAxiosInstance().get(
+                "contact_book/get_contact_by_id/" + this.serverId
+            );
+            this.model = new Model(response.data);
+            this.loading = false;
+        },
 
-    freshEmailAddress(): Record<string, any> {
-        return { label: "other", email_address: "" };
-    }
+        async mounted() {
+            await this.loadContact();
+        },
 
-    freshPhoneNumber(): Record<string, any> {
-        return { label: "other", number: "" };
-    }
+        async submit() {
+            let created = false;
+            await this.model.tryUpdate(async () => {
+                let response = await getAxiosInstance().request({
+                    url:
+                        "contact_book/" +
+                        (this.model.model.id
+                            ? "update_contact_by_id/" + this.model.model.id
+                            : "create_contact"),
+                    method: this.model.model.id ? "PUT" : "POST",
+                    data: this.model.model,
+                });
 
-    freshAddress(): Record<string, any> {
-        return { is_current: true };
-    }
-}
+                if (response.status === 201) {
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact created")
+                    );
+                    this.model.captureServerResponse(response.data);
+                    created = true;
+                } else {
+                    this.model.captureServerResponse(null);
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact updated")
+                    );
+                }
+            });
+            if (created) {
+                console.log("ContactsEdit: switching to edit view");
+                await this.$router.push("/app/contacts/" + this.model.model.id);
+            }
+        },
+
+        hasUnsavedChanges(): boolean {
+            return (
+                !this.model.matchesServer() ||
+                (
+                    this.$refs.phoneNumbers as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.emails as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.addresses as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.socialMedia as SocialMediaEdit
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.importantDates as ImportantDatesEdit
+                ).hasUnsavedChanges()
+            );
+        },
+        freshEmailAddress(): Record<string, any> {
+            return { label: "other", email_address: "" };
+        },
+        freshPhoneNumber(): Record<string, any> {
+            return { label: "other", number: "" };
+        },
+        freshAddress(): Record<string, any> {
+            return { is_current: true };
+        },
+    },
+});
 </script>
 
 <style scoped lang="scss">

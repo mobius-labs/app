@@ -217,7 +217,9 @@ export default class Contacts extends Vue.with(Props) {
 
     hasUnsavedChanges(): boolean {
         return this.$refs.contactsEdit
-            ? (this.$refs.contactsEdit as ContactsEdit).hasUnsavedChanges()
+            ? (
+                  this.$refs.contactsEdit as typeof ContactsEdit
+              ).hasUnsavedChanges()
             : false;
     }
 
