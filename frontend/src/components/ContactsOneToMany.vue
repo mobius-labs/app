@@ -78,7 +78,7 @@ interface ItemCreatedResponse {
 // server ID, which we then continue to use for future PUT updates
 //
 // Note: this component has been reverted to the built-in Vue `defineComponent` style
-// rather than vue-class-component, because I encountered a difficult-to-reproduce issue where
+// rather than class style, because I encountered a difficult-to-reproduce issue where
 // `this.serverId != this.$props.serverId`, which should theoretically never happen.
 export default defineComponent({
     name: "ContactsOneToMany",
