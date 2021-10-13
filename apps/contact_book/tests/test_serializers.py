@@ -138,7 +138,7 @@ class ContactBookSerializerTests(TestCase):
     def test_contact_serializer_contains_expected_fields(self):
         data = self.email_serializer.data
 
-        self.assertCountEqual(data.keys(), ['email_address', 'label'])
+        self.assertCountEqual(data.keys(), ['id', 'email_address', 'label'])
 
     def test_email_address_field_content(self):
         data = self.email_serializer.data
