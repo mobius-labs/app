@@ -135,7 +135,6 @@ export default defineComponent({
     },
     methods: {
         onServerIdUpdated(newId: ServerContactId, oldId: ServerContactId) {
-            console.log(oldId, "->", newId);
             if (!newId || oldId) {
                 return;
             }
