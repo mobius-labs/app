@@ -468,17 +468,17 @@ export default defineComponent({
                 return;
             }
             this.loading = true;
-            let response = await getAxiosInstance().get(
+            const response = await getAxiosInstance().get(
                 "contact_book/get_contact_by_id/" + this.serverId
             );
-            this.model = new Model(response.data);
+            this.model = new Model(response.data as Contact);
             this.loading = false;
         },
 
         async submit() {
             let created = false;
             await this.model.tryUpdate(async () => {
-                let response = await getAxiosInstance().request({
+                const response = await getAxiosInstance().request({
                     url:
                         "contact_book/" +
                         (this.model.model.id
@@ -492,7 +492,7 @@ export default defineComponent({
                     this.$oruga.notification.open(
                         defaultToast("info", "Contact created")
                     );
-                    this.model.captureServerResponse(response.data);
+                    this.model.captureServerResponse(response.data as Contact);
                     created = true;
                 } else {
                     this.model.captureServerResponse(null);
