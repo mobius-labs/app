@@ -27,10 +27,8 @@
                         data-test="close-button"
                         @click="$router.push('/app/contacts')"
                     />
-                    <h2 class="title p-3">
-                        <span v-if="fullName" data-test="contact-name">{{
-                            fullName
-                        }}</span>
+                    <h2 class="title p-3" data-test="contact-name">
+                        <span v-if="fullName">{{ fullName }}</span>
                         <span v-else>Add Contact</span>
                     </h2>
                 </div>
@@ -449,6 +447,9 @@ export default defineComponent({
         },
     },
     watch: { localId: "loadContact", saving: "onSavingUpdated" },
+    async mounted() {
+        await this.loadContact();
+    },
     methods: {
         onSavingUpdated(newVal: boolean, oldVal: boolean) {
             if (!newVal && oldVal && this.model.model.id) {
@@ -472,10 +473,6 @@ export default defineComponent({
             );
             this.model = new Model(response.data);
             this.loading = false;
-        },
-
-        async mounted() {
-            await this.loadContact();
         },
 
         async submit() {

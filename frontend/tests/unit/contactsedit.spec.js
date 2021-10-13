@@ -288,15 +288,15 @@ describe("ContactsEdit component unit tests", () => {
         }
     });
 
-    test.only("Display add and delete email actions upon clicking add email", () => {
-        const wrapper = mount(ContactsEdit, {
-            propsData: {
-                expanded: true,
-                contact: { name: "contactName" },
-            },
-        });
-        wrapper.setData({ emails: [({ address: "shiv@gmail.com" }, 0)] });
-        wrapper.find("o-button.add-email").trigger("click");
-        //expect(wrapper.find("o-field.edit-email").exists()).toBeTruthy();
-    });
+    // test.only("Display add and delete email actions upon clicking add email", () => {
+    //     const wrapper = mount(ContactsEdit, {
+    //         propsData: {
+    //             expanded: true,
+    //             contact: { name: "contactName" },
+    //         },
+    //     });
+    //     wrapper.setData({ emails: [({ address: "shiv@gmail.com" }, 0)] });
+    //     wrapper.find("o-button.add-email").trigger("click");
+    //     //expect(wrapper.find("o-field.edit-email").exists()).toBeTruthy();
+    // });
 });
