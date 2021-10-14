@@ -25,6 +25,7 @@ def registration_view(request):
 
     return Response(data)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_info(request):
