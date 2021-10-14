@@ -30,6 +30,7 @@
                 </o-loading>
 
                 <!-- TODO: make this header sticky -->
+                <!-- TODO: make page size derived from server -->
                 <o-table
                     hoverable
                     focusable
@@ -39,7 +40,7 @@
                     :data="contacts"
                     v-model:current-page="currentPage"
                     @sort="onSortChanged"
-                    :per-page="3"
+                    :per-page="20"
                     :total="totalContacts"
                 >
                     <o-table-column
