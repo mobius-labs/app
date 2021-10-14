@@ -99,7 +99,6 @@ import { Model } from "@/api/model";
 class Props {
     model!: Model;
     updateItem!: (v: Record<string, any>) => void;
-    debounceUpdateItem!: (v: Record<string, any>) => void;
     socialMediaSites = prop({
         type: Object as PropType<Map<string, SocialMediaSite>>,
         required: true,

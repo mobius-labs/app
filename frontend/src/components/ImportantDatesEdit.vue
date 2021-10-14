@@ -1,6 +1,6 @@
 <template>
     <ContactsOneToMany
-        v-slot="{ model, updateItem, debounceUpdateItem }"
+        v-slot="{ model, updateItem }"
         ref="oneToMany"
         add-button-text="Add Date"
         title="Important Dates"
@@ -51,7 +51,7 @@
             :model="model"
             name="date"
             :label="null"
-            :update-value="debounceUpdateItem"
+            :update-value="updateItem"
             required
         >
             <o-datepicker
@@ -97,7 +97,6 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
 
     get filteredImportantDateTypes() {
         return Array.from(this.importantDateTypes.values());
-        // .filter((ty: ImportantDateType) => ty.label.toLowerCase().includes(this.importantDateTypesSearch.toLowerCase()));
     }
 
     async mounted() {

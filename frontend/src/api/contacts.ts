@@ -4,6 +4,10 @@ export type ContactId = number;
 // +ve if a proper server ID, null if doesn't exist on the server yet
 export type ServerContactId = number | null;
 
+// ms to wait before autosaving a contact
+export const CONTACT_AUTOSAVE_TIMER_MS = 300;
+export const CONTACTS_AUTOSAVE_REQUEST_MS = 700;
+
 export class Contact {
     id: ServerContactId | null = null;
     first_name = null;

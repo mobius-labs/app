@@ -1,6 +1,6 @@
 <template>
     <div class="is-flex is-align-items-stretch is-full-height">
-        <div class="is-flex-1 is-relative is-flex is-flex-direction-column">
+        <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
                 <div class="ml-6 mr-4">
@@ -24,94 +24,139 @@
                 >
             </div>
 
-            <o-loading :active="loading" :full-page="false">
-                <Spinner size="large"></Spinner>
-            </o-loading>
+            <div class="is-relative is-flex-1 is-flex-direction-column is-flex">
+                <o-loading :active="loading" :full-page="false">
+                    <Spinner size="large"></Spinner>
+                </o-loading>
 
-            <!-- TODO: make this header sticky -->
-            <o-table hoverable focusable :data="filteredContacts">
-                <o-table-column v-slot="props" label="Name">
-                    {{ getFullName(props.row.contact) }}
-                </o-table-column>
-                <o-table-column v-slot="props" label="Phone Nos. & Emails">
-                    <ContactsOneToManyList
-                        v-slot="{ item }"
-                        api-name="email"
-                        :contact-id="props.row.contact.id"
-                        :version="props.row.version"
-                    >
-                        <span class="tag mr-2"
-                            ><o-icon icon="envelope" class="mr-0" /><a
-                                :href="'mailto:' + item.email_address"
-                                class="has-text-grey-darker"
-                                >{{ item.email_address }}</a
-                            ></span
-                        >
-                    </ContactsOneToManyList>
-
-                    <ContactsOneToManyList
-                        v-slot="{ item }"
-                        api-name="phone_no"
-                        :contact-id="props.row.contact.id"
-                        :version="props.row.version"
-                    >
-                        <span class="tag mr-2"
-                            ><o-icon icon="phone" class="mr-0" />{{
-                                item.number
-                            }}</span
-                        >
-                    </ContactsOneToManyList>
-                </o-table-column>
-                <o-table-column v-slot="props" label="Address">
-                    <ContactsOneToManyList
-                        v-slot="{ item }"
-                        api-name="address"
-                        :contact-id="props.row.contact.id"
-                        :version="props.row.version"
-                    >
-                        <p class="is-size-7">
-                            {{ item.address_line_one }}<br />{{
-                                item.address_line_two
-                            }}<br />{{ item.suburb }} {{ item.state }}
-                            {{ item.postcode }}
-                        </p>
-                    </ContactsOneToManyList>
-                </o-table-column>
-                <o-table-column
-                    v-if="selectedId === null"
-                    v-slot="props"
-                    label="Regularity of Contact"
+                <!-- TODO: make this header sticky -->
+                <o-table
+                    hoverable
+                    focusable
+                    paginated
+                    backend-pagination
+                    backend-sorting
+                    :data="contacts"
+                    v-model:current-page="currentPage"
+                    @sort="onSortChanged"
+                    :per-page="3"
+                    :total="totalContacts"
                 >
-                    {{
-                        displayRegularity(
-                            props.row.contact.regularity_of_contact
-                        )
-                    }}
-                </o-table-column>
-                <o-table-column v-slot="props" label="Actions">
-                    <div class="buttons">
-                        <o-button
-                            icon-left="pencil-alt"
-                            variant="warning"
-                            @click="
-                                $router.push(
-                                    '/app/contacts/' + props.row.contact.id
-                                )
-                            "
+                    <o-table-column
+                        v-slot="props"
+                        label="First Name"
+                        field="first_name"
+                        sortable
+                        v-if="!isContactsEditExpanded"
+                    >
+                        {{ props.row.contact.first_name }}
+                    </o-table-column>
+                    <o-table-column
+                        v-slot="props"
+                        label="Surname"
+                        field="surname"
+                        sortable
+                        v-if="!isContactsEditExpanded"
+                    >
+                        {{ props.row.contact.surname }}
+                    </o-table-column>
+                    <o-table-column
+                        v-slot="props"
+                        label="Name"
+                        v-if="isContactsEditExpanded"
+                    >
+                        {{ getFullName(props.row.contact) }}
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Phone Nos. & Emails">
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="email"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
                         >
-                            Edit
-                        </o-button>
+                            <span class="tag mr-2"
+                                ><o-icon icon="envelope" class="mr-0" /><a
+                                    :href="'mailto:' + item.email_address"
+                                    class="has-text-grey-darker"
+                                    >{{ item.email_address }}</a
+                                ></span
+                            >
+                        </ContactsOneToManyList>
 
-                        <o-button
-                            icon-left="trash"
-                            variant="info"
-                            @click="deleteContact(props.row.localId)"
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="phone_no"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
                         >
-                            Delete
-                        </o-button>
-                    </div>
-                </o-table-column>
-            </o-table>
+                            <span class="tag mr-2"
+                                ><o-icon icon="phone" class="mr-0" />{{
+                                    item.number
+                                }}</span
+                            >
+                        </ContactsOneToManyList>
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Address">
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="address"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
+                        >
+                            <p class="is-size-7">
+                                {{ item.address_line_one }}<br />{{
+                                    item.address_line_two
+                                }}<br />{{ item.suburb }} {{ item.state }}
+                                {{ item.postcode }}
+                            </p>
+                        </ContactsOneToManyList>
+                    </o-table-column>
+                    <o-table-column
+                        v-if="!isContactsEditExpanded"
+                        v-slot="props"
+                        label="Regularity of Contact"
+                        field="regularity_of_contact"
+                        sortable
+                    >
+                        {{
+                            displayRegularity(
+                                props.row.contact.regularity_of_contact
+                            )
+                        }}
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Actions">
+                        <div class="buttons">
+                            <o-button
+                                icon-left="pencil-alt"
+                                variant="warning"
+                                @click="
+                                    $router.push(
+                                        '/app/contacts/' + props.row.contact.id
+                                    )
+                                "
+                            >
+                                Edit
+                            </o-button>
+
+                            <o-button
+                                icon-left="trash"
+                                variant="info"
+                                @click="deleteContact(props.row.localId)"
+                            >
+                                Delete
+                            </o-button>
+                        </div>
+                    </o-table-column>
+                    <template #empty>
+                        <p>No results found.</p>
+                    </template>
+                    <!-- TODO: when https://github.com/oruga-ui/oruga/issues/208 is fixed,
+                               try to fix pagination to the bottom of the window -->
+                    <!--                <template #footer>-->
+                    <!--                    <tr>Footer</tr>-->
+                    <!--                </template>-->
+                </o-table>
+            </div>
         </div>
 
         <div
@@ -139,12 +184,13 @@ import {
     ContactId,
     displayRegularity,
     getFullName,
+    ServerContactId,
 } from "@/api/contacts";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
 import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
-import { debounce, deepCopy } from "@/api/utils";
+import debounce from "lodash/debounce";
 
 class Props {
     selectedId: number | null = null;
@@ -158,32 +204,42 @@ interface LocalContact {
 }
 
 interface ContactsListResponse {
+    count: number;
     results: Contact[];
+}
+
+interface SortData {
+    field: string;
+    direction: "asc" | "desc";
 }
 
 @Options({
     components: { ContactsEdit, Spinner, ContactsOneToManyList },
-    watch: { searchQuery: "loadAllContacts" },
+    watch: {
+        searchQuery: "loadAllContacts",
+        currentPage: "loadAllContacts",
+        sortData: "loadAllContacts",
+    },
 })
 export default class Contacts extends Vue.with(Props) {
     searchQuery = "";
-    contacts = new Map<ContactId, LocalContact>();
+    contacts: LocalContact[] = [];
+    sortData: SortData | null = null;
+    totalContacts = 0;
+    currentPage = 1;
     nextClientContactId = -1;
     getFullName = getFullName;
     displayRegularity = displayRegularity;
     isDiscardChangesDialogActive = false;
     loading = false;
     nextFn?: () => void;
+    serverToLocalIdMap = new Map<ServerContactId, ContactId>();
 
     debounceUpdateSearchQuery = debounce((v: string) => {
         this.searchQuery = v;
     }, 500);
 
     static NEW_CONTACT = -1;
-
-    get filteredContacts() {
-        return Array.from(this.contacts.values());
-    }
 
     async mounted() {
         await this.loadAllContacts();
@@ -201,18 +257,22 @@ export default class Contacts extends Vue.with(Props) {
         if (this.selectedId === Contacts.NEW_CONTACT) {
             return this.nextClientContactId;
         }
-        for (const contact of this.contacts.values()) {
-            if (contact.contact.id === this.selectedId) {
-                return contact.localId;
-            }
-        }
-        return this.selectedId;
+        return this.serverToLocalIdMap.get(this.selectedId) || this.selectedId;
     }
 
     get selectedServerId() {
         return this.selectedId === Contacts.NEW_CONTACT
             ? null
             : this.selectedId;
+    }
+
+    get orderingParam() {
+        if (!this.sortData) {
+            return null;
+        }
+        return this.sortData.direction === "asc"
+            ? this.sortData.field
+            : "-" + this.sortData.field;
     }
 
     hasUnsavedChanges(): boolean {
@@ -223,25 +283,45 @@ export default class Contacts extends Vue.with(Props) {
             : false;
     }
 
+    findContactById(localId: ContactId): LocalContact | null {
+        for (const contact of this.contacts) {
+            if (contact.localId === localId) {
+                return contact;
+            }
+        }
+        return null;
+    }
+
     async loadAllContacts() {
         this.loading = true;
         const response = await getAxiosInstance().get("contact_book/list", {
-            params: { search: this.searchQuery },
+            params: {
+                search: this.searchQuery,
+                page: this.currentPage,
+                ordering: this.orderingParam,
+            },
         });
-        this.contacts.clear();
-        for (const contact of (response.data as ContactsListResponse).results) {
-            const localId = contact.id!;
-            this.contacts.set(localId, {
-                contact,
+        const data = response.data as ContactsListResponse;
+
+        this.totalContacts = data.count;
+
+        this.contacts = data.results.map((serverContact: Contact) => {
+            const localId =
+                this.serverToLocalIdMap.get(serverContact.id!) ||
+                serverContact.id!;
+            const localContact = this.findContactById(localId);
+
+            return {
+                contact: serverContact,
                 localId,
-                version: 1,
-            });
-        }
+                version: localContact ? localContact.version : 1,
+            };
+        });
         this.loading = false;
     }
 
     async deleteContact(id: ContactId) {
-        const contact = this.contacts.get(id);
+        const contact = this.findContactById(id);
         if (contact) {
             try {
                 await getAxiosInstance().delete(
@@ -250,7 +330,7 @@ export default class Contacts extends Vue.with(Props) {
                 this.$oruga.notification.open(
                     defaultToast("info", "Contact deleted")
                 );
-                this.contacts.delete(id);
+                await this.loadAllContacts();
             } catch (e) {
                 this.$oruga.notification.open(
                     defaultToast("danger", "Failed to delete contact")
@@ -261,14 +341,27 @@ export default class Contacts extends Vue.with(Props) {
 
     // updates the contact info for a particular contact in-place,
     // without reloading all the contacts from scratch
-    onContactUpdated(localId: ContactId, contact: Contact) {
-        console.log("Contacts: received updated event for ", localId);
-        const existing = this.contacts.get(localId);
-        this.contacts.set(localId, {
-            contact: deepCopy(contact),
-            localId: localId,
-            version: existing ? existing.version + 1 : 1,
-        });
+    async onContactUpdated(
+        localId: ContactId,
+        serverId: ServerContactId,
+        newlyCreated: boolean
+    ) {
+        console.log("Contacts: received updated event for ", localId, serverId);
+        if (serverId !== null) {
+            this.serverToLocalIdMap.set(serverId, localId);
+        }
+        const contact = this.findContactById(localId);
+        if (contact) {
+            contact.version += 1;
+        }
+        await this.loadAllContacts();
+        if (newlyCreated) {
+            await this.$router.push("/app/contacts/" + serverId);
+        }
+    }
+
+    onSortChanged(field: string, direction: "asc" | "desc") {
+        this.sortData = { field, direction };
     }
 
     addContact() {
@@ -350,5 +443,9 @@ export default class Contacts extends Vue.with(Props) {
     height: 300px;
     overflow-y: scroll;
     flex: 1 1 auto;
+}
+
+:deep(.pagination) {
+    padding: 8px;
 }
 </style>

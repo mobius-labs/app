@@ -75,6 +75,7 @@ export const getAxiosInstance = () => {
                     }
                 }
                 if (
+                    error.response &&
                     error.response.status === 401 &&
                     error.response.data &&
                     error.response.data.detail === "Invalid token."
