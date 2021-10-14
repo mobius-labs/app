@@ -52,6 +52,7 @@ const routes = [
         path: "/onboard",
         name: "Onboard",
         component: OnboardLayout,
+        meta: { title: "Onboard " },
     },
     {
         path: "/app",

@@ -55,9 +55,9 @@
                         </div>
                     </o-step-item>
                     <o-step-item icon="search" step="3">
-                        <div class="container has-text-centered">
-                            <p class="title is-3 has-text-primary">
-                                ...and then, we'll add some more details...
+                        <div class="container has-text-left">
+                            <p class="title is-3 has-text-primary mb-2">
+                                And then, we'll add some more details...
                             </p>
                         </div>
                         <div class="p-1">
@@ -101,9 +101,7 @@
                                 ...and now, you're all set.
                             </p>
                         </div>
-                        <div
-                            class="container has-text-centered continue-button"
-                        >
+                        <div class="container has-text-centered mt-5">
                             <o-button
                                 icon="check"
                                 variant="primary is-large"
@@ -122,7 +120,7 @@
                         >
                             <o-button
                                 outlined
-                                variant="link"
+                                variant="primary mr-2"
                                 icon-pack="fas"
                                 icon-left="backward"
                                 :disabled="previous.disabled"
@@ -155,6 +153,7 @@ import { getAxiosInstance } from "@/api/api";
 import { Model } from "@/api/model";
 import { Contact } from "@/api/contacts";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
+import { defaultToast } from "@/toasts";
 
 @Options({
     components: {
@@ -167,11 +166,24 @@ export default class OnboardLayout extends Vue {
     model = new Model(new Contact());
     saving = false;
 
-    submitUserDetails = async () => {
-        let instance = getAxiosInstance();
-        console.log(instance);
-        this.$router.push("/app");
-    };
+    async submitUserDetails() {
+        await this.model.tryUpdate(async () => {
+            const response = await getAxiosInstance().request({
+                url: "contact_book/create_contact",
+                method: "POST",
+                data: this.model.model,
+            });
+
+            if (response.status === 201) {
+                console.log("good request!");
+                this.$oruga.notification.open(
+                    defaultToast("info", "Contact created")
+                );
+                this.model.captureServerResponse(response.data as Contact);
+                await this.$router.push("/app");
+            }
+        });
+    }
 }
 </script>
 
@@ -184,10 +196,6 @@ export default class OnboardLayout extends Vue {
 .welcome-box {
     width: 40%;
     min-width: 532px;
-}
-
-.continue-button {
-    margin: 4px 0 0 0;
 }
 
 .space-items {

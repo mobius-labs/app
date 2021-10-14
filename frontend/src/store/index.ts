@@ -38,7 +38,7 @@ const store = createStore({
             console.log("redirecting...");
             persistToken(token);
             if (isSignUp) {
-                await router.push("/onboard/congratulations");
+                await router.push("/onboard");
                 oruga.notification.open({
                     message: "Yay!",
                     variant: "link",
