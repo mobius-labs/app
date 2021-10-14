@@ -151,7 +151,8 @@
 import { Vue, Options } from "vue-class-component";
 import ContinueButton from "@/components/ContinueButton.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
-import { Model, getAxiosInstance } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
+import { Model } from "@/api/model";
 import { Contact } from "@/api/contacts";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 
