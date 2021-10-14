@@ -15,6 +15,7 @@ import AuthLayout from "../views/AuthLayout.vue";
 import BusinessCardEdit from "../views/BusinessCardEdit.vue";
 import { nextTick } from "vue";
 import store from "@/store";
+import BusinessCardView from "../views/BusinessCardView.vue";
 
 const routes = [
     {
@@ -22,6 +23,11 @@ const routes = [
         name: "Home",
         component: Home,
         meta: { title: "Home", allowGuests: true },
+    },
+    {
+        path: "/card/:email",
+        name: "View Business Card",
+        component: BusinessCardView,
     },
     {
         path: "/",

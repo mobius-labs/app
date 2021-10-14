@@ -80,6 +80,8 @@
             </div>
 
             <div class="p-4">
+                <slot></slot>
+
                 <div class="space-items">
                     <ValidatedField
                         :model="model"
@@ -491,7 +493,7 @@ export default defineComponent({
                 this.savingImportantDates
             );
         },
-        recentlyUpdated() {
+        isRecentlyUpdated() {
             // TODO: make this include updates from the ContactsOneToMany components
             return this.model.isRecentlyUpdated;
         },

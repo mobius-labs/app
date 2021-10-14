@@ -1,7 +1,12 @@
 <template>
     <div class="app-layout">
         <nav
-            :class="{ menu: true, 'app-menu': true, 'app-menu-dark': darkMode }"
+            :class="{
+                menu: true,
+                'app-menu': true,
+                'app-menu-dark': darkMode,
+                'has-background-grey-darker': darkMode,
+            }"
         >
             <div class="level">
                 <div class="level-left">
@@ -18,16 +23,7 @@
                 <div class="level-right">
                     <o-dropdown aria-role="list">
                         <template #trigger>
-                            <o-button variant="info">
-                                <!--                                <div class="user-info">-->
-                                <o-icon
-                                    icon="user"
-                                    size="medium"
-                                    variant="primary"
-                                />
-                                <!--                                </div>-->
-                                <!--                                <o-icon :icon="active ? 'caret-up' : 'caret-down'"></o-icon>-->
-                            </o-button>
+                            <UserIcon :user="user"></UserIcon>
                         </template>
 
                         <!--                        <o-dropdown-item aria-role="listitem">Action</o-dropdown-item>-->
@@ -52,6 +48,14 @@
                         <!--                        <li><a>Networking</a></li>-->
                         <!--                    </ul>-->
                     </li>
+                    <!--                    <li>-->
+                    <!--                        <router-link to="/app"-->
+                    <!--                            ><s>Calendar</s> (coming soon)-->
+                    <!--                        </router-link>-->
+                    <!--                    </li>-->
+                </ul>
+                <p class="menu-label">Networking</p>
+                <ul class="menu-list">
                     <li>
                         <router-link to="/app/business-card"
                             >Business Card
@@ -64,11 +68,6 @@
                         <!--                        <li><a>Family</a></li>-->
                         <!--                        <li><a>Networking</a></li>-->
                         <!--                    </ul>-->
-                    </li>
-                    <li>
-                        <router-link to="/app"
-                            ><s>Calendar</s> (coming soon)
-                        </router-link>
                     </li>
                 </ul>
             </div>
@@ -87,16 +86,20 @@
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
 import { RouteLocationNormalized } from "vue-router";
+import { User, fetchUserDetails } from "@/api/user";
+import UserIcon from "@/components/UserIcon.vue";
 
 @Options({
-    components: { Logo },
+    components: { UserIcon, Logo },
     watch: { $route: "onRouteUpdated" },
 })
 export default class AppLayout extends Vue {
     darkMode = false;
+    user: User | null = null;
 
-    mounted() {
+    async mounted() {
         this.onRouteUpdated(this.$route);
+        this.user = await fetchUserDetails();
     }
 
     async logout() {
@@ -123,7 +126,7 @@ export default class AppLayout extends Vue {
 
     .app-menu-dark & {
         transition: background-color 0.5s ease;
-        background-color: $grey;
+        background-color: $grey-dark;
 
         .menu-label {
             transition: color 0.5s ease;
@@ -154,10 +157,6 @@ export default class AppLayout extends Vue {
     padding: 2rem;
 }
 
-.app-menu-dark {
-    background-color: $grey-dark;
-}
-
 .app-content {
     flex: 1;
 }
@@ -169,5 +168,12 @@ export default class AppLayout extends Vue {
 .home-row {
     display: flex;
     justify-content: space-between;
+}
+
+.gravatar-image {
+    cursor: pointer;
+    border-radius: 50%;
+    width: 3rem;
+    border: 2px solid $primary;
 }
 </style>

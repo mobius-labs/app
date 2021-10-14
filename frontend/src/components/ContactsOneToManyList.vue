@@ -23,6 +23,7 @@ class Props {
 // However, it has the additional feature of only fetching items when visible.
 @Options({
     watch: { contactId: "fetchAllItems", version: "fetchAllItems" },
+    emits: ["loaded"],
 })
 export default class ContactsOneToManyList extends Vue.with(Props) {
     items: Record<string, any>[] = [];
@@ -66,6 +67,7 @@ export default class ContactsOneToManyList extends Vue.with(Props) {
             "/contact_book/get_" + this.apiName + "s_by_cid/" + this.contactId
         );
         this.items = response.data as Record<string, any>[];
+        this.$emit("loaded");
     }
 }
 </script>

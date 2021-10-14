@@ -1,14 +1,25 @@
 <template>
     <div class="is-flex" style="height: 100%">
         <div class="is-flex-1 is-flex is-flex-direction-column">
-            <div class="level" style="padding: 2rem">
+            <div
+                class="has-background-black-ter is-flex"
+                style="padding: 2rem; margin-bottom: 0"
+            >
                 <div>
-                    <h1 class="title">Business Card</h1>
-                    <h2 class="subtitle">
+                    <h1 class="title has-text-white-bis">Business Card</h1>
+                    <h2 class="subtitle has-text-grey-light">
                         Share business cards online with colleagues in your
                         network.
                     </h2>
                 </div>
+                <div class="is-flex-grow-1"></div>
+                <o-button
+                    variant="dark"
+                    icon-left="share"
+                    class="is-large"
+                    v-if="user && user.business_card"
+                    >Copy link</o-button
+                >
             </div>
             <div
                 class="
@@ -17,27 +28,46 @@
                     is-flex-direction-column
                     is-align-items-center
                     is-justify-content-center
-                    has-background-grey-lighter
+                    has-background-grey-dark
                 "
+                style="overflow-y: auto; padding: 5rem 0"
             >
                 <transition name="fade">
                     <div v-if="user && userContact" class="has-text-centered">
-                        <BusinessCard :contact="userContact" />
-                        <o-switch
-                            size="large"
-                            v-model="user.business_card"
-                            class="mt-6"
-                        >
-                            <span v-if="user.business_card"
-                                >Business card shared</span
+                        <BusinessCard
+                            :contact="userContact"
+                            :contact-version="userContactVersion"
+                        />
+
+                        <transition-group name="fade">
+                            <div
+                                class="edit-button"
+                                key="edit"
+                                v-if="!isEditingContactDetails"
                             >
-                            <span v-else>Business card not shared</span>
-                        </o-switch>
+                                <a @click="shouldEditContactDetails = true"
+                                    ><o-icon icon="pencil-alt"></o-icon> Edit
+                                    business card content</a
+                                >
+                            </div>
+
+                            <o-switch
+                                key="enable"
+                                v-if="!isEditingContactDetails"
+                                size="large"
+                                v-model="user.business_card"
+                                class="mt-6"
+                            >
+                                <span class="has-text-grey-lighter">
+                                    <span v-if="user.business_card"
+                                        >Business card shared</span
+                                    >
+                                    <span v-else>Business card private</span>
+                                </span>
+                            </o-switch>
+                        </transition-group>
                     </div>
                 </transition>
-                <o-button @click="shouldEditContactDetails = true"
-                    >Edit</o-button
-                >
             </div>
         </div>
         <div
@@ -54,7 +84,22 @@
                 @contact-updated="onContactUpdated"
                 @discard-changes="discardChanges"
                 @cancel-discard="isDiscardChangesDialogActive = false"
-            />
+            >
+                <div class="content">
+                    <p>
+                        If you select to share your business card, then anyone
+                        with the link will be able to view the contact details
+                        you've entered.
+                    </p>
+                </div>
+
+                <o-switch v-model="user.business_card">
+                    <span v-if="user.business_card">Business card shared</span>
+                    <span v-else>Business card private</span>
+                </o-switch>
+
+                <hr />
+            </ContactsEdit>
         </div>
     </div>
 </template>
@@ -65,11 +110,7 @@ import { Contact, ContactId, ServerContactId } from "@/api/contacts";
 import ContactsEdit from "@/components/ContactsEdit.vue";
 import { defineComponent } from "vue";
 import { getAxiosInstance } from "@/api/api";
-
-interface User {
-    email: string;
-    business_card: boolean;
-}
+import { fetchUserDetails, User } from "@/api/user";
 
 export default defineComponent({
     name: "BusinessCardEdit",
@@ -77,10 +118,20 @@ export default defineComponent({
     data() {
         return {
             shouldEditContactDetails: false,
-            isDiscardChangesDialogActive: false,
             userContact: null as Contact | null,
+            userContactVersion: 1,
+            isDiscardChangesDialogActive: false,
             user: null as User | null,
         };
+    },
+    computed: {
+        isEditingContactDetails() {
+            // TODO: work out why this doesn't work
+            return (
+                (this as any).shouldEditContactDetails &&
+                (this as any).userContact
+            );
+        },
     },
     watch: {
         "user.business_card": "putUserDetails",
@@ -89,23 +140,19 @@ export default defineComponent({
         this.fetchUserDetails();
         this.fetchUserContact();
     },
-    computed: {
-        isEditingContactDetails() {
-            return this.shouldEditContactDetails && this.userContact;
-        },
-    },
     methods: {
         async fetchUserDetails() {
-            const result = await getAxiosInstance().get(
-                "/account/get_business_card_visibility"
-            );
-            this.user = result.data as User;
+            this.user = await fetchUserDetails();
         },
         async fetchUserContact() {
-            const result = await getAxiosInstance().get(
-                "/contact_book/get_user_contacts"
-            );
-            this.userContact = result.data as Contact;
+            try {
+                const result = await getAxiosInstance().get(
+                    "/contact_book/get_user_contacts"
+                );
+                this.userContact = result.data as Contact;
+            } catch (e) {
+                this.userContact = null;
+            }
         },
         async putUserDetails() {
             try {
@@ -124,7 +171,7 @@ export default defineComponent({
             newlyCreated: boolean
         ) {
             await this.fetchUserContact();
-            console.log(localId, serverId, newlyCreated);
+            this.userContactVersion += 1;
         },
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -133,10 +180,19 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 @import "../styles/flyout.css";
+@import "../styles/variables";
 
 .is-flex-1 {
     flex: 1;
+}
+
+.edit-button {
+    margin-top: 1.5rem;
+
+    a:hover {
+        color: lighten($link, 10%);
+    }
 }
 </style>

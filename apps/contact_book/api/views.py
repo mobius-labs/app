@@ -1,5 +1,6 @@
 from django.db import IntegrityError
 from django.db.models import Model
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -44,6 +45,10 @@ def create_contact(request):
 @permission_classes([IsAuthenticated])
 def create_user_contact(request):
     user = request.user
+
+    if user.connected_contact is not None:
+        return Response(ALREADY_ADDED_RESPONSE, status=400)
+
     contact = Contact(author=user)
     
     serializer = ContactSerializer(contact, data=request.data)
@@ -77,6 +82,8 @@ def get_contact_by_id(request, contact_id):
 def get_user_contacts(request):
     user = request.user
     contact = user.connected_contact
+    if contact is None:
+        return HttpResponse(status=404)
 
     if str(contact.author) != str(user.email):
         return Response({'user does not have permission to access contact'})

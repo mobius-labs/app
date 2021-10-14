@@ -23,10 +23,9 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
-import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SocialMediaEditItem from "@/components/SocialMediaEditItem.vue";
-import { SocialMediaSite } from "@/api/social";
+import { getSocialMediaSites, SocialMediaSite } from "@/api/social";
 import { ContactId, ServerContactId } from "@/api/contacts";
 
 class Props {
@@ -42,13 +41,7 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     socialMediaSites = new Map<string, SocialMediaSite>();
 
     async mounted() {
-        const response = await getAxiosInstance().get(
-            "/contact_book/get_social_media_sites/"
-        );
-        this.socialMediaSites.clear();
-        for (const site of response.data as SocialMediaSite[]) {
-            this.socialMediaSites.set(site.site, site);
-        }
+        this.socialMediaSites = await getSocialMediaSites();
     }
 
     freshSocialMedia(): Record<string, any> {

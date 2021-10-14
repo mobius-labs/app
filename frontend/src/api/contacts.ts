@@ -10,13 +10,24 @@ export const CONTACTS_AUTOSAVE_REQUEST_MS = 700;
 
 export class Contact {
     id: ServerContactId | null = null;
-    first_name = null;
-    middle_name = null;
-    surname = null;
+    title: string | null = null;
+    first_name: string | null = null;
+    middle_name: string | null = null;
+    surname: string | null = null;
+    company: string | null = "";
+    job_title: string | null = "";
+}
+
+export interface Address {
+    address_line_one: string;
+    suburb: string;
 }
 
 export function getFullName(contact: Contact) {
     let s = "";
+    if (contact.title) {
+        s += contact.title + " ";
+    }
     if (contact.first_name) {
         s += contact.first_name + " ";
     }
@@ -27,6 +38,12 @@ export function getFullName(contact: Contact) {
         s += contact.surname;
     }
     return s;
+}
+
+export function concatAddress(address: Address) {
+    return (
+        address.address_line_one + (address.suburb ? ", " + address.suburb : "")
+    );
 }
 
 export function displayRegularity(r: number) {
