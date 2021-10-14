@@ -1,6 +1,5 @@
 from django.db import IntegrityError
-from django.db.models import Model
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -11,7 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from rest_framework.authentication import TokenAuthentication
 from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -79,7 +77,7 @@ def get_user_contacts(request):
     contact = user.connected_contact
 
     if str(contact.author) != str(user.email):
-        return Response({'user does not have permission to access contact'})
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer = ContactSerializer(contact)
     return Response(serializer.data)
