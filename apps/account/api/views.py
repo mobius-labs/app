@@ -1,11 +1,8 @@
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from apps.account.api.serializers import RegistrationSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
-import random
-import string
 
 '''
 def get_random_string(length):
@@ -43,7 +40,7 @@ def update_business_card_visibility(request):
     serializer = UserSerializer(calling_user, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response({'update successful'})
+        return Response({ 'response': 'success' })
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
