@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from apps.account.api.serializers import RegistrationSerializer, UserSerializer
@@ -11,6 +12,7 @@ def get_random_string(length):
     return ''.join(random.choice(string.ascii_letters) for i in range(length))
 '''
 
+from apps.account.models import User
 
 @api_view(['POST'])
 @permission_classes([])
@@ -21,7 +23,7 @@ def registration_view(request):
         user = serializer.save()
         # user.business_card_url = get_random_string(10)
         # user.save()
-        data['response'] = "user registration successful"
+        data['response'] = "registration_successful"
         data['email'] = user.email
         token = Token.objects.get(user=user).key
         data['token'] = token
@@ -54,3 +56,11 @@ def get_business_card_visibility(request):
 
     serializer = UserSerializer(calling_user)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_info(request):
+    serialised = UserSerializer(request.user)
+    return Response(serialised.data['email'])
+

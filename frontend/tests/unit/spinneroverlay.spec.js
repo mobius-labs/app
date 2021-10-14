@@ -1,5 +1,6 @@
-import { mount } from "@vue/test-utils";
 import SpinnerOverlay from "../../src/components/SpinnerOverlay.vue";
+import { mount } from "./global";
+import Spinner from "../../src/components/Spinner";
 
 describe("SpinnerOverlay component unit tests", () => {
     it("is a Vue instance", () => {
@@ -11,6 +12,6 @@ describe("SpinnerOverlay component unit tests", () => {
         const wrapper = mount(SpinnerOverlay, {
             propsData: { active: true },
         });
-        expect(wrapper.find("o-icon").exists()).toBeTruthy();
+        expect(wrapper.findComponent(Spinner).exists()).toBeTruthy();
     });
 });

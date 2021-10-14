@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+    createRouter,
+    createWebHistory,
+    RouteLocationNormalized,
+} from "vue-router";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import SignUp from "../views/SignUp.vue";
@@ -9,13 +13,14 @@ import Contacts from "../views/Contacts.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import AuthLayout from "../views/AuthLayout.vue";
 import { nextTick } from "vue";
+import store from "@/store";
 
 const routes = [
     {
         path: "/",
         name: "Home",
         component: Home,
-        meta: { title: "Home" },
+        meta: { title: "Home", allowGuests: true },
     },
     {
         path: "/",
@@ -25,19 +30,19 @@ const routes = [
                 path: "/login",
                 name: "Login",
                 component: Login,
-                meta: { title: "Login" },
+                meta: { title: "Login", allowGuests: true },
             },
             {
                 path: "/signup",
                 name: "SignUp",
                 component: SignUp,
-                meta: { title: "Sign up" },
+                meta: { title: "Sign up", allowGuests: true },
             },
             {
                 path: "/forgot",
                 name: "Forgot",
                 component: ForgotPassword,
-                meta: { title: "Forgot password" },
+                meta: { title: "Forgot password", allowGuests: true },
             },
         ],
     },
@@ -52,9 +57,19 @@ const routes = [
                 meta: { title: "Dashboard" },
             },
             {
-                path: "contacts",
+                path: "contacts/:id?",
                 component: Contacts,
                 meta: { title: "Contacts" },
+                props: (route: RouteLocationNormalized) => {
+                    if (route.params.id === "new") {
+                        return { selectedId: Contacts.NEW_CONTACT };
+                    }
+                    return {
+                        selectedId: !route.params.id
+                            ? null
+                            : Number.parseInt(route.params.id as string),
+                    };
+                },
             },
         ],
     },
@@ -67,6 +82,19 @@ const router = createRouter({
 });
 
 const APP_TITLE = "Möbius CRM";
+
+router.beforeEach((to, from, next) => {
+    store.dispatch("determineAuthStatus").then((authenticated) => {
+        if (!authenticated && to.meta.allowGuests !== true) {
+            next({
+                path: "/login",
+            });
+            return;
+        }
+        next();
+    });
+});
+
 router.afterEach((to) => {
     // Use next tick to handle router history correctly
     // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609

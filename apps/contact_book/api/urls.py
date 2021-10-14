@@ -24,7 +24,7 @@ urlpatterns = [
 
     # addresses
     path('create_address/<int:contact_id>', create_address, name="create_address"),
-    path('get_addresses_by_cid/<int:contact_id>', get_addresses_by_cid, name="get_addresses_by_cid"),
+    path('get_addresss_by_cid/<int:contact_id>', get_addresses_by_cid, name="get_addresses_by_cid"),
     path('delete_address_by_aid/<int:address_id>', delete_address_by_aid, name="delete_address_by_aid"),
     path('update_address_by_aid/<int:address_id>', update_address_by_aid, name="update_address_by_aid"),
 
@@ -39,18 +39,18 @@ urlpatterns = [
     path('get_social_media_sites/', get_social_media_sites, name="get_social_media_sites"),
     path('create_social_media_contact/<int:contact_id>', create_social_media_contact,
          name="create_social_media_contact"),
-    path('get_social_media_contacts/<int:contact_id>', get_socials_by_cid, name="get_socials_by_cid"),
-    path('delete_social_media_contact/<int:social_media_contact_id>', delete_social_by_sid,
+    path('get_social_media_contacts_by_cid/<int:contact_id>', get_socials_by_cid, name="get_socials_by_cid"),
+    path('delete_social_media_contact_by_sid/<int:social_media_contact_id>', delete_social_by_sid,
          name="delete_social_by_sid"),
-    path('update_social_media_contact/<int:social_media_contact_id>', update_social_media_contact,
+    path('update_social_media_contact_by_sid/<int:social_media_contact_id>', update_social_media_contact,
          name="update_social_media_contact"),
 
     # important dates
     path('create_important_date_type/', create_important_date_type, name='create_important_date_type'),
     path('get_important_date_types/', get_important_date_types, name='get_important_date_types'),
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
-    path('get_important_dates/<int:contact_id>', get_important_dates, name='get_important_dates'),
-    path('delete_important_date/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date')
+    path('get_important_dates_by_cid/<int:contact_id>', get_important_dates, name='get_important_dates'),
+    path('delete_important_date_by_iid/<int:important_date_id>', delete_important_date, name='delete_important_date'),
+    path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date')
 
 ]
