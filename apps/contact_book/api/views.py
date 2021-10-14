@@ -1,15 +1,16 @@
 from django.db import IntegrityError
-from django.db.models import Model
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
+
+from apps.account.models import User
 from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from rest_framework.authentication import TokenAuthentication
+from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -37,6 +38,25 @@ def create_contact(request):
         return Response({'errors': data}, status=400)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_user_contact(request):
+    user = request.user
+    contact = Contact(author=user)
+    
+    serializer = ContactSerializer(contact, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        user.connected_contact = contact
+        user.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    else:
+        data = serializer.errors
+        return Response({'errors': data}, status=400)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_contact_by_id(request, contact_id):
@@ -48,6 +68,32 @@ def get_contact_by_id(request, contact_id):
 
     serializer = ContactSerializer(contact)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_contacts(request):
+    user = request.user
+    contact = user.connected_contact
+
+    if str(contact.author) != str(user.email):
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
+
+    serializer = ContactSerializer(contact)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([])
+def get_business_cards(request, email):
+    user = get_object_or_404(User, email=email)
+    contact = user.connected_contact
+
+    if user.business_card:
+        serializer = ContactSerializer(contact)
+        return Response(serializer.data)
+    else:
+        return Response({"user's business card is not shareable"})
 
 
 class ApiContactList(ListAPIView):
@@ -95,6 +141,34 @@ def update_contact_by_id(request, contact_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
+
+def is_overdue(contact, today):
+    # check to see if contact is overdue to be contacted
+    if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
+        return False
+
+    return contact.last_time_contacted + timedelta(days=365/contact.regularity_of_contact) < today
+
+
+class ApiNotifyOverdueCatchUp(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        today = date.today()
+        overdue_to_contact = []
+
+        # goes through all contacts and checks if they are overdue
+        for contact in Contact.objects.all():
+            print(1)
+            if str(contact.author) == str(user.email) and is_overdue(contact, today):
+                overdue_to_contact.append(contact)
+                print("yes: ", contact)
+        return overdue_to_contact
+
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 # ---------------------------------------- PHONE NUMBERS ----------------------------------------
