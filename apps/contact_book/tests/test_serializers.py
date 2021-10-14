@@ -52,6 +52,7 @@ class ContactBookSerializerTests(TestCase):
         self.email_attributes = {
             'email_address': 'shiv@gmail.com',
             'label': 'FRN',
+            'id': '3',
             'contact': self.contact
         }
 
@@ -66,7 +67,7 @@ class ContactBookSerializerTests(TestCase):
     def test_contact_serializer_contains_expected_fields(self):
         data = self.contact_serializer.data
 
-        self.assertCountEqual(data.keys(), ['first_name', 'surname', 'middle_name', 'nickname', 'name_pronunciation',
+        self.assertCountEqual(data.keys(), ['id', 'first_name', 'surname', 'middle_name', 'nickname', 'name_pronunciation',
                                             'pronouns', 'title', 'relation', 'company', 'job_title', 'side_notes',
                                             'department', 'regularity_of_contact'])
 
@@ -135,7 +136,7 @@ class ContactBookSerializerTests(TestCase):
 
         self.assertEqual(data['regularity_of_contact'], 104)
 
-    def test_contact_serializer_contains_expected_fields(self):
+    def test_email_serializer_contains_expected_fields(self):
         data = self.email_serializer.data
 
         self.assertCountEqual(data.keys(), ['id', 'email_address', 'label'])
@@ -149,3 +150,8 @@ class ContactBookSerializerTests(TestCase):
         data = self.email_serializer.data
 
         self.assertEqual(data['label'], self.email_attributes['label'])
+
+    def test_id_field_content(self):
+        data = self.email_serializer.data
+
+        self.assertEqual(data['id'], int(self.email_attributes['id']))
