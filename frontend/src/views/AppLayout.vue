@@ -1,6 +1,8 @@
 <template>
     <div class="app-layout">
-        <nav class="menu app-menu">
+        <nav
+            :class="{ menu: true, 'app-menu': true, 'app-menu-dark': darkMode }"
+        >
             <div class="level">
                 <div class="level-left">
                     <!--<router-link to="/app">
@@ -39,9 +41,9 @@
             <div class="menu-items">
                 <p class="menu-label">General</p>
                 <ul class="menu-list">
-                    <!--                    <li>-->
-                    <!--                        <router-link to="/app"> Dashboard </router-link>-->
-                    <!--                    </li>-->
+                    <li>
+                        <router-link to="/app"> Dashboard </router-link>
+                    </li>
                     <li>
                         <router-link to="/app/contacts">Contacts</router-link>
                         <!--                    <ul>-->
@@ -81,19 +83,31 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
+import { RouteLocationNormalized } from "vue-router";
 
 @Options({
     components: { Logo },
+    watch: { $route: "onRouteUpdated" },
 })
 export default class AppLayout extends Vue {
+    darkMode = false;
+
+    mounted() {
+        this.onRouteUpdated(this.$route);
+    }
+
     async logout() {
         await this.$store.dispatch("logout", {
             router: this.$router,
             oruga: this.$oruga,
         });
+    }
+
+    onRouteUpdated(route: RouteLocationNormalized) {
+        this.darkMode = !!route.meta.darkMode;
     }
 }
 </script>
@@ -102,9 +116,29 @@ export default class AppLayout extends Vue {
 @import "../styles/variables.scss";
 
 .menu-items {
+    transition: background-color 0.5s ease;
     background-color: $white;
     padding: 16px 16px;
     border-radius: 4px;
+
+    .app-menu-dark & {
+        transition: background-color 0.5s ease;
+        background-color: $grey;
+
+        .menu-label {
+            transition: color 0.5s ease;
+            color: $grey-lighter;
+        }
+
+        .menu-list a {
+            transition: color 0.5s ease;
+            color: $grey-lighter;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
 }
 
 .app-layout {
@@ -114,9 +148,14 @@ export default class AppLayout extends Vue {
 }
 
 .app-menu {
+    transition: background-color 1s ease;
     min-width: 20rem;
     background-color: $info;
     padding: 2rem;
+}
+
+.app-menu-dark {
+    background-color: $grey-dark;
 }
 
 .app-content {

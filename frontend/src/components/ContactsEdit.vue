@@ -28,7 +28,8 @@
                         @click="$emit('close')"
                     />
                     <h2 class="title p-3" data-test="contact-name">
-                        <span v-if="fullName">{{ fullName }}</span>
+                        <span v-if="isBusinessCard">Edit business card</span>
+                        <span v-else-if="fullName">{{ fullName }}</span>
                         <span v-else>Add Contact</span>
                     </h2>
                 </div>
@@ -48,7 +49,7 @@
                         <span
                             v-else-if="
                                 (serverId && saving) ||
-                                model.isRecentlyUpdated ||
+                                isRecentlyUpdated ||
                                 model.hasErrors()
                             "
                             :class="
@@ -58,7 +59,7 @@
                             "
                         >
                             <span v-if="saving">Saving contact</span>
-                            <span v-else-if="model.isRecentlyUpdated"
+                            <span v-else-if="isRecentlyUpdated"
                                 >Saved contact</span
                             >
                             <span v-else-if="model.hasErrors()"
@@ -66,7 +67,7 @@
                             >
                             <Spinner v-if="saving"></Spinner>
                             <o-icon
-                                v-else-if="model.isRecentlyUpdated"
+                                v-else-if="isRecentlyUpdated"
                                 icon="check-circle"
                             ></o-icon>
                             <o-icon
@@ -319,6 +320,7 @@
                 </ContactsOneToMany>
 
                 <ImportantDatesEdit
+                    v-if="!isBusinessCard"
                     ref="importantDates"
                     :local-id="localId"
                     :server-id="serverId"
@@ -351,9 +353,10 @@
                     </ValidatedField>
                 </o-field>
 
-                <hr />
+                <hr v-if="!isBusinessCard" />
 
                 <ValidatedField
+                    v-if="!isBusinessCard"
                     :model="model"
                     :update-value="updateItem"
                     name="side_notes"
@@ -364,6 +367,7 @@
                 </ValidatedField>
 
                 <ValidatedField
+                    v-if="!isBusinessCard"
                     v-slot="{ value, setValue }"
                     :model="model"
                     :update-value="updateItem"
@@ -459,6 +463,7 @@ export default defineComponent({
             type: Number as PropType<ServerContactId>,
             default: null,
         },
+        isBusinessCard: { type: Boolean, default: false },
         isDiscardChangesDialogActive: { type: Boolean, default: false },
     },
     emits: ["discard-changes", "cancel-discard", "contact-updated", "close"],
@@ -485,6 +490,10 @@ export default defineComponent({
                 this.savingSocials ||
                 this.savingImportantDates
             );
+        },
+        recentlyUpdated() {
+            // TODO: make this include updates from the ContactsOneToMany components
+            return this.model.isRecentlyUpdated;
         },
         fullName() {
             if (!this.model) {

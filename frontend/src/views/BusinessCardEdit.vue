@@ -1,6 +1,6 @@
 <template>
     <div class="is-flex" style="height: 100%">
-        <div class="is-flex-1">
+        <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="level" style="padding: 2rem">
                 <div>
                     <h1 class="title">Business Card</h1>
@@ -10,12 +10,32 @@
                     </h2>
                 </div>
             </div>
-            <div>
-                <div>
-                    <BusinessCard :contact="{}" />
-                </div>
-                <o-switch size="large">Business card shared</o-switch>
-                <o-button @click="isEditingContactDetails = true"
+            <div
+                class="
+                    is-flex-grow-1
+                    is-flex
+                    is-flex-direction-column
+                    is-align-items-center
+                    is-justify-content-center
+                    has-background-grey-lighter
+                "
+            >
+                <transition name="fade">
+                    <div v-if="user && userContact" class="has-text-centered">
+                        <BusinessCard :contact="userContact" />
+                        <o-switch
+                            size="large"
+                            v-model="user.business_card"
+                            class="mt-6"
+                        >
+                            <span v-if="user.business_card"
+                                >Business card shared</span
+                            >
+                            <span v-else>Business card not shared</span>
+                        </o-switch>
+                    </div>
+                </transition>
+                <o-button @click="shouldEditContactDetails = true"
                     >Edit</o-button
                 >
             </div>
@@ -27,9 +47,10 @@
                 v-if="isEditingContactDetails"
                 ref="contactsEdit"
                 :local-id="1"
-                :server-id="contactId"
+                :server-id="userContact.id"
+                :is-business-card="true"
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
-                @close="isEditingContactDetails = false"
+                @close="shouldEditContactDetails = false"
                 @contact-updated="onContactUpdated"
                 @discard-changes="discardChanges"
                 @cancel-discard="isDiscardChangesDialogActive = false"
@@ -40,25 +61,69 @@
 
 <script lang="ts">
 import BusinessCard from "@/components/BusinessCard.vue";
-import { ContactId, ServerContactId } from "@/api/contacts";
+import { Contact, ContactId, ServerContactId } from "@/api/contacts";
 import ContactsEdit from "@/components/ContactsEdit.vue";
 import { defineComponent } from "vue";
+import { getAxiosInstance } from "@/api/api";
+
+interface User {
+    email: string;
+    business_card: boolean;
+}
 
 export default defineComponent({
     name: "BusinessCardEdit",
     components: { BusinessCard, ContactsEdit },
     data() {
         return {
-            isEditingContactDetails: false,
-            contactId: null,
+            shouldEditContactDetails: false,
+            isDiscardChangesDialogActive: false,
+            userContact: null as Contact | null,
+            user: null as User | null,
         };
     },
+    watch: {
+        "user.business_card": "putUserDetails",
+    },
+    mounted() {
+        this.fetchUserDetails();
+        this.fetchUserContact();
+    },
+    computed: {
+        isEditingContactDetails() {
+            return this.shouldEditContactDetails && this.userContact;
+        },
+    },
     methods: {
+        async fetchUserDetails() {
+            const result = await getAxiosInstance().get(
+                "/account/get_business_card_visibility"
+            );
+            this.user = result.data as User;
+        },
+        async fetchUserContact() {
+            const result = await getAxiosInstance().get(
+                "/contact_book/get_user_contacts"
+            );
+            this.userContact = result.data as Contact;
+        },
+        async putUserDetails() {
+            try {
+                const result = await getAxiosInstance().put(
+                    "/account/update_business_card_visibility",
+                    this.user
+                );
+                console.log(result);
+            } catch (e) {
+                console.error(e);
+            }
+        },
         async onContactUpdated(
             localId: ContactId,
             serverId: ServerContactId,
             newlyCreated: boolean
         ) {
+            await this.fetchUserContact();
             console.log(localId, serverId, newlyCreated);
         },
 

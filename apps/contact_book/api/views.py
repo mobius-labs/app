@@ -102,7 +102,12 @@ class ApiContactList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Contact.objects.filter(author=user.email)
+        for_user = Contact.objects.filter(author=user.email)
+
+        # exclude the user's own contact from this queryset
+        if user.connected_contact is not None:
+            for_user = for_user.exclude(pk=user.connected_contact.pk)
+        return for_user
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer

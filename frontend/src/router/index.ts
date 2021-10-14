@@ -75,7 +75,7 @@ const routes = [
             {
                 path: "business-card",
                 component: BusinessCardEdit,
-                meta: { title: "eBusiness Card", height: 3 },
+                meta: { title: "eBusiness Card", height: 3, darkMode: true },
             },
         ],
     },
