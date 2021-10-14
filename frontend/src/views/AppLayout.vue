@@ -51,35 +51,32 @@
                         <!--                    </ul>-->
                     </li>
                     <li>
+                        <router-link to="/app/business-card"
+                            >Business Card
+                            <span class="tag is-warning ml-1"
+                                >New!</span
+                            ></router-link
+                        >
+                        <!--                    <ul>-->
+                        <!--                        <li><a>Close Friends</a></li>-->
+                        <!--                        <li><a>Family</a></li>-->
+                        <!--                        <li><a>Networking</a></li>-->
+                        <!--                    </ul>-->
+                    </li>
+                    <li>
                         <router-link to="/app"
                             ><s>Calendar</s> (coming soon)
                         </router-link>
                     </li>
                 </ul>
             </div>
-            <!--              <p class="menu-label">-->
-            <!--                Administration-->
-            <!--              </p>-->
-            <!--              <ul class="menu-list">-->
-            <!--                <li><a>Team Settings</a></li>-->
-            <!--                <li>-->
-
-            <!--                </li>-->
-            <!--                <li><a>Invitations</a></li>-->
-            <!--                <li><a>Cloud Storage Environment Settings</a></li>-->
-            <!--                <li><a>Authentication</a></li>-->
-            <!--              </ul>-->
-            <!--              <p class="menu-label">-->
-            <!--                Transactions-->
-            <!--              </p>-->
-            <!--              <ul class="menu-list">-->
-            <!--                <li><a>Payments</a></li>-->
-            <!--                <li><a>Transfers</a></li>-->
-            <!--                <li><a>Balance</a></li>-->
-            <!--              </ul>-->
         </nav>
         <div class="app-content">
-            <router-view />
+            <router-view v-slot="{ Component, route }">
+                <transition :name="route.meta.transitionName">
+                    <component :is="Component"></component>
+                </transition>
+            </router-view>
         </div>
     </div>
 </template>

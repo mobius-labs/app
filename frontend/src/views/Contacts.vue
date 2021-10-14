@@ -161,7 +161,7 @@
         </div>
 
         <div
-            :class="{ 'edit-contacts': true, expanded: isContactsEditExpanded }"
+            :class="{ 'right-flyout': true, expanded: isContactsEditExpanded }"
         >
             <ContactsEdit
                 v-if="isContactsEditExpanded"
@@ -169,6 +169,7 @@
                 :local-id="selectedLocalId"
                 :server-id="selectedServerId"
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
+                @close="onContactEditClosed"
                 @contact-updated="onContactUpdated"
                 @discard-changes="discardChanges"
                 @cancel-discard="isDiscardChangesDialogActive = false"
@@ -361,6 +362,10 @@ export default class Contacts extends Vue.with(Props) {
         }
     }
 
+    onContactEditClosed() {
+        this.$router.push("/app/contacts");
+    }
+
     onSortChanged(field: string, direction: "asc" | "desc") {
         this.sortData = { field, direction };
     }
@@ -414,6 +419,8 @@ export default class Contacts extends Vue.with(Props) {
 </script>
 
 <style scoped>
+@import "../styles/flyout.css";
+
 .app-header {
     padding: 2rem;
     display: flex;
@@ -424,19 +431,6 @@ export default class Contacts extends Vue.with(Props) {
 }
 
 .is-flex-1 {
-    flex: 1;
-}
-
-.edit-contacts {
-    overflow-y: auto;
-    width: 0;
-    flex: 0;
-    transition: width 0.2s ease, flex 0.2s ease;
-    border-left: 1px solid #ccc;
-}
-
-.expanded {
-    min-width: 30rem;
     flex: 1;
 }
 

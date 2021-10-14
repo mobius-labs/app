@@ -12,6 +12,7 @@ import AppDashboard from "../views/AppDashboard.vue";
 import Contacts from "../views/Contacts.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import AuthLayout from "../views/AuthLayout.vue";
+import BusinessCardEdit from "../views/BusinessCardEdit.vue";
 import { nextTick } from "vue";
 import store from "@/store";
 
@@ -54,12 +55,12 @@ const routes = [
             {
                 path: "",
                 component: AppDashboard,
-                meta: { title: "Dashboard" },
+                meta: { title: "Dashboard", height: 1 },
             },
             {
                 path: "contacts/:id?",
                 component: Contacts,
-                meta: { title: "Contacts" },
+                meta: { title: "Contacts", height: 2 },
                 props: (route: RouteLocationNormalized) => {
                     if (route.params.id === "new") {
                         return { selectedId: Contacts.NEW_CONTACT };
@@ -70,6 +71,11 @@ const routes = [
                             : Number.parseInt(route.params.id as string),
                     };
                 },
+            },
+            {
+                path: "business-card",
+                component: BusinessCardEdit,
+                meta: { title: "eBusiness Card", height: 3 },
             },
         ],
     },
@@ -82,6 +88,15 @@ const router = createRouter({
 });
 
 const APP_TITLE = "Möbius CRM";
+
+router.afterEach((to, from) => {
+    if (to.meta.height && from.meta.height) {
+        to.meta.transitionName =
+            (to.meta.height as number) > (from.meta.height as number)
+                ? "slide-up"
+                : "slide-down";
+    }
+});
 
 router.beforeEach((to, from, next) => {
     store.dispatch("determineAuthStatus").then((authenticated) => {

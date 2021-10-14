@@ -25,7 +25,7 @@
                         icon-left="times"
                         class="m-3"
                         data-test="close-button"
-                        @click="$router.push('/app/contacts')"
+                        @click="$emit('close')"
                     />
                     <h2 class="title p-3" data-test="contact-name">
                         <span v-if="fullName">{{ fullName }}</span>
@@ -461,7 +461,7 @@ export default defineComponent({
         },
         isDiscardChangesDialogActive: { type: Boolean, default: false },
     },
-    emits: ["discard-changes", "cancel-discard", "contact-updated"],
+    emits: ["discard-changes", "cancel-discard", "contact-updated", "close"],
     data() {
         return {
             model: new Model<Contact>(new Contact()),
