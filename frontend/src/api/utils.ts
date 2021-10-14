@@ -3,17 +3,6 @@ export function deepCopy<T>(x: T): T {
     return JSON.parse(JSON.stringify(x));
 }
 
-// ensures `func` is only called max once every `timeout` milliseconds
-export function debounce(this: any, func: any, timeout = 200) {
-    let timer: number;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            func.apply(this, args);
-        }, timeout);
-    };
-}
-
 // `setTimeout`, except as a promise
 export async function delay(ms: number) {
     return new Promise((resolve) => {

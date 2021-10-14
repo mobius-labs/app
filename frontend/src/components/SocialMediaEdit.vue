@@ -2,7 +2,7 @@
     <div>
         <ContactsOneToMany
             ref="oneToMany"
-            v-slot="{ model, updateItem, debounceUpdateItem }"
+            v-slot="{ model, updateItem }"
             add-button-text="Add Social Media"
             title="Social Media Links"
             :fresh-item="freshSocialMedia"
@@ -14,7 +14,6 @@
             <SocialMediaEditItem
                 :model="model"
                 :update-item="updateItem"
-                :debounce-update-item="debounceUpdateItem"
                 :social-media-sites="socialMediaSites"
             ></SocialMediaEditItem>
         </ContactsOneToMany>

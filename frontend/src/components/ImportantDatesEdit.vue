@@ -1,6 +1,6 @@
 <template>
     <ContactsOneToMany
-        v-slot="{ model, updateItem, debounceUpdateItem }"
+        v-slot="{ model, updateItem }"
         ref="oneToMany"
         add-button-text="Add Date"
         title="Important Dates"
@@ -51,7 +51,7 @@
             :model="model"
             name="date"
             :label="null"
-            :update-value="debounceUpdateItem"
+            :update-value="updateItem"
             required
         >
             <o-datepicker
@@ -62,7 +62,7 @@
         </ValidatedField>
         <o-switch
             :model-value="model.model.get_alert"
-            class="mb-4"
+            class="mb-4 mt-2"
             @update:model-value="(v) => updateItem({ get_alert: v })"
             >Remind me?</o-switch
         >
@@ -75,6 +75,7 @@ import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
 import { ContactId, ServerContactId } from "@/api/contacts";
+import { DateTime } from "luxon";
 
 class Props {
     localId!: ContactId;
@@ -96,7 +97,6 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
 
     get filteredImportantDateTypes() {
         return Array.from(this.importantDateTypes.values());
-        // .filter((ty: ImportantDateType) => ty.label.toLowerCase().includes(this.importantDateTypesSearch.toLowerCase()));
     }
 
     async mounted() {
@@ -120,7 +120,7 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     setDateValue(v: Date, setValue: (v: string) => void) {
-        setValue(v.toISOString().split("T")[0]);
+        setValue(DateTime.fromJSDate(v).toFormat("yyyy-MM-dd"));
     }
 }
 </script>
