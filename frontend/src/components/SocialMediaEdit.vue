@@ -7,8 +7,8 @@
             title="Social Media Links"
             :fresh-item="freshSocialMedia"
             api-name="social_media_contact"
-            :contact-id="contactId"
-            :skip-reload="skipReload"
+            :local-id="localId"
+            :server-id="serverId"
             @update:saving="(v) => $emit('update:saving', v)"
         >
             <SocialMediaEditItem
@@ -28,13 +28,14 @@ import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SocialMediaEditItem from "@/components/SocialMediaEditItem.vue";
 import { SocialMediaSite } from "@/api/social";
+import { ContactId, ServerContactId } from "@/api/contacts";
 
 class Props {
-    contactId!: number | null;
-    // eslint-disable-next-line no-unused-vars
-    skipReload!: (a: number | null) => boolean;
+    localId!: ContactId;
+    serverId!: ServerContactId;
 }
 
+// A specialized version of ContactsOneToMany, for editing SocialMediaContacts
 @Options({
     components: { SocialMediaEditItem, ContactsOneToMany, ValidatedField },
 })
@@ -42,11 +43,11 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     socialMediaSites = new Map<string, SocialMediaSite>();
 
     async mounted() {
-        let response = await getAxiosInstance().get(
+        const response = await getAxiosInstance().get(
             "/contact_book/get_social_media_sites/"
         );
         this.socialMediaSites.clear();
-        for (let site of response.data) {
+        for (const site of response.data as SocialMediaSite[]) {
             this.socialMediaSites.set(site.site, site);
         }
     }
@@ -56,7 +57,9 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     }
 
     hasUnsavedChanges() {
-        return (this.$refs.oneToMany as ContactsOneToMany).hasUnsavedChanges();
+        return (
+            this.$refs.oneToMany as typeof ContactsOneToMany
+        ).hasUnsavedChanges();
     }
 }
 </script>

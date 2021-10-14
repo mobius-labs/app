@@ -1,7 +1,9 @@
+// sometimes due to Vue's reactivity rules, we need a completely fresh copy of an object.
 export function deepCopy<T>(x: T): T {
     return JSON.parse(JSON.stringify(x));
 }
 
+// ensures `func` is only called max once every `timeout` milliseconds
 export function debounce(this: any, func: any, timeout = 200) {
     let timer: number;
     return (...args: any[]) => {
@@ -12,6 +14,7 @@ export function debounce(this: any, func: any, timeout = 200) {
     };
 }
 
+// `setTimeout`, except as a promise
 export async function delay(ms: number) {
     return new Promise((resolve) => {
         setTimeout(() => {
@@ -27,12 +30,12 @@ export function valuesEqual(a: any, b: any): boolean {
     if (a === b) return true;
 
     // Otherwise they're Objects, Functions or Arrays or some kind of host object
-    if (typeof a == "object" || typeof a == "function") {
-        let aKeys = Object.keys(a);
-        let bKeys = Object.keys(b);
+    if (typeof a === "object" || typeof a === "function") {
+        const aKeys = Object.keys(a);
+        const bKeys = Object.keys(b);
 
         // If they don't have the same number of keys, return false
-        if (aKeys.length != bKeys.length) {
+        if (aKeys.length !== bKeys.length) {
             return false;
         }
 
@@ -52,6 +55,12 @@ export function valuesEqual(a: any, b: any): boolean {
     }
 
     return false;
+}
+
+// from MDN docs:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+export function escapeRegExp(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
 export function convertToTitleCase(str: string) {

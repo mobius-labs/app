@@ -6,8 +6,8 @@
         title="Important Dates"
         :fresh-item="freshImportantDate"
         api-name="important_date"
-        :contact-id="contactId"
-        :skip-reload="skipReload"
+        :local-id="localId"
+        :server-id="serverId"
         @update:saving="(v) => $emit('update:saving', v)"
     >
         <ValidatedField
@@ -74,11 +74,11 @@ import { Options, Vue } from "vue-class-component";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
+import { ContactId, ServerContactId } from "@/api/contacts";
 
 class Props {
-    contactId!: number | null;
-    // eslint-disable-next-line no-unused-vars
-    skipReload!: (a: number | null) => boolean;
+    localId!: ContactId;
+    serverId!: ServerContactId;
 }
 
 interface ImportantDateType {
@@ -86,6 +86,7 @@ interface ImportantDateType {
     icon: string;
 }
 
+// A specialized version of ContactsOneToMany, for editing ImportantDates
 @Options({
     components: { ContactsOneToMany, ValidatedField },
 })
@@ -99,11 +100,11 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     async mounted() {
-        let response = await getAxiosInstance().get(
+        const response = await getAxiosInstance().get(
             "/contact_book/get_important_date_types/"
         );
         this.importantDateTypes.clear();
-        for (let dateType of response.data) {
+        for (const dateType of response.data as ImportantDateType[]) {
             this.importantDateTypes.set(dateType.label, dateType);
         }
     }
@@ -113,9 +114,11 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     hasUnsavedChanges() {
-        return (this.$refs.oneToMany as ContactsOneToMany).hasUnsavedChanges();
+        return (
+            this.$refs.oneToMany as typeof ContactsOneToMany
+        ).hasUnsavedChanges();
     }
-    // eslint-disable-next-line no-unused-vars
+
     setDateValue(v: Date, setValue: (v: string) => void) {
         setValue(v.toISOString().split("T")[0]);
     }

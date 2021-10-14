@@ -26,7 +26,7 @@ const store = createStore({
             if (state.authToken !== null) {
                 return true;
             }
-            let token = getToken();
+            const token = getToken();
             if (token) {
                 commit("setToken", token);
                 return true;

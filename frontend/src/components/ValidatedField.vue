@@ -10,8 +10,8 @@
     >
         <slot :value="currentValue" :set-value="doUpdateValue">
             <o-input
-                :model-value="currentValue"
                 :name="name"
+                :model-value="currentValue"
                 v-bind="$attrs"
                 @update:model-value="doUpdateValue"
             />
@@ -21,9 +21,9 @@
 
 <script lang="ts">
 import { prop, Vue } from "vue-class-component";
-import { Model } from "@/api/api";
 import { PropType } from "vue";
 import { convertToTitleCase } from "@/api/utils";
+import { Model } from "@/api/model";
 
 class Props {
     label?: string | null;
@@ -32,8 +32,8 @@ class Props {
         type: Object as PropType<Model>,
         required: true,
     });
+
     updateValue = prop({
-        // eslint-disable-next-line no-unused-vars
         type: Function as PropType<(x: Record<string, any>) => void | null>,
         default: null,
     });
@@ -60,7 +60,7 @@ export default class ValidatedField extends Vue.with(Props) {
 
     doUpdateValue(v: any) {
         if (this.updateValue !== null) {
-            let update: Record<string, any> = {};
+            const update: Record<string, any> = {};
             update[this.name] = v;
             this.updateValue(update);
             return;

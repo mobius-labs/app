@@ -30,7 +30,7 @@ export default defineComponent({
     },
     methods: {
         async fetchUsername() {
-            let response = await getAxiosInstance().get("account/getinfo");
+            const response = await getAxiosInstance().get("account/getinfo");
             this.username = response.data;
         },
     },

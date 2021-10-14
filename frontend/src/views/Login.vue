@@ -62,11 +62,16 @@
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
-import { getAxiosInstance, Model } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
 import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
+
+interface SuccessfulLoginResponse {
+    token: string;
+}
 
 @Options({
     components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },
@@ -88,12 +93,12 @@ export default class Login extends Vue {
 
     async onSubmit() {
         await this.model.tryUpdate(async () => {
-            let response = await getAxiosInstance().post(
+            const response = await getAxiosInstance().post(
                 "account/login",
                 this.model.model
             );
             await this.$store.dispatch("login", {
-                token: response.data.token,
+                token: (response.data as SuccessfulLoginResponse).token,
                 router: this.$router,
                 oruga: this.$oruga,
             });

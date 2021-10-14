@@ -76,8 +76,8 @@
                 <o-icon
                     size="small"
                     icon="pencil-alt"
-                    @click="editLink"
                     class="has-text-grey"
+                    @click="editLink"
                 ></o-icon>
             </button>
         </ValidatedField>
@@ -98,9 +98,7 @@ import { Model } from "@/api/model";
 
 class Props {
     model!: Model;
-    // eslint-disable-next-line no-unused-vars
     updateItem!: (v: Record<string, any>) => void;
-    // eslint-disable-next-line no-unused-vars
     debounceUpdateItem!: (v: Record<string, any>) => void;
     socialMediaSites = prop({
         type: Object as PropType<Map<string, SocialMediaSite>>,
@@ -124,7 +122,7 @@ export default class SocialMediaEditItem extends Vue.with(Props) {
     }
 
     get computedLink() {
-        let site = this.socialMediaSites.get(
+        const site = this.socialMediaSites.get(
             this.model.model.social_media_site
         );
         if (!site) {
@@ -138,8 +136,10 @@ export default class SocialMediaEditItem extends Vue.with(Props) {
         this.shouldEditLink = true;
     }
 
+    // When submitting a link/username, we try to autodetect which social media site it is for,
+    // and set the info accordingly.
     submit() {
-        let recognition: Recognition | null = tryRecogniseSocialLink(
+        const recognition: Recognition | null = tryRecogniseSocialLink(
             this.socialMediaSites,
             this.newLinkValue
         );

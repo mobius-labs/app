@@ -1,5 +1,5 @@
-import { mount } from "@vue/test-utils";
 import VerificationInput from "../../src/components/VerificationInput.vue";
+import { mount } from "./global";
 
 describe("VerificationInput component unit tests", () => {
     const wrapper = mount(VerificationInput);

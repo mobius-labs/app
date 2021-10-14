@@ -1,3 +1,4 @@
+// creates a toast with some sensible defaults
 export function defaultToast(variant: string, message: string) {
     return {
         message,

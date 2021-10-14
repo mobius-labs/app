@@ -23,11 +23,11 @@
                 <div class="level-left">
                     <o-button
                         icon-left="times"
-                        variant="light"
                         class="m-3"
+                        data-test="close-button"
                         @click="$router.push('/app/contacts')"
                     />
-                    <h2 class="title p-3">
+                    <h2 class="title p-3" data-test="contact-name">
                         <span v-if="fullName">{{ fullName }}</span>
                         <span v-else>Add Contact</span>
                     </h2>
@@ -36,10 +36,11 @@
                     <o-button
                         variant="primary"
                         :disabled="saving"
+                        class="mr-3"
                         @click="submit"
                     >
                         <SpinnerOverlay :active="saving">
-                            <span v-if="contactId">Save contact</span>
+                            <span v-if="serverId">Save contact</span>
                             <span v-else>Save new contact</span>
                         </SpinnerOverlay>
                     </o-button>
@@ -50,21 +51,21 @@
                 <div class="space-items">
                     <ValidatedField
                         :model="model"
-                        label="First Name"
                         name="first_name"
+                        placeholder="First Name"
                         expanded
                     />
                     <ValidatedField
                         :model="model"
-                        label="Middle Name"
                         name="middle_name"
+                        placeholder="Middle Name"
                         expanded
                     >
                     </ValidatedField>
                     <ValidatedField
                         :model="model"
-                        label="Surname"
                         name="surname"
+                        placeholder="Surname"
                         expanded
                     >
                     </ValidatedField>
@@ -92,23 +93,21 @@
                     <div class="expanded-box">
                         <ValidatedField
                             :model="model"
-                            label="Nickname"
                             name="nickname"
                             placeholder="Enter a nickname"
                         />
                         <ValidatedField
                             :model="model"
-                            label="Name Pronunciation"
                             name="name_pronunciation"
                             placeholder="Add pronunciation notes here..."
                         />
                         <ValidatedField
                             v-slot="{ value, setValue }"
                             :model="model"
-                            label="Pronouns"
                             name="pronouns"
                         >
                             <o-select
+                                ref="pronouns"
                                 :model-value="value"
                                 placeholder="..."
                                 @update:model-value="setValue"
@@ -121,78 +120,11 @@
                         </ValidatedField>
                         <ValidatedField
                             :model="model"
-                            label="Title"
                             name="title"
                             placeholder="e.g.: Mr, Mrs, Dr"
                         ></ValidatedField>
                     </div>
                 </o-collapse>
-
-                <hr />
-
-                <ValidatedField
-                    :model="model"
-                    name="job_title"
-                    label="Job Title"
-                    placeholder="e.g. Software Developer"
-                />
-
-                <o-field grouped>
-                    <ValidatedField
-                        :model="model"
-                        name="department"
-                        label="Department"
-                        placeholder="e.g.: Middle Office"
-                    >
-                    </ValidatedField>
-
-                    <ValidatedField
-                        :model="model"
-                        name="company"
-                        label="Company"
-                        placeholder="e.g.: Pied Piper"
-                    >
-                    </ValidatedField>
-                </o-field>
-
-                <hr />
-
-                <ValidatedField
-                    :model="model"
-                    name="side_notes"
-                    label="Side Notes"
-                    placeholder="Take notes about this person here to remember for next time."
-                    type="textarea"
-                >
-                </ValidatedField>
-
-                <ValidatedField
-                    v-slot="{ value, setValue }"
-                    :model="model"
-                    name="regularity_of_contact"
-                    label="How often to keep in touch"
-                >
-                    <o-select
-                        :model-value="value"
-                        @update:model-value="setValue"
-                    >
-                        <option value="104">Twice a week</option>
-                        <option value="52">Weekly</option>
-                        <option value="26">Fortnightly</option>
-                        <option value="12">Monthly</option>
-                        <option value="6">Every two months</option>
-                        <option value="2">Twice a year</option>
-                        <option value="1">Once a year</option>
-                    </o-select>
-                </ValidatedField>
-
-                <!--                    <o-field label="Last Time Contacted">-->
-                <!--                        <o-datepicker-->
-                <!--                            placeholder="select last time contacted"-->
-                <!--                            icon="calendar"-->
-                <!--                            trap-focus-->
-                <!--                        />-->
-                <!--                    </o-field>-->
 
                 <hr />
 
@@ -203,8 +135,8 @@
                     title="Email Addresses"
                     :fresh-item="freshEmailAddress"
                     api-name="email"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingEmails = v)"
                 >
                     <ValidatedField
@@ -242,8 +174,8 @@
                     title="Phone Numbers"
                     :fresh-item="freshPhoneNumber"
                     api-name="phone_no"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingPhones = v)"
                 >
                     <ValidatedField
@@ -274,6 +206,13 @@
                     ></ValidatedField>
                 </ContactsOneToMany>
 
+                <SocialMediaEdit
+                    ref="socialMedia"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingSocials = v)"
+                ></SocialMediaEdit>
+
                 <ContactsOneToMany
                     v-slot="{ model, updateItem, debounceUpdateItem }"
                     ref="addresses"
@@ -281,11 +220,11 @@
                     title="Addresses"
                     :fresh-item="freshAddress"
                     api-name="address"
-                    :contact-id="contactId"
-                    :skip-reload="skipReload"
+                    :local-id="localId"
+                    :server-id="serverId"
                     @update:saving="(v) => (savingAddresses = v)"
                 >
-                    <div>
+                    <div class="has-background-white-ter p-3 mb-3">
                         <ValidatedField
                             :model="model"
                             name="address_line_one"
@@ -340,6 +279,75 @@
                         >
                     </div>
                 </ContactsOneToMany>
+
+                <ImportantDatesEdit
+                    ref="importantDates"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingImportantDates = v)"
+                ></ImportantDatesEdit>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    name="job_title"
+                    placeholder="e.g. Software Developer"
+                />
+
+                <o-field grouped>
+                    <ValidatedField
+                        :model="model"
+                        name="department"
+                        placeholder="e.g.: Middle Office"
+                    >
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="company"
+                        placeholder="e.g.: Pied Piper"
+                    >
+                    </ValidatedField>
+                </o-field>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    name="side_notes"
+                    data-test="side_notes"
+                    placeholder="Take notes about this person here to remember for next time."
+                    type="textarea"
+                >
+                </ValidatedField>
+
+                <ValidatedField
+                    v-slot="{ value, setValue }"
+                    :model="model"
+                    name="regularity_of_contact"
+                    label="How often to keep in touch"
+                >
+                    <o-select
+                        :model-value="value"
+                        @update:model-value="setValue"
+                    >
+                        <option value="104">Twice a week</option>
+                        <option value="52">Weekly</option>
+                        <option value="26">Fortnightly</option>
+                        <option value="12">Monthly</option>
+                        <option value="6">Every two months</option>
+                        <option value="2">Twice a year</option>
+                        <option value="1">Once a year</option>
+                    </o-select>
+                </ValidatedField>
+
+                <!--                    <o-field label="Last Time Contacted">-->
+                <!--                        <o-datepicker-->
+                <!--                            placeholder="select last time contacted"-->
+                <!--                            icon="calendar"-->
+                <!--                            trap-focus-->
+                <!--                        />-->
+                <!--       -->
             </div>
 
             <o-modal :active="isDiscardChangesDialogActive" width="400">
@@ -371,151 +379,174 @@
 </template>
 
 <script lang="ts">
-import { Contact, getFullName } from "@/api/contacts";
-import { Options, Vue } from "vue-class-component";
+import {
+    Contact,
+    ContactId,
+    getFullName,
+    ServerContactId,
+} from "@/api/contacts";
 import ValidatedField from "@/components/ValidatedField.vue";
-import { getAxiosInstance, Model } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
-import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
+import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
+import { Model } from "@/api/model";
+import { defineComponent, PropType } from "vue";
 
-class Props {
-    contactId!: number | null;
-    expanded!: boolean;
-    isDiscardChangesDialogActive!: boolean;
-}
-
-@Options({
+export default defineComponent({
+    name: "ContactsEdit",
     components: {
-        NonFieldErrorsList,
+        SocialMediaEdit,
         SpinnerOverlay,
         ContactsOneToMany,
         ValidatedField,
+        ImportantDatesEdit,
     },
-    watch: { contactId: "onContactIdUpdated" },
+    props: {
+        localId: {
+            type: Number as PropType<ContactId>,
+            required: true,
+        },
+        serverId: {
+            type: Number as PropType<ServerContactId>,
+            default: null,
+        },
+        isDiscardChangesDialogActive: { type: Boolean, default: false },
+    },
     emits: ["discard-changes", "cancel-discard", "contact-updated"],
-})
-export default class ContactsEdit extends Vue.with(Props) {
-    model = new Model(new Contact());
-
-    extraNameOpen = false;
-    savingEmails = false;
-    savingPhones = false;
-    savingAddresses = false;
-    loading = false;
-
-    // There is a tricky edge case, whereby we fill out a valid contact, but
-    // with invalid email/phone/social/address, and then click "create contact".
-    // POSTing the contact will succeed, but POSTing the email/phone will not.
-    // We need to navigate the user to the contacts "edit" URL, but keep the
-    // email/phone/social/address which has failed validation, so the user can fix it.
-    skipReloadForId: number | null = null;
-
-    get saving() {
-        return (
-            this.model.isSubmitting ||
-            this.savingEmails ||
-            this.savingPhones ||
-            this.savingAddresses
-        );
-    }
-
-    get fullName() {
-        if (!this.model) {
-            return null;
-        }
-        return getFullName(this.model.model as Contact);
-    }
-
-    skipReload(id: number | null) {
-        return id === this.skipReloadForId;
-    }
-
-    async onContactIdUpdated(newId: number | null) {
-        if (!newId) {
-            this.model = new Model(new Contact());
-            return;
-        }
-        // on the next page change, clear this flag
-        if (newId !== this.skipReloadForId) {
-            this.skipReloadForId = null;
-        } else if (newId === this.skipReloadForId) {
-            console.log("skipping reload");
-            return;
-        }
-
-        this.loading = true;
-        let response = await getAxiosInstance().get(
-            "contact_book/get_contact_by_id/" + this.contactId
-        );
-        this.model = new Model(response.data);
-        this.loading = false;
-    }
-
-    async mounted() {
-        await this.onContactIdUpdated(this.contactId);
-    }
-
-    async submit() {
-        await this.model.tryUpdate(async () => {
-            let response = await getAxiosInstance().request({
-                url:
-                    "contact_book/" +
-                    (this.model.model.id
-                        ? "update_contact_by_id/" + this.model.model.id
-                        : "create_contact"),
-                method: this.model.model.id ? "PUT" : "POST",
-                data: this.model.model,
-            });
-
-            if (response.status === 201) {
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact created")
-                );
-                this.model.captureServerResponse(response.data);
-                this.$emit("contact-updated", this.model.model);
-                // keep around any phones/emails/socials which the user added,
-                // so they get saved
-                this.skipReloadForId = response.data.id;
-                await this.$router.push("/app/contacts/" + response.data.id);
-            } else {
-                this.model.captureServerResponse(null);
-                this.$emit("contact-updated", this.model.model);
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact updated")
-                );
+    data() {
+        return {
+            model: new Model<Contact>(new Contact()),
+            extraNameOpen: false,
+            savingEmails: false,
+            savingPhones: false,
+            savingAddresses: false,
+            savingSocials: false,
+            savingImportantDates: false,
+            loading: false,
+        };
+    },
+    computed: {
+        saving() {
+            return (
+                this.model.isSubmitting ||
+                this.savingEmails ||
+                this.savingPhones ||
+                this.savingAddresses ||
+                this.savingSocials ||
+                this.savingImportantDates
+            );
+        },
+        fullName() {
+            if (!this.model) {
+                return null;
             }
-        });
-    }
+            return getFullName(this.model.model as Contact);
+        },
+    },
+    watch: { localId: "loadContact", saving: "onSavingUpdated" },
+    async mounted() {
+        await this.loadContact();
+    },
+    methods: {
+        onSavingUpdated(newVal: boolean, oldVal: boolean) {
+            if (!newVal && oldVal && this.model.model.id) {
+                // if `saving` switched from `true` to `false`, then the contact has just been updated
+                console.log(
+                    "ContactsEdit: emitting contact-updated event for contact",
+                    this.localId
+                );
+                this.$emit("contact-updated", this.localId, this.model.model);
+            }
+        },
 
-    hasUnsavedChanges(): boolean {
-        return (
-            !this.model.matchesServer() ||
-            (
-                this.$refs.phoneNumbers as ContactsOneToMany
-            ).hasUnsavedChanges() ||
-            (this.$refs.emails as ContactsOneToMany).hasUnsavedChanges() ||
-            (this.$refs.addresses as ContactsOneToMany).hasUnsavedChanges()
-        );
-    }
-    freshEmailAddress(): Record<string, any> {
-        return { label: "other", email_address: "" };
-    }
-    freshPhoneNumber(): Record<string, any> {
-        return { label: "other", number: "" };
-    }
-    freshAddress(): Record<string, any> {
-        return { is_current: true };
-    }
-}
+        async loadContact() {
+            if (this.serverId === null) {
+                this.model = new Model(new Contact());
+                return;
+            }
+            this.loading = true;
+            const response = await getAxiosInstance().get(
+                "contact_book/get_contact_by_id/" + this.serverId
+            );
+            this.model = new Model(response.data as Contact);
+            this.loading = false;
+        },
+
+        async submit() {
+            let created = false;
+            await this.model.tryUpdate(async () => {
+                const response = await getAxiosInstance().request({
+                    url:
+                        "contact_book/" +
+                        (this.model.model.id
+                            ? "update_contact_by_id/" + this.model.model.id
+                            : "create_contact"),
+                    method: this.model.model.id ? "PUT" : "POST",
+                    data: this.model.model,
+                });
+
+                if (response.status === 201) {
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact created")
+                    );
+                    this.model.captureServerResponse(response.data as Contact);
+                    created = true;
+                } else {
+                    this.model.captureServerResponse(null);
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact updated")
+                    );
+                }
+            });
+            if (created) {
+                console.log("ContactsEdit: switching to edit view");
+                await this.$router.push("/app/contacts/" + this.model.model.id);
+            }
+        },
+
+        hasUnsavedChanges(): boolean {
+            return (
+                !this.model.matchesServer() ||
+                (
+                    this.$refs.phoneNumbers as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.emails as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.addresses as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.socialMedia as SocialMediaEdit
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.importantDates as ImportantDatesEdit
+                ).hasUnsavedChanges()
+            );
+        },
+        freshEmailAddress(): Record<string, any> {
+            return { label: "other", email_address: "" };
+        },
+        freshPhoneNumber(): Record<string, any> {
+            return { label: "other", number: "" };
+        },
+        freshAddress(): Record<string, any> {
+            return { is_current: true };
+        },
+    },
+});
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "../styles/variables.scss";
+
 .expanded-box {
     margin-top: 10px;
     padding-top: 20px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid $grey-lighter;
 }
 
 .top-header {
@@ -523,14 +554,15 @@ export default class ContactsEdit extends Vue.with(Props) {
     z-index: 10;
     top: 0;
     border-radius: 0;
-    background-color: #fafafa;
-    border-bottom: 1px solid #ccc;
+    background-color: $info;
+    border-bottom: 1px solid $grey-lighter;
 }
 
 .space-items {
     display: flex;
 }
 
+/* TODO: make this code cleaner */
 :deep(.space-items > *:not(:last-child)) {
     margin-right: 0.5rem;
 }

@@ -18,3 +18,8 @@
   color: rgba(0, 0, 0, 0.7);
   //background: #ffdd57;
 }
+
+// gets rid of white bar on RHS of screen
+html {
+  overflow-y: hidden;
+}
