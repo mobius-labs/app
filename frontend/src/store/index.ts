@@ -28,6 +28,7 @@ const store = createStore({
             }
             const token = getToken();
             if (token) {
+                console.log("Retrieved token from local storage");
                 commit("setToken", token);
                 return true;
             }
@@ -35,9 +36,9 @@ const store = createStore({
         },
         async login({ commit }, { token, router, oruga }) {
             commit("setToken", token);
+            persistToken(token);
             console.log("redirecting...");
             await router.push("/app");
-            persistToken(token);
             oruga.notification.open({
                 message: "Welcome!",
                 variant: "success",
@@ -45,13 +46,16 @@ const store = createStore({
                 duration: 5000,
             });
         },
-        async logout({ commit }, { router, oruga }) {
+        async logout(
+            { commit },
+            { router, oruga, logoutMessage, redirectURL }
+        ) {
             commit("setToken", null);
-            console.log("logged out");
-            await router.push("/");
             invalidateToken();
+            console.log("logged out");
+            await router.push(redirectURL || "/");
             oruga.notification.open({
-                message: "You are now logged out.",
+                message: logoutMessage || "You are now logged out.",
                 variant: "info",
                 rootClass: "toast-notification",
                 duration: 5000,
