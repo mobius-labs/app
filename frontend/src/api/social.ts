@@ -32,6 +32,9 @@ export function tryRecogniseSocialLink(
     link: string
 ): Recognition | null {
     for (const site of sites.values()) {
+        if (!site.url_format) {
+            continue;
+        }
         const re = getRegexForSite(site);
         const result = re.exec(link);
         console.log(re, link, result);
@@ -46,5 +49,8 @@ export function tryRecogniseSocialLink(
 // e.g.: for Facebook, will return
 // a link of the form: https://www.facebook.com/[username-goes-here]
 export function formatSocialLink(site: SocialMediaSite, username: string) {
+    if (!site.url_format) {
+        return username;
+    }
     return site.url_format.replace("{username}", username);
 }

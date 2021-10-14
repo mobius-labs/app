@@ -17,8 +17,14 @@
                         <o-button size="medium" variant="text">
                             <o-icon
                                 v-if="value"
-                                :icon="socialMediaSites.get(value)?.icon"
-                                pack="fab"
+                                :icon="
+                                    socialMediaSites.get(value)?.icon || 'link'
+                                "
+                                :pack="
+                                    socialMediaSites.get(value)?.icon !== ''
+                                        ? 'fab'
+                                        : 'fas'
+                                "
                             ></o-icon>
                             <span v-else>Select social media site</span>
                         </o-button>
@@ -30,7 +36,10 @@
                     :value="site.site"
                     @click="setValue(site.site)"
                 >
-                    <o-icon :icon="site.icon" pack="fab"></o-icon>
+                    <o-icon
+                        :icon="site.icon || 'link'"
+                        :pack="site.icon !== '' ? 'fab' : 'fas'"
+                    ></o-icon>
                     {{ site.site }}
                 </o-dropdown-item>
                 <o-dropdown-item v-if="socialMediaSites.size === 0"
