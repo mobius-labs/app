@@ -7,10 +7,14 @@ app_name = 'contact_book'
 urlpatterns = [
     # contacts
     path('create_contact', create_contact, name="create_contact"),
+    path('create_user_contact', create_user_contact, name="create_user_contact"),
     path('list', ApiContactList.as_view(), name='list'),
+    path('overdue_catchup', ApiNotifyOverdueCatchUp.as_view(), name='overdue_catchup'),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),
+    path('get_user_contacts', get_user_contacts, name="get_user_contacts"),
+    path('get_business_cards/<str:email>', get_business_cards, name="get_business_cards"),
 
     # phone numbers
     path('create_phone_no/<int:contact_id>', create_phone_no, name="create_phone_no"),
