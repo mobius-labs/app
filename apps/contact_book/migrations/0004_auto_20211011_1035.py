@@ -136,23 +136,8 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='importantdatetype',
-            name='icon',
-            field=models.ImageField(blank=True, null=True, upload_to=''),
-        ),
-        migrations.AlterField(
-            model_name='importantdatetype',
-            name='is_default',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AlterField(
             model_name='number',
             name='label',
             field=models.CharField(blank=True, choices=[('business', 'Bus'), ('friend', 'Frn'), ('family', 'Fam'), ('other', 'Oth')], max_length=15, null=True),
-        ),
-        migrations.AlterField(
-            model_name='socialmediasite',
-            name='icon',
-            field=models.ImageField(blank=True, null=True, upload_to=''),
         ),
     ]
