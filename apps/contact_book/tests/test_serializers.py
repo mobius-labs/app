@@ -69,7 +69,7 @@ class ContactBookSerializerTests(TestCase):
 
         self.assertCountEqual(data.keys(), ['id', 'first_name', 'surname', 'middle_name', 'nickname', 'name_pronunciation',
                                             'pronouns', 'title', 'relation', 'company', 'job_title', 'side_notes',
-                                            'department', 'regularity_of_contact'])
+                                            'department', 'regularity_of_contact', 'last_time_contacted'])
 
     def test_first_name_field_content(self):
         data = self.contact_serializer.data
