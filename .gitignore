@@ -5,3 +5,5 @@ node_modules
 /venv
 .idea/backend_crm.iml
 .idea/misc.xml
+htmlcov
+.coverage

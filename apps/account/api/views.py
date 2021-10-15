@@ -11,6 +11,7 @@ def get_random_string(length):
 
 from apps.account.models import User
 
+
 @api_view(['POST'])
 @permission_classes([])
 def registration_view(request):
