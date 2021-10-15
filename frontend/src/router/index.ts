@@ -75,6 +75,14 @@ const routes = [
                 component: Contacts,
                 meta: { title: "Contacts", height: 2 },
                 props: (route: RouteLocationNormalized) => {
+                    if (route.query.initialData) {
+                        return {
+                            selectedId: Contacts.NEW_CONTACT,
+                            initialData: JSON.parse(
+                                route.query.initialData as string
+                            ),
+                        };
+                    }
                     if (route.params.id === "new") {
                         return { selectedId: Contacts.NEW_CONTACT };
                     }

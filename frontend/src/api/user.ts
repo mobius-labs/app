@@ -3,6 +3,7 @@ import { getAxiosInstance } from "@/api/api";
 export interface User {
     email: string;
     business_card: boolean;
+    business_card_theme: string | null;
 }
 
 export async function fetchUserDetails(): Promise<User> {

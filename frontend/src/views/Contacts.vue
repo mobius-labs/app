@@ -159,6 +159,7 @@
                 v-if="isContactsEditExpanded"
                 ref="contactsEdit"
                 :local-id="selectedLocalId"
+                :initial-data="initialData"
                 :server-id="selectedServerId"
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
                 @close="onContactEditClosed"
@@ -177,6 +178,7 @@ import {
     Contact,
     ContactId,
     displayRegularity,
+    FullContact,
     getFullName,
     ServerContactId,
 } from "@/api/contacts";
@@ -187,6 +189,7 @@ import debounce from "lodash/debounce";
 
 class Props {
     selectedId: number | null = null;
+    initialData?: FullContact;
 }
 
 interface LocalContact {

@@ -55,6 +55,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     connected_contact = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True)
     business_card = models.BooleanField(default=False)
+    business_card_theme = models.CharField(max_length=30, null=True)
     # business_card_url = models.CharField(max_length=10)
 
     # the field the user logs in with

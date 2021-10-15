@@ -67,6 +67,25 @@ export function emptyOneToManys(): ContactOneToManys {
     };
 }
 
+function stripIds(x: Record<string, any>) {
+    return {
+        ...x,
+        id: null,
+    };
+}
+
+export function stripIdsFromContact(contact: FullContact) {
+    return {
+        ...contact,
+        social_media: contact.social_media.map(stripIds),
+        addresses: contact.addresses.map(stripIds),
+        emails: contact.emails.map(stripIds),
+        phone_nos: contact.phone_nos.map(stripIds),
+        important_dates: contact.important_dates.map(stripIds),
+        id: null,
+    };
+}
+
 export function splitContactAndOneToManys(
     contact: FullContact
 ): [Contact, ContactOneToManys] {

@@ -29,6 +29,7 @@
                             >
                                 <template #fallback>
                                     <div
+                                        key="fallback"
                                         style="
                                             position: absolute;
                                             width: 100%;

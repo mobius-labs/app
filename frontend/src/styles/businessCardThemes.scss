@@ -1,0 +1,69 @@
+@import "./variables.scss";
+
+.bc-theme-default {
+  background-image: radial-gradient(
+    circle farthest-corner at 18.7% 37.8%,
+    rgba(250, 250, 250, 1) 0%,
+    rgba(225, 234, 238, 1) 90%
+  );
+}
+
+.bc.bc-theme-sky {
+  border-radius: 2em;
+  border: 4px solid #fafafa;
+  background-image: linear-gradient(
+    -225deg,
+    lighten(#7085b6, 20%) 0%,
+    lighten(#87a7d9, 20%) 50%,
+    darken(#def3f8, 5%) 100%
+  );
+
+  a {
+    color: $grey-dark;
+  }
+
+  .bc-name {
+    font-weight: 700;
+  }
+
+  .bc-icon {
+    border: 2px solid #fafafa;
+  }
+}
+
+.bc.bc-theme-bright {
+  border-radius: 0.5rem;
+  background-image: radial-gradient(
+    circle farthest-corner at 50.7% 54%,
+    rgba(204, 254, 152, 1) 0%,
+    rgba(229, 253, 190, 1) 92.4%
+  );
+
+  a {
+    color: $grey-dark;
+  }
+
+  .bc-name {
+    font-weight: 700;
+    font-variant: small-caps;
+  }
+}
+
+.bc-theme-dark {
+  background-image: linear-gradient(to right, #434343 0%, black 100%);
+  color: #fafafa;
+
+  .bc-icon {
+    border-color: $grey-lighter;
+  }
+
+  .bc-name,
+  .bc-title {
+    color: $white-bis;
+    font-variant: small-caps;
+  }
+
+  a:hover {
+    color: lighten($info, 10%);
+  }
+}

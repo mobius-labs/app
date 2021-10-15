@@ -19,8 +19,9 @@
                 <o-button
                     variant="dark"
                     icon-left="share-square"
-                    class="is-large"
+                    class="is-medium"
                     v-if="user && user.business_card"
+                    @click="copySharableLink"
                     >Copy link</o-button
                 >
             </div>
@@ -35,7 +36,10 @@
                 "
                 style="overflow-y: auto; padding: 5rem 0"
             >
-                <BusinessCard :contact="userContact" />
+                <BusinessCard
+                    :contact="updatingTheme ? null : userContact"
+                    :theme="updatingTheme ? 'default' : derivedTheme"
+                />
 
                 <transition name="fade">
                     <div v-if="user && userContact" class="has-text-centered">
@@ -48,6 +52,13 @@
                                 <a @click="shouldEditContactDetails = true"
                                     ><o-icon icon="pencil-alt"></o-icon> Edit
                                     business card content</a
+                                >
+
+                                <a
+                                    @click="isThemeSelectorModalActive = true"
+                                    class="ml-6"
+                                    ><o-icon icon="paint-brush"></o-icon> Change
+                                    theme</a
                                 >
                             </div>
 
@@ -91,16 +102,77 @@
                         with the link will be able to view the contact details
                         you've entered.
                     </p>
-                </div>
 
-                <o-switch v-model="user.business_card">
-                    <span v-if="user.business_card">Business card shared</span>
-                    <span v-else>Business card private</span>
-                </o-switch>
+                    <o-switch v-model="user.business_card">
+                        <span v-if="user.business_card"
+                            >Business card shared</span
+                        >
+                        <span v-else>Business card private</span>
+                    </o-switch>
+
+                    <br /><br />
+
+                    <p>You can also choose from a number of themes</p>
+
+                    <p>
+                        <o-button
+                            @click="isThemeSelectorModalActive = true"
+                            icon-left="paint-brush"
+                            variant="dark"
+                            >Change theme</o-button
+                        >
+                    </p>
+                </div>
 
                 <hr />
             </ContactsEdit>
         </div>
+
+        <o-modal
+            :active="isThemeSelectorModalActive"
+            width="1000"
+            :on-close="
+                (v) => {
+                    isThemeSelectorModalActive = false;
+                }
+            "
+            :on-cancel="
+                (v) => {
+                    isThemeSelectorModalActive = false;
+                }
+            "
+        >
+            <div class="modal-card">
+                <div class="modal-card-head">
+                    <div class="modal-card-title">
+                        Choose a theme for your business card
+                    </div>
+                </div>
+                <div class="modal-card-body">
+                    <h2 class="subtitle">Built-in Themes</h2>
+                    <div class="theme-list">
+                        <div
+                            class="theme"
+                            v-for="(theme, name) in CARD_THEMES"
+                            :key="name"
+                            @click="selectTheme(name)"
+                        >
+                            <BusinessCard
+                                :contact="userContact"
+                                :theme="name"
+                                class="theme-card"
+                            ></BusinessCard>
+                            <p class="theme-label">
+                                {{ theme.label }}
+                                <strong v-if="derivedTheme === name"
+                                    >(current)</strong
+                                >
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </o-modal>
     </div>
 </template>
 
@@ -111,6 +183,9 @@ import ContactsEdit from "@/components/ContactsEdit.vue";
 import { defineComponent } from "vue";
 import { getAxiosInstance } from "@/api/api";
 import { fetchUserDetails, User } from "@/api/user";
+import { CARD_THEMES, getTheme } from "@/businessCard";
+import { defaultToast } from "@/toasts";
+import copy from "copy-to-clipboard";
 
 export default defineComponent({
     name: "BusinessCardEdit",
@@ -120,12 +195,18 @@ export default defineComponent({
             shouldEditContactDetails: false,
             userContact: null as Contact | null,
             isDiscardChangesDialogActive: false,
+            isThemeSelectorModalActive: false,
             user: null as User | null,
+            CARD_THEMES: CARD_THEMES,
+            fetching: false,
+            updatingTheme: false,
         };
     },
     computed: {
+        derivedTheme() {
+            return getTheme((this as any).user);
+        },
         isEditingContactDetails() {
-            // TODO: work out why this doesn't work
             return (
                 (this as any).shouldEditContactDetails &&
                 (this as any).userContact
@@ -134,6 +215,7 @@ export default defineComponent({
     },
     watch: {
         "user.business_card": "putUserDetails",
+        "user.business_card_theme": "updateTheme",
     },
     mounted() {
         this.fetchUserDetails();
@@ -141,7 +223,11 @@ export default defineComponent({
     },
     methods: {
         async fetchUserDetails() {
+            this.fetching = true;
             this.user = await fetchUserDetails();
+            await this.$nextTick(() => {
+                this.fetching = false;
+            });
         },
         async fetchUserContact() {
             try {
@@ -153,19 +239,62 @@ export default defineComponent({
                 this.userContact = null;
             }
         },
+        async updateTheme() {
+            if (this.fetching) {
+                return;
+            }
+            this.updatingTheme = true;
+            await this.putUserDetails();
+        },
         async putUserDetails() {
+            if (this.fetching) {
+                return;
+            }
             try {
-                const result = await getAxiosInstance().put(
+                await getAxiosInstance().put(
                     "/account/update_business_card_visibility",
                     this.user
                 );
-                console.log(result);
+                this.$oruga.notification.open(
+                    defaultToast("info", "Saved preferences")
+                );
             } catch (e) {
                 console.error(e);
             }
+            // this just makes the UI feel cooler
+            setTimeout(() => {
+                this.updatingTheme = false;
+            }, 1000);
         },
         async onContactUpdated() {
             await this.fetchUserContact();
+        },
+
+        selectTheme(theme: string) {
+            if (this.user) {
+                this.user.business_card_theme = theme;
+                this.isThemeSelectorModalActive = false;
+            }
+        },
+
+        copySharableLink() {
+            const url =
+                location.protocol +
+                "//" +
+                location.host +
+                "/card/" +
+                this.user?.email;
+            copy(url, { format: "text/plain" });
+            this.$oruga.notification.open(
+                defaultToast(
+                    "info",
+                    'Copied link to clipboard: <br /><a href="' +
+                        url +
+                        '" target="_blank">' +
+                        url +
+                        "</a>"
+                )
+            );
         },
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -188,5 +317,38 @@ export default defineComponent({
     a:hover {
         color: lighten($link, 10%);
     }
+}
+
+.theme-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.modal-card {
+    width: 100%;
+}
+
+.theme {
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .theme-card {
+        margin: -1rem;
+        pointer-events: none;
+        transform: scale(0.8);
+    }
+}
+
+.theme-label {
+    text-align: center;
+    font-style: italic;
 }
 </style>

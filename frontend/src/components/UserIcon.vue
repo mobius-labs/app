@@ -1,5 +1,8 @@
 <template>
-    <div style="position: relative">
+    <div
+        style="position: relative"
+        v-if="!hideOnFailure || gravatarLoaded !== false"
+    >
         <transition-group name="fade">
             <img
                 v-show="gravatarLoaded"
@@ -8,6 +11,7 @@
                 style="position: absolute; left: 0; top: 0"
                 key="gravatar"
                 @load="onGravatarLoaded"
+                @error="onGravatarLoadError"
             />
             <slot v-if="!gravatarLoaded" name="fallback"></slot>
         </transition-group>
@@ -22,17 +26,13 @@ export default defineComponent({
     name: "UserIcon",
     props: {
         user: { type: Object, default: null },
-        loaded: { type: Boolean, default: false },
+        hideOnFailure: { type: Boolean, default: false },
     },
     data() {
-        return { gravatarLoaded: false };
+        return { gravatarLoaded: null as boolean | null };
     },
     emits: ["update:loaded"],
     watch: {
-        user: "onUserUpdated",
-        loaded(newVal) {
-            this.gravatarLoaded = newVal;
-        },
         gravatarLoaded(newVal) {
             this.$emit("update:loaded", newVal);
         },
@@ -49,8 +49,11 @@ export default defineComponent({
         onGravatarLoaded() {
             this.gravatarLoaded = true;
         },
-        onUserUpdated() {
-            this.gravatarLoaded = false;
+        onGravatarLoadError(e: any) {
+            console.log(e);
+            if (this.gravatarIconSrc !== null) {
+                this.gravatarLoaded = false;
+            }
         },
     },
 });

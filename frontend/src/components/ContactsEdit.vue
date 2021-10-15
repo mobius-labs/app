@@ -8,9 +8,14 @@
             <div class="hero-body">
                 <div class="is-flex-grow-1">
                     <p class="subtitle has-text-grey-light has-text-centered">
-                        Loading Contact
+                        <span v-if="loadingFailed"
+                            >Failed to load contact. Perhaps it has been
+                            deleted?</span
+                        >
+                        <span v-else>Loading Contact</span>
                     </p>
                     <progress
+                        v-if="!loadingFailed"
                         class="progress is-small is-info"
                         max="100"
                     ></progress>
@@ -473,6 +478,10 @@ export default defineComponent({
             type: Number as PropType<ServerContactId>,
             default: null,
         },
+        initialData: {
+            type: Object as PropType<FullContact>,
+            default: null,
+        },
         isBusinessCard: { type: Boolean, default: false },
         isDiscardChangesDialogActive: { type: Boolean, default: false },
     },
@@ -486,6 +495,7 @@ export default defineComponent({
             recentlyUpdatedOneToManys: {} as Record<string, boolean>,
             loading: false,
             newlyCreated: false,
+            loadingFailed: false,
         };
     },
     computed: {
@@ -549,20 +559,33 @@ export default defineComponent({
 
         async loadContact() {
             if (this.serverId === null) {
-                this.model = new Model(new Contact());
-                this.oneToManys = emptyOneToManys();
+                if (this.initialData) {
+                    const [contact, oneToManys] = splitContactAndOneToManys(
+                        this.initialData
+                    );
+                    this.model = new Model(new Contact());
+                    this.model.model = contact;
+                    this.oneToManys = oneToManys;
+                } else {
+                    this.model = new Model(new Contact());
+                    this.oneToManys = emptyOneToManys();
+                }
                 return;
             }
             this.loading = true;
-            const response = await getAxiosInstance().get(
-                "contact_book/get_contact_by_id/" + this.serverId
-            );
-            const [contact, oneToManys] = splitContactAndOneToManys(
-                response.data as FullContact
-            );
-            this.model = new Model(contact);
-            this.oneToManys = oneToManys;
-            this.loading = false;
+            try {
+                const response = await getAxiosInstance().get(
+                    "contact_book/get_contact_by_id/" + this.serverId
+                );
+                const [contact, oneToManys] = splitContactAndOneToManys(
+                    response.data as FullContact
+                );
+                this.model = new Model(contact);
+                this.oneToManys = oneToManys;
+                this.loading = false;
+            } catch (e) {
+                this.loadingFailed = true;
+            }
         },
 
         async updateItem(newItem: Contact) {

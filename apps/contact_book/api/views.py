@@ -98,9 +98,11 @@ def get_business_cards(request, email):
 
     if user.business_card:
         serializer = FullContactSerializer(contact)
-        return Response(serializer.data)
+        data = serializer.data
+        data['business_card_theme'] = user.business_card_theme
+        return Response(data)
     else:
-        return Response({"user's business card is not shareable"})
+        return Response({"user's business card is not shareable"}, status=404)
 
 
 class ApiContactList(ListAPIView):
@@ -426,11 +428,12 @@ def create_social_media_site(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def get_social_media_sites(request):
-    sites_user_has_created = SocialMediaSite.objects.all().filter(author=request.user)
-    built_in_sites = SocialMediaSite.objects.all().filter(author__isnull=True)
-    sites = sites_user_has_created.union(built_in_sites)
+    sites = SocialMediaSite.objects.all().filter(author__isnull=True)
+    if request.user is not None:
+        sites = sites.union(SocialMediaSite.objects.all().filter(author=request.user))
+
     serializer = SocialMediaSiteSerializer(sites, many=True)
     return Response(serializer.data)
 

@@ -4,16 +4,17 @@
             <div class="bc-photo">
                 <transition name="fade" mode="out-in">
                     <UserIcon
-                        v-if="!contact || primaryEmail"
                         :user="primaryEmail ? { email: primaryEmail } : null"
                         :class="{
                             'bc-icon': true,
                             'bc-icon-loading': !gravatarLoaded,
                         }"
-                        v-model:loaded="gravatarLoaded"
+                        :hide-on-failure="true"
+                        @update:loaded="(v) => (gravatarLoaded = v)"
                     >
                         <template #fallback>
                             <o-skeleton
+                                key="fallback"
                                 animated
                                 circle
                                 width="6rem"
@@ -28,6 +29,9 @@
                     <transition name="fade" mode="out-in">
                         <h2 class="subtitle bc-name" v-if="contact">
                             {{ fullName(contact) }}
+                            <span v-if="contact.pronouns"
+                                >({{ contact.pronouns }})</span
+                            >
                         </h2>
                         <o-skeleton v-else animated height="2rem"></o-skeleton>
                     </transition>
@@ -38,6 +42,12 @@
                             }}<span v-if="contact.company"
                                 >, {{ contact.company }}</span
                             >
+                        </p>
+                        <p
+                            class="bc-title"
+                            v-else-if="contact && !contact.job_title"
+                        >
+                            <em class="bc-placeholder">[Job Title]</em>
                         </p>
                         <o-skeleton v-else-if="!contact" animated></o-skeleton>
                     </transition>
@@ -105,14 +115,14 @@ export default defineComponent({
     components: { UserIcon, SocialMediaItem },
     props: {
         contact: { type: Object as PropType<FullContact>, default: null },
-        theme: { type: String, default: "default" },
+        theme: { type: String, required: true },
     },
     data() {
         return {
             fullName: getFullName,
             concatAddress: concatAddress,
             socialMediaSites: new Map(),
-            gravatarLoaded: false,
+            gravatarLoaded: null as boolean | null,
         };
     },
     computed: {
@@ -134,9 +144,13 @@ export default defineComponent({
 @import "../styles/variables";
 .bc-wrapper {
     width: 30rem;
+
+    @media screen and (max-width: 35rem) {
+        width: auto !important;
+    }
 }
 
-is-centered {
+.is-centered {
     align-items: center;
 }
 
@@ -148,7 +162,9 @@ is-centered {
 
 .bc {
     transition: box-shadow 0.2s ease, border 0.2s ease;
-    //border: 10px solid transparent;
+    padding: 2em;
+    border-radius: 0.5em;
+    font-size: 0.8em;
 }
 
 .bc:hover,
@@ -165,12 +181,12 @@ is-centered {
 .bc-photo {
     display: flex;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1em;
 }
 
 .bc-icon {
-    width: 6rem;
-    height: 6rem;
+    width: 8em;
+    height: 8em;
     border: 2px solid $grey-dark;
     transition: border-color 0.2s ease;
     border-radius: 50%;
@@ -187,11 +203,14 @@ is-centered {
 
 .bc-name-title {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: right;
 }
 
 .bc-name {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
 }
 
 .bc-title {
@@ -199,8 +218,8 @@ is-centered {
 }
 
 .bc hr {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 1em;
+    margin-bottom: 1em;
     height: 1px;
     width: 70%;
     margin-left: auto;
@@ -208,22 +227,17 @@ is-centered {
 }
 
 .bc-contact-details {
-    margin-left: 20px;
+    margin-left: 2em;
     flex: 1;
+}
+
+.bc-placeholder {
+    color: $grey;
 }
 
 .bc-item {
 }
-
-.bc-theme-default {
-    font-family: "Source Sans Pro", sans-serif;
-    font-size: 14px;
-    background-image: radial-gradient(
-        circle farthest-corner at 18.7% 37.8%,
-        rgba(250, 250, 250, 1) 0%,
-        rgba(225, 234, 238, 1) 90%
-    );
-    border-radius: 0.5rem;
-    padding: 2rem;
-}
+</style>
+<style lang="scss">
+@import "../styles/businessCardThemes";
 </style>

@@ -150,7 +150,7 @@ export default defineComponent({
             // we now have a server ID, let's try and POST all the items
             console.log("ContactsOneToMany: trying to POST all items");
             for (const [id, entry] of this.items.entries()) {
-                if (!entry.matchesServer()) {
+                if (!entry.model.id || !entry.matchesServer()) {
                     this.updateItemOnServer(id);
                 }
             }
