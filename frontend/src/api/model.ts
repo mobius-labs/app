@@ -6,8 +6,12 @@ interface ValidationResponse {
     errors: Record<string, string[]>;
 }
 
+export interface PrimaryKey {
+    id: number | null;
+}
+
 // common functionality used for CRUD operations on a single struct of data (of type T)
-export class Model<T = Record<string, any>> {
+export class Model<T extends PrimaryKey = Record<string, any> & PrimaryKey> {
     // the state of the model the user is currently editing
     model: T;
 

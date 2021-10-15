@@ -176,9 +176,10 @@
                     title="Email Addresses"
                     :fresh-item="freshEmailAddress"
                     api-name="email"
-                    :local-id="localId"
+                    :initial-items="oneToManys.emails"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingEmails = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <ValidatedField
                         v-slot="{ value, setValue }"
@@ -215,9 +216,10 @@
                     title="Phone Numbers"
                     :fresh-item="freshPhoneNumber"
                     api-name="phone_no"
-                    :local-id="localId"
+                    :initial-items="oneToManys.phone_nos"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingPhones = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <ValidatedField
                         v-slot="{ value, setValue }"
@@ -249,9 +251,10 @@
 
                 <SocialMediaEdit
                     ref="socialMedia"
-                    :local-id="localId"
+                    :initial-items="oneToManys.social_media"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingSocials = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 ></SocialMediaEdit>
 
                 <ContactsOneToMany
@@ -261,9 +264,10 @@
                     title="Addresses"
                     :fresh-item="freshAddress"
                     api-name="address"
-                    :local-id="localId"
+                    :initial-items="oneToManys.addresses"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingAddresses = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <div class="has-background-white-ter p-3 mb-3">
                         <ValidatedField
@@ -324,9 +328,10 @@
                 <ImportantDatesEdit
                     v-if="!isBusinessCard"
                     ref="importantDates"
-                    :local-id="localId"
+                    :initial-items="oneToManys.important_dates"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingImportantDates = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 ></ImportantDatesEdit>
 
                 <hr />
@@ -430,10 +435,13 @@
 <script lang="ts">
 import {
     Contact,
+    FullContact,
     ContactId,
     CONTACTS_AUTOSAVE_REQUEST_MS,
     getFullName,
     ServerContactId,
+    emptyOneToManys,
+    splitContactAndOneToManys,
 } from "@/api/contacts";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
@@ -472,36 +480,39 @@ export default defineComponent({
     data() {
         return {
             model: new Model<Contact>(new Contact()),
+            oneToManys: emptyOneToManys(),
             extraNameOpen: false,
-            savingEmails: false,
-            savingPhones: false,
-            savingAddresses: false,
-            savingSocials: false,
-            savingImportantDates: false,
+            savingOneToManys: {} as Record<string, boolean>,
+            recentlyUpdatedOneToManys: {} as Record<string, boolean>,
             loading: false,
             newlyCreated: false,
         };
     },
     computed: {
         saving() {
-            return (
-                this.model.isSubmitting ||
-                this.savingEmails ||
-                this.savingPhones ||
-                this.savingAddresses ||
-                this.savingSocials ||
-                this.savingImportantDates
-            );
+            if (this.model.isSubmitting) {
+                return true;
+            }
+            for (const val of Object.values(this.savingOneToManys)) {
+                if (val) {
+                    return true;
+                }
+            }
+            return false;
         },
         isRecentlyUpdated() {
-            // TODO: make this include updates from the ContactsOneToMany components
-            return this.model.isRecentlyUpdated;
+            if (this.model.isRecentlyUpdated) {
+                return true;
+            }
+            for (const val of Object.values(this.recentlyUpdatedOneToManys)) {
+                if (val) {
+                    return true;
+                }
+            }
+            return false;
         },
         fullName() {
-            if (!this.model) {
-                return null;
-            }
-            return getFullName(this.model.model as Contact);
+            return getFullName(this.model.model);
         },
     },
     watch: { localId: "loadContact", saving: "onSavingUpdated" },
@@ -528,16 +539,29 @@ export default defineComponent({
             }
         },
 
+        updateSavingOneToManys(apiName: string, saving: boolean) {
+            this.savingOneToManys[apiName] = saving;
+        },
+
+        updateRecentlyUpdatedOneToManys(apiName: string, saving: boolean) {
+            this.recentlyUpdatedOneToManys[apiName] = saving;
+        },
+
         async loadContact() {
             if (this.serverId === null) {
                 this.model = new Model(new Contact());
+                this.oneToManys = emptyOneToManys();
                 return;
             }
             this.loading = true;
             const response = await getAxiosInstance().get(
                 "contact_book/get_contact_by_id/" + this.serverId
             );
-            this.model = new Model(response.data as Contact);
+            const [contact, oneToManys] = splitContactAndOneToManys(
+                response.data as FullContact
+            );
+            this.model = new Model(contact);
+            this.oneToManys = oneToManys;
             this.loading = false;
         },
 
@@ -570,7 +594,9 @@ export default defineComponent({
                             defaultToast("info", "Contact created")
                         );
                     }
-                    this.model.captureServerResponse(response.data as Contact);
+                    this.model.captureServerResponse(
+                        response.data as FullContact
+                    );
                     this.newlyCreated = true;
                 } else {
                     this.model.captureServerResponse(null);

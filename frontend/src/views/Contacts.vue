@@ -1,5 +1,8 @@
 <template>
-    <div class="is-flex is-align-items-stretch is-full-height">
+    <div
+        class="is-flex is-align-items-stretch is-full-height"
+        style="position: absolute; left: 0; top: 0"
+    >
         <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
@@ -40,7 +43,7 @@
                     :data="contacts"
                     v-model:current-page="currentPage"
                     @sort="onSortChanged"
-                    :per-page="20"
+                    :per-page="10"
                     :total="totalContacts"
                 >
                     <o-table-column
@@ -69,48 +72,37 @@
                         {{ getFullName(props.row.contact) }}
                     </o-table-column>
                     <o-table-column v-slot="props" label="Phone Nos. & Emails">
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="email"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <span
+                            class="tag mr-2"
+                            v-for="item in props.row.contact.emails"
+                            :key="item.id"
+                            ><o-icon icon="envelope" class="mr-0" /><a
+                                :href="'mailto:' + item.email_address"
+                                class="has-text-grey-darker"
+                                >{{ item.email_address }}</a
+                            ></span
                         >
-                            <span class="tag mr-2"
-                                ><o-icon icon="envelope" class="mr-0" /><a
-                                    :href="'mailto:' + item.email_address"
-                                    class="has-text-grey-darker"
-                                    >{{ item.email_address }}</a
-                                ></span
-                            >
-                        </ContactsOneToManyList>
 
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="phone_no"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <span
+                            class="tag mr-2"
+                            v-for="item in props.row.contact.phone_nos"
+                            :key="item.id"
+                            ><o-icon icon="phone" class="mr-0" />{{
+                                item.number
+                            }}</span
                         >
-                            <span class="tag mr-2"
-                                ><o-icon icon="phone" class="mr-0" />{{
-                                    item.number
-                                }}</span
-                            >
-                        </ContactsOneToManyList>
                     </o-table-column>
                     <o-table-column v-slot="props" label="Address">
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="address"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <p
+                            class="is-size-7"
+                            v-for="item in props.row.contact.addresses"
+                            :key="item.id"
                         >
-                            <p class="is-size-7">
-                                {{ item.address_line_one }}<br />{{
-                                    item.address_line_two
-                                }}<br />{{ item.suburb }} {{ item.state }}
-                                {{ item.postcode }}
-                            </p>
-                        </ContactsOneToManyList>
+                            {{ item.address_line_one }}<br />{{
+                                item.address_line_two
+                            }}<br />{{ item.suburb }} {{ item.state }}
+                            {{ item.postcode }}
+                        </p>
                     </o-table-column>
                     <o-table-column
                         v-if="!isContactsEditExpanded"
@@ -191,7 +183,6 @@ import {
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
-import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
 import debounce from "lodash/debounce";
 
 class Props {
@@ -216,7 +207,7 @@ interface SortData {
 }
 
 @Options({
-    components: { ContactsEdit, Spinner, ContactsOneToManyList },
+    components: { ContactsEdit, Spinner },
     watch: {
         searchQuery: "loadAllContacts",
         currentPage: "loadAllContacts",
@@ -242,10 +233,6 @@ export default class Contacts extends Vue.with(Props) {
     }, 500);
 
     static NEW_CONTACT = -1;
-
-    async mounted() {
-        await this.loadAllContacts();
-    }
 
     get isContactsEditExpanded() {
         return this.selectedId !== null;
@@ -399,8 +386,9 @@ export default class Contacts extends Vue.with(Props) {
         this.checkForUnsavedChanges(next);
     }
 
-    created() {
+    async created() {
         window.addEventListener("beforeunload", this.beforeWindowUnload);
+        await this.loadAllContacts();
     }
 
     beforeDestroy() {

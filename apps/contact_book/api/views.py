@@ -71,7 +71,7 @@ def get_contact_by_id(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
+    serializer = FullContactSerializer(contact)
     return Response(serializer.data)
 
 
@@ -86,7 +86,7 @@ def get_user_contacts(request):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
+    serializer = FullContactSerializer(contact)
     return Response(serializer.data)
 
 
@@ -97,7 +97,7 @@ def get_business_cards(request, email):
     contact = user.connected_contact
 
     if user.business_card:
-        serializer = ContactSerializer(contact)
+        serializer = FullContactSerializer(contact)
         return Response(serializer.data)
     else:
         return Response({"user's business card is not shareable"})
@@ -115,7 +115,7 @@ class ApiContactList(ListAPIView):
         return for_user
 
     queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)

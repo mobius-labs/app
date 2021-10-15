@@ -1,13 +1,17 @@
 <template>
-    <img
-        v-if="showGravatar"
-        :src="gravatarIconSrc"
-        alt=""
-        class="gravatar-image"
-    />
-    <o-button variant="info" v-else-if="fallback">
-        <o-icon icon="user" size="medium" variant="primary" />
-    </o-button>
+    <div style="position: relative">
+        <transition-group name="fade">
+            <img
+                v-show="gravatarLoaded"
+                :src="gravatarIconSrc"
+                alt=""
+                style="position: absolute; left: 0; top: 0"
+                key="gravatar"
+                @load="onGravatarLoaded"
+            />
+            <slot v-if="!gravatarLoaded" name="fallback"></slot>
+        </transition-group>
+    </div>
 </template>
 
 <script lang="ts">
@@ -18,35 +22,35 @@ export default defineComponent({
     name: "UserIcon",
     props: {
         user: { type: Object, default: null },
-        fallback: { type: Boolean, default: true },
+        loaded: { type: Boolean, default: false },
     },
     data() {
-        return { showGravatar: false };
+        return { gravatarLoaded: false };
     },
-    watch: { user: "onUserUpdated" },
+    emits: ["update:loaded"],
+    watch: {
+        user: "onUserUpdated",
+        loaded(newVal) {
+            this.gravatarLoaded = newVal;
+        },
+        gravatarLoaded(newVal) {
+            this.$emit("update:loaded", newVal);
+        },
+    },
     computed: {
         gravatarIconSrc() {
             if (this.user == null) {
                 return null;
             }
-            return gravatar.url(this.user.email, { d: "404" });
+            return gravatar.url(this.user.email, { d: "404", s: "200" });
         },
     },
     methods: {
-        async onUserUpdated() {
-            let showGravatar = true;
-            try {
-                const result = await window.fetch(
-                    this.gravatarIconSrc as string
-                );
-                if (!result.ok) {
-                    showGravatar = false;
-                }
-            } catch (e) {
-                console.log("disabling gravatar");
-                showGravatar = false;
-            }
-            this.showGravatar = showGravatar;
+        onGravatarLoaded() {
+            this.gravatarLoaded = true;
+        },
+        onUserUpdated() {
+            this.gravatarLoaded = false;
         },
     },
 });

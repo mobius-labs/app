@@ -7,9 +7,12 @@
             title="Social Media Links"
             :fresh-item="freshSocialMedia"
             api-name="social_media_contact"
-            :local-id="localId"
+            :initial-items="initialItems"
             :server-id="serverId"
-            @update:saving="(v) => $emit('update:saving', v)"
+            @update:saving="(a, v) => $emit('update:saving', a, v)"
+            @update:recently-updated="
+                (a, v) => $emit('update:recently-updated', a, v)
+            "
         >
             <SocialMediaEditItem
                 :model="model"
@@ -26,16 +29,17 @@ import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import SocialMediaEditItem from "@/components/SocialMediaEditItem.vue";
 import { getSocialMediaSites, SocialMediaSite } from "@/api/social";
-import { ContactId, ServerContactId } from "@/api/contacts";
+import { ServerContactId, SocialMedia } from "@/api/contacts";
 
 class Props {
-    localId!: ContactId;
+    initialItems!: SocialMedia[];
     serverId!: ServerContactId;
 }
 
 // A specialized version of ContactsOneToMany, for editing SocialMediaContacts
 @Options({
     components: { SocialMediaEditItem, ContactsOneToMany, ValidatedField },
+    emits: ["update:saving", "update:recently-updated"],
 })
 export default class SocialMediaEdit extends Vue.with(Props) {
     socialMediaSites = new Map<string, SocialMediaSite>();

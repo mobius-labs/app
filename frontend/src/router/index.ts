@@ -28,6 +28,13 @@ const routes = [
         path: "/card/:email",
         name: "View Business Card",
         component: BusinessCardView,
+        meta: {
+            title: "View Business Card",
+            allowGuests: true,
+        },
+        props: (route: RouteLocationNormalized) => {
+            return { email: route.params.email };
+        },
     },
     {
         path: "/",
@@ -97,10 +104,11 @@ const APP_TITLE = "Möbius CRM";
 
 router.afterEach((to, from) => {
     if (to.meta.height && from.meta.height) {
-        to.meta.transitionName =
-            (to.meta.height as number) > (from.meta.height as number)
-                ? "slide-up"
-                : "slide-down";
+        to.meta.transitionName = "fade";
+        // to.meta.transitionName =
+        //     (to.meta.height as number) > (from.meta.height as number)
+        //         ? "slide-up"
+        //         : "slide-down";
     }
 });
 

@@ -98,6 +98,7 @@ interface SuccessfulRegisterResponse {
 })
 export default class SignUp extends Vue {
     model = new Model({
+        id: null,
         email: "",
         password: "",
         confirm_password: "",

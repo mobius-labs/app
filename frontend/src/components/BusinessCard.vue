@@ -2,73 +2,91 @@
     <div class="bc-wrapper has-text-left">
         <div :class="'bc bc-theme-' + theme">
             <div class="bc-photo">
-                <UserIcon
-                    :user="primaryEmail ? { email: primaryEmail } : null"
-                    :fallback="false"
-                ></UserIcon>
+                <transition name="fade" mode="out-in">
+                    <UserIcon
+                        v-if="!contact || primaryEmail"
+                        :user="primaryEmail ? { email: primaryEmail } : null"
+                        :class="{
+                            'bc-icon': true,
+                            'bc-icon-loading': !gravatarLoaded,
+                        }"
+                        v-model:loaded="gravatarLoaded"
+                    >
+                        <template #fallback>
+                            <o-skeleton
+                                animated
+                                circle
+                                width="6rem"
+                                height="6rem"
+                            ></o-skeleton>
+                        </template>
+                    </UserIcon>
+                </transition>
             </div>
             <div class="bc-name-title-details">
                 <div class="bc-name-title">
-                    <h2 class="subtitle bc-name">{{ fullName(contact) }}</h2>
+                    <transition name="fade" mode="out-in">
+                        <h2 class="subtitle bc-name" v-if="contact">
+                            {{ fullName(contact) }}
+                        </h2>
+                        <o-skeleton v-else animated height="2rem"></o-skeleton>
+                    </transition>
                     <hr />
-                    <p class="bc-title" v-if="contact.job_title">
-                        {{ contact.job_title
-                        }}<span v-if="contact.company"
-                            >, {{ contact.company }}</span
-                        >
-                    </p>
+                    <transition name="fade" mode="out-in">
+                        <p class="bc-title" v-if="contact && contact.job_title">
+                            {{ contact.job_title
+                            }}<span v-if="contact.company"
+                                >, {{ contact.company }}</span
+                            >
+                        </p>
+                        <o-skeleton v-else-if="!contact" animated></o-skeleton>
+                    </transition>
                 </div>
                 <div class="bc-contact-details">
-                    <ContactsOneToManyList
-                        api-name="phone_no"
-                        :contact-id="contact.id"
-                        :version="contactVersion"
-                        v-slot="{ item }"
-                    >
-                        <div class="bc-item bc-phone-item">
-                            <o-icon icon="phone"></o-icon>{{ item.number }}
+                    <transition name="fade" mode="out-in">
+                        <div v-if="contact">
+                            <div
+                                v-for="item in contact.phone_nos"
+                                :key="item.id"
+                                class="bc-item bc-phone-item"
+                            >
+                                <o-icon icon="phone"></o-icon>{{ item.number }}
+                            </div>
+                            <div
+                                v-for="item in contact.emails"
+                                :key="item.id"
+                                class="bc-item bc-email-item"
+                            >
+                                <o-icon icon="envelope"></o-icon
+                                ><a :href="'mailto:' + item.email_address">{{
+                                    item.email_address
+                                }}</a>
+                            </div>
+                            <div
+                                v-for="item in contact.social_media"
+                                :key="item.id"
+                                class="bc-item bc-social-item"
+                            >
+                                <SocialMediaItem
+                                    :social-media-sites="socialMediaSites"
+                                    :item="item"
+                                ></SocialMediaItem>
+                            </div>
+                            <div
+                                v-for="item in contact.addresses"
+                                :key="item.id"
+                                class="bc-item bc-address-item"
+                            >
+                                <o-icon icon="map-marker-alt"></o-icon
+                                >{{ concatAddress(item) }}
+                            </div>
                         </div>
-                    </ContactsOneToManyList>
-                    <ContactsOneToManyList
-                        ref="emails"
-                        @loaded="onEmailsLoaded"
-                        api-name="email"
-                        :contact-id="contact.id"
-                        :version="contactVersion"
-                        v-slot="{ item }"
-                    >
-                        <div class="bc-item bc-email-item">
-                            <o-icon icon="envelope"></o-icon
-                            ><a :href="'mailto:' + item.email_address">{{
-                                item.email_address
-                            }}</a>
-                        </div>
-                    </ContactsOneToManyList>
-                    <ContactsOneToManyList
-                        v-if="socialMediaSites"
-                        api-name="social_media_contact"
-                        :contact-id="contact.id"
-                        :version="contactVersion"
-                        v-slot="{ item }"
-                    >
-                        <div class="bc-item bc-social-item">
-                            <SocialMediaItem
-                                :social-media-sites="socialMediaSites"
-                                :item="item"
-                            ></SocialMediaItem>
-                        </div>
-                    </ContactsOneToManyList>
-                    <ContactsOneToManyList
-                        api-name="address"
-                        :contact-id="contact.id"
-                        :version="contactVersion"
-                        v-slot="{ item }"
-                    >
-                        <div class="bc-item bc-address-item">
-                            <o-icon icon="map-marker-alt"></o-icon
-                            >{{ concatAddress(item) }}
-                        </div>
-                    </ContactsOneToManyList>
+                        <o-skeleton
+                            v-else-if="!contact"
+                            animated
+                            :count="5"
+                        ></o-skeleton>
+                    </transition>
                 </div>
             </div>
         </div>
@@ -77,17 +95,16 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { getFullName, Contact, concatAddress } from "@/api/contacts";
-import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
+import { getFullName, concatAddress, FullContact } from "@/api/contacts";
 import { getSocialMediaSites } from "@/api/social";
 import SocialMediaItem from "@/components/SocialMediaItem.vue";
 import UserIcon from "@/components/UserIcon.vue";
 
 export default defineComponent({
     name: "BusinessCard",
-    components: { UserIcon, SocialMediaItem, ContactsOneToManyList },
+    components: { UserIcon, SocialMediaItem },
     props: {
-        contact: { type: Object as PropType<Contact>, required: true },
+        contact: { type: Object as PropType<FullContact>, default: null },
         theme: { type: String, default: "default" },
         contactVersion: { type: Number, default: 1 },
     },
@@ -96,19 +113,20 @@ export default defineComponent({
             fullName: getFullName,
             concatAddress: concatAddress,
             socialMediaSites: new Map(),
-            primaryEmail: null,
+            gravatarLoaded: false,
         };
+    },
+    computed: {
+        primaryEmail() {
+            // return 'foo';
+            if (this.contact && this.contact.emails.length > 0) {
+                return this.contact.emails[0].email_address;
+            }
+            return null;
+        },
     },
     async mounted() {
         this.socialMediaSites = await getSocialMediaSites();
-    },
-    methods: {
-        onEmailsLoaded() {
-            const emails = this.$refs.emails as ContactsOneToManyList;
-            if (emails.items.length > 0) {
-                this.primaryEmail = emails.items[0].email_address;
-            }
-        },
     },
 });
 </script>
@@ -117,6 +135,10 @@ export default defineComponent({
 @import "../styles/variables";
 .bc-wrapper {
     width: 30rem;
+}
+
+is-centered {
+    align-items: center;
 }
 
 @keyframes popOut {
@@ -142,14 +164,22 @@ export default defineComponent({
 }
 
 .bc-photo {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-bottom: 1rem;
 }
 
-.gravatar-image {
-    border-radius: 50%;
+.bc-icon {
     width: 6rem;
+    height: 6rem;
     border: 2px solid $grey-dark;
+    transition: border-color 0.2s ease;
+    border-radius: 50%;
+    overflow: hidden;
+
+    &.bc-icon-loading {
+        border-color: transparent;
+    }
 }
 
 .bc-name-title-details {
@@ -170,8 +200,8 @@ export default defineComponent({
 }
 
 .bc hr {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
     height: 1px;
     width: 70%;
     margin-left: auto;

@@ -50,12 +50,8 @@
 <script lang="ts">
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
-import { Model } from "@/api/model";
-import {
-    ContactId,
-    CONTACTS_AUTOSAVE_REQUEST_MS,
-    ServerContactId,
-} from "@/api/contacts";
+import { Model, PrimaryKey } from "@/api/model";
+import { CONTACTS_AUTOSAVE_REQUEST_MS, ServerContactId } from "@/api/contacts";
 import { defineComponent, PropType } from "vue";
 
 // negative numbers are "client IDs", specific to this component,
@@ -87,8 +83,8 @@ export default defineComponent({
     props: {
         title: { type: String, required: true },
         addButtonText: { type: String, required: true },
-        localId: {
-            type: Number as PropType<ContactId>,
+        initialItems: {
+            type: Array as PropType<(Record<string, any> & PrimaryKey)[]>,
             required: true,
         },
         serverId: {
@@ -96,12 +92,12 @@ export default defineComponent({
             default: null,
         },
         freshItem: {
-            type: Function as PropType<() => Record<string, any>>,
+            type: Function as PropType<() => Record<string, any> & PrimaryKey>,
             required: true,
         },
         apiName: { type: String, required: true },
     },
-    emits: ["update:saving"],
+    emits: ["update:saving", "update:recently-updated"],
     data() {
         return {
             items: new Map<LocalItemId, Model>(),
@@ -123,13 +119,27 @@ export default defineComponent({
             );
             return new Map<LocalItemId, Status>(entries);
         },
+        recentlyUpdated() {
+            for (const model of this.items.values()) {
+                if (model.isRecentlyUpdated) {
+                    return true;
+                }
+            }
+            return false;
+        },
         firstLetterOfApiName() {
             return this.apiName[0];
         },
     },
-    watch: { localId: "fetchAllItems", serverId: "onServerIdUpdated" },
-    async mounted() {
-        await this.fetchAllItems();
+    watch: {
+        initialItems: "onInitialItemsUpdated",
+        serverId: "onServerIdUpdated",
+        recentlyUpdated(newValue) {
+            this.$emit("update:recently-updated", this.apiName, newValue);
+        },
+    },
+    mounted() {
+        this.onInitialItemsUpdated();
     },
     methods: {
         onServerIdUpdated(newId: ServerContactId, oldId: ServerContactId) {
@@ -146,20 +156,10 @@ export default defineComponent({
             }
         },
 
-        async fetchAllItems() {
+        onInitialItemsUpdated() {
             this.items.clear();
-            if (!this.serverId) {
-                console.log("ContactsOneToMany: no serverId, not fetching");
-                return;
-            }
-            const response = await getAxiosInstance().get(
-                "/contact_book/get_" +
-                    this.apiName +
-                    "s_by_cid/" +
-                    this.serverId
-            );
-            for (const item of response.data as Record<string, any>[]) {
-                this.items.set(item.id, new Model(item));
+            for (const item of this.initialItems) {
+                this.items.set(item.id as number, new Model(item));
             }
         },
 
@@ -168,7 +168,7 @@ export default defineComponent({
         },
 
         markRequestAsInFlight() {
-            this.$emit("update:saving", true);
+            this.$emit("update:saving", this.apiName, true);
         },
 
         markRequestFinished() {
@@ -177,7 +177,7 @@ export default defineComponent({
                     return;
                 }
             }
-            this.$emit("update:saving", false);
+            this.$emit("update:saving", this.apiName, false);
         },
 
         getUpdateUrlForModel(model: Model) {

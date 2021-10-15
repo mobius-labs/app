@@ -23,7 +23,31 @@
                 <div class="level-right">
                     <o-dropdown aria-role="list">
                         <template #trigger>
-                            <UserIcon :user="user"></UserIcon>
+                            <UserIcon
+                                :user="user"
+                                class="user-profile-container"
+                            >
+                                <template #fallback>
+                                    <div
+                                        style="
+                                            position: absolute;
+                                            width: 100%;
+                                            height: 100%;
+                                        "
+                                        class="
+                                            is-flex
+                                            is-align-items-center
+                                            is-justify-content-center
+                                        "
+                                    >
+                                        <o-icon
+                                            icon="user"
+                                            size="medium"
+                                            class="user-profile-icon"
+                                        />
+                                    </div>
+                                </template>
+                            </UserIcon>
                         </template>
 
                         <!--                        <o-dropdown-item aria-role="listitem">Action</o-dropdown-item>-->
@@ -72,7 +96,7 @@
                 </ul>
             </div>
         </nav>
-        <div class="app-content">
+        <div class="app-content is-relative">
             <router-view v-slot="{ Component, route }">
                 <transition :name="route.meta.transitionName">
                     <component :is="Component"></component>
@@ -119,22 +143,21 @@ export default class AppLayout extends Vue {
 @import "../styles/variables.scss";
 
 .menu-items {
-    transition: background-color 0.5s ease;
+    transition: background-color 0.2s ease;
     background-color: $white;
     padding: 16px 16px;
     border-radius: 4px;
 
     .app-menu-dark & {
-        transition: background-color 0.5s ease;
         background-color: $grey-dark;
 
         .menu-label {
-            transition: color 0.5s ease;
+            transition: color 0.2s ease;
             color: $grey-lighter;
         }
 
         .menu-list a {
-            transition: color 0.5s ease;
+            transition: color 0.2s ease;
             color: $grey-lighter;
 
             &:hover {
@@ -151,7 +174,7 @@ export default class AppLayout extends Vue {
 }
 
 .app-menu {
-    transition: background-color 1s ease;
+    transition: background-color 0.2s ease;
     min-width: 20rem;
     background-color: $info;
     padding: 2rem;
@@ -170,10 +193,27 @@ export default class AppLayout extends Vue {
     justify-content: space-between;
 }
 
-.gravatar-image {
+.user-profile-container {
     cursor: pointer;
     border-radius: 50%;
     width: 3rem;
+    height: 3rem;
     border: 2px solid $primary;
+    overflow: hidden;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    .user-profile-icon {
+        color: $primary;
+        transition: color 0.2s ease;
+    }
+
+    &:hover {
+        background-color: lighten($info, 10%);
+        border-color: lighten($primary, 10%);
+
+        & .user-profile-icon {
+            color: lighten($primary, 10%);
+        }
+    }
 }
 </style>

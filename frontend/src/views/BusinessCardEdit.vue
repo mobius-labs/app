@@ -1,5 +1,8 @@
 <template>
-    <div class="is-flex" style="height: 100%">
+    <div
+        class="is-flex"
+        style="height: 100%; position: absolute; left: 0; top: 0; width: 100%"
+    >
         <div class="is-flex-1 is-flex is-flex-direction-column">
             <div
                 class="has-background-black-ter is-flex"
@@ -15,7 +18,7 @@
                 <div class="is-flex-grow-1"></div>
                 <o-button
                     variant="dark"
-                    icon-left="share"
+                    icon-left="share-square"
                     class="is-large"
                     v-if="user && user.business_card"
                     >Copy link</o-button
@@ -32,13 +35,13 @@
                 "
                 style="overflow-y: auto; padding: 5rem 0"
             >
+                <BusinessCard
+                    :contact="userContact"
+                    :contact-version="userContactVersion"
+                />
+
                 <transition name="fade">
                     <div v-if="user && userContact" class="has-text-centered">
-                        <BusinessCard
-                            :contact="userContact"
-                            :contact-version="userContactVersion"
-                        />
-
                         <transition-group name="fade">
                             <div
                                 class="edit-button"

@@ -1,80 +1,6 @@
 <template>
     <div class="home">
-        <nav class="navbar" role="navigation" aria-label="main navigation">
-            <div class="navbar-brand">
-                <router-link class="navbar-item" to="/">
-                    <Logo type="is-small" />
-                </router-link>
-
-                <a
-                    role="button"
-                    class="navbar-burger"
-                    aria-label="menu"
-                    aria-expanded="false"
-                    data-target="navbarBasicExample"
-                >
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
-                </a>
-            </div>
-
-            <div id="navbarBasicExample" class="navbar-menu">
-                <div class="navbar-start">
-                    <!--                  <a class="navbar-item">-->
-                    <!--                    Home-->
-                    <!--                  </a>-->
-
-                    <!--                  <a class="navbar-item">-->
-                    <!--                    Documentation-->
-                    <!--                  </a>-->
-
-                    <!--                  <div class="navbar-item has-dropdown is-hoverable">-->
-                    <!--                    <a class="navbar-link">-->
-                    <!--                      More-->
-                    <!--                    </a>-->
-
-                    <!--                    <div class="navbar-dropdown">-->
-                    <!--                      <a class="navbar-item">-->
-                    <!--                        About-->
-                    <!--                      </a>-->
-                    <!--                      <a class="navbar-item">-->
-                    <!--                        Jobs-->
-                    <!--                      </a>-->
-                    <!--                      <a class="navbar-item">-->
-                    <!--                        Contact-->
-                    <!--                      </a>-->
-                    <!--                      <hr class="navbar-divider">-->
-                    <!--                      <a class="navbar-item">-->
-                    <!--                        Report an issue-->
-                    <!--                      </a>-->
-                    <!--                    </div>-->
-                    <!--                  </div>-->
-                </div>
-
-                <div class="navbar-end">
-                    <div class="navbar-item">
-                        <div v-if="authenticated === false" class="buttons">
-                            <router-link class="button is-primary" to="/signup">
-                                <strong>Sign up</strong>
-                            </router-link>
-                            <router-link class="button is-warning" to="/login">
-                                <strong>Log in</strong>
-                            </router-link>
-                        </div>
-                        <div
-                            v-else-if="authenticated === true"
-                            class="is-flex is-align-items-center"
-                        >
-                            You're already logged in
-                            <router-link to="/app" class="button is-info ml-3"
-                                ><strong>Open möbius</strong></router-link
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <Navbar />
         <section
             class="
                 hero
@@ -147,9 +73,10 @@
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
 import { Options, Vue } from "vue-class-component";
+import Navbar from "@/components/Navbar.vue";
 
 @Options({
-    components: { Logo },
+    components: { Navbar, Logo },
 })
 export default class Home extends Vue {
     authenticated: boolean | null = null;
