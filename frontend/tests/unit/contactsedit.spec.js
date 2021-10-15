@@ -8,12 +8,6 @@ import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
 describe("ContactsEdit component unit tests", () => {
     let mockAxios;
 
-    // an example mock contact object to use
-    const MOCK_CONTACT = {
-        id: 33,
-        first_name: "Shivanah",
-    };
-
     const MOCK_EMAILS = [
         {
             id: 39,
@@ -21,6 +15,17 @@ describe("ContactsEdit component unit tests", () => {
             label: "family",
         },
     ];
+
+    // an example mock contact object to use
+    const MOCK_CONTACT = {
+        id: 33,
+        first_name: "Shivanah",
+        social_media: [],
+        emails: MOCK_EMAILS,
+        addresses: [],
+        important_dates: [],
+        phone_nos: [],
+    };
 
     const NEW_CONTACT_PROPS = {
         localId: -1,
@@ -43,7 +48,7 @@ describe("ContactsEdit component unit tests", () => {
 
     beforeEach(() => {
         // mocks general info required by this component
-        mockAxios.onGet("/contact_book/get_social_media_sites/").reply(200, {});
+        mockAxios.onGet("/contact_book/get_social_media_sites/").reply(200, []);
         mockAxios
             .onGet("/contact_book/get_important_date_types/")
             .reply(200, {});
@@ -87,9 +92,8 @@ describe("ContactsEdit component unit tests", () => {
             },
         });
         wrapper.get("[data-test='close-button']").trigger("click");
-        expect(mockRouter.push).toHaveBeenCalledTimes(1);
-        // upon close, we expect to be navigated to this URL
-        expect(mockRouter.push).toHaveBeenCalledWith("/app/contacts");
+        // upon close, we expect to have received this event
+        expect(wrapper.emitted("close").length).toBe(1);
     });
 
     // test("Click contact to edit text is displayed", () => {
@@ -115,8 +119,7 @@ describe("ContactsEdit component unit tests", () => {
             },
         });
         wrapper.find("[data-test='close-button']").trigger("click");
-        expect(mockRouter.push).toHaveBeenCalledTimes(1);
-        expect(mockRouter.push).toHaveBeenCalledWith("/app/contacts");
+        expect(wrapper.emitted("close").length).toBe(1);
     });
 
     test("Selected contact's name is displayed", async () => {
