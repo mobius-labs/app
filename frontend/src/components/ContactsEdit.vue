@@ -101,23 +101,7 @@
                             name="name_pronunciation"
                             placeholder="Add pronunciation notes here..."
                         />
-                        <ValidatedField
-                            v-slot="{ value, setValue }"
-                            :model="model"
-                            name="pronouns"
-                        >
-                            <o-select
-                                ref="pronouns"
-                                :model-value="value"
-                                placeholder="..."
-                                @update:model-value="setValue"
-                            >
-                                <option value=""></option>
-                                <option value="she/her">she/her</option>
-                                <option value="he/him">he/him</option>
-                                <option value="they/them">they/them</option>
-                            </o-select>
-                        </ValidatedField>
+                        <PronounSelector :model="model" />
                         <ValidatedField
                             :model="model"
                             name="title"
@@ -394,10 +378,12 @@ import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
 import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
 import { Model } from "@/api/model";
 import { defineComponent, PropType } from "vue";
+import PronounSelector from "@/components/PronounSelector.vue";
 
 export default defineComponent({
     name: "ContactsEdit",
     components: {
+        PronounSelector,
         SocialMediaEdit,
         SpinnerOverlay,
         ContactsOneToMany,

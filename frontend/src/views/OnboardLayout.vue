@@ -46,12 +46,7 @@
                                     placeholder="Your last name"
                                 />
                             </div>
-                            <ValidatedField
-                                label="Pronouns (optional)"
-                                :model="model"
-                                name="pronouns"
-                                placeholder="Your pronouns (She/Her, They/Them, etc.)"
-                            />
+                            <PronounSelector :model="model" />
                         </div>
                     </o-step-item>
                     <o-step-item icon="search" step="3">
@@ -147,17 +142,17 @@
 
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
-import ContinueButton from "@/components/ContinueButton.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
 import { Model } from "@/api/model";
 import { Contact } from "@/api/contacts";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import { defaultToast } from "@/toasts";
+import PronounSelector from "@/components/PronounSelector.vue";
 
 @Options({
     components: {
-        ContinueButton,
+        PronounSelector,
         ValidatedField,
         SpinnerOverlay,
     },

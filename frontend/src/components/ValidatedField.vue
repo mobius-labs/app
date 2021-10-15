@@ -49,9 +49,6 @@ export default class ValidatedField extends Vue.with(Props) {
     }
 
     get derivedLabel() {
-        if (this.label === "none") {
-            return null;
-        }
         if (typeof this.label === "undefined") {
             return convertToTitleCase(this.name.replace("_", " "));
         }

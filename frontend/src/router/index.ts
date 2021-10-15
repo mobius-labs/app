@@ -101,6 +101,7 @@ router.beforeEach((to, from, next) => {
         }
         next();
     });
+    // TODO: check onboarded status here
 });
 
 router.afterEach((to) => {

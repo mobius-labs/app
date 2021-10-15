@@ -38,6 +38,7 @@ const store = createStore({
             console.log("redirecting...");
             persistToken(token);
             if (isSignUp) {
+                // TODO: get rid of this, and add logic to beforeEach() hook to check onboard status
                 await router.push("/onboard");
                 oruga.notification.open({
                     message: "Yay!",
