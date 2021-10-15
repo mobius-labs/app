@@ -35,10 +35,7 @@
                 "
                 style="overflow-y: auto; padding: 5rem 0"
             >
-                <BusinessCard
-                    :contact="userContact"
-                    :contact-version="userContactVersion"
-                />
+                <BusinessCard :contact="userContact" />
 
                 <transition name="fade">
                     <div v-if="user && userContact" class="has-text-centered">
@@ -109,7 +106,7 @@
 
 <script lang="ts">
 import BusinessCard from "@/components/BusinessCard.vue";
-import { Contact, ContactId, ServerContactId } from "@/api/contacts";
+import { Contact } from "@/api/contacts";
 import ContactsEdit from "@/components/ContactsEdit.vue";
 import { defineComponent } from "vue";
 import { getAxiosInstance } from "@/api/api";
@@ -122,7 +119,6 @@ export default defineComponent({
         return {
             shouldEditContactDetails: false,
             userContact: null as Contact | null,
-            userContactVersion: 1,
             isDiscardChangesDialogActive: false,
             user: null as User | null,
         };
@@ -168,13 +164,8 @@ export default defineComponent({
                 console.error(e);
             }
         },
-        async onContactUpdated(
-            localId: ContactId,
-            serverId: ServerContactId,
-            newlyCreated: boolean
-        ) {
+        async onContactUpdated() {
             await this.fetchUserContact();
-            this.userContactVersion += 1;
         },
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function

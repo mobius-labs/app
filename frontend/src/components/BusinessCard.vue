@@ -106,7 +106,6 @@ export default defineComponent({
     props: {
         contact: { type: Object as PropType<FullContact>, default: null },
         theme: { type: String, default: "default" },
-        contactVersion: { type: Number, default: 1 },
     },
     data() {
         return {

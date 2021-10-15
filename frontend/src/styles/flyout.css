@@ -1,12 +1,12 @@
 .right-flyout {
-    overflow-y: auto;
-    width: 0;
-    flex: 0;
-    transition: width 0.2s ease, flex 0.2s ease;
-    border-left: 1px solid #ccc;
+  overflow-y: auto;
+  width: 0;
+  flex: 0;
+  transition: width 0.2s ease, flex 0.2s ease;
+  border-left: 1px solid #ccc;
 }
 
 .right-flyout.expanded {
-    min-width: 30rem;
-    flex: 1;
+  min-width: 30rem;
+  flex: 1;
 }
