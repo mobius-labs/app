@@ -9,6 +9,9 @@ from rest_framework.authtoken.models import Token
 # Models related to accounts, and the registration and logging in of users.
 
 # Manages the creation of users or superusers.
+from apps.contact_book.models import Contact
+
+
 class AccountManager(BaseUserManager):
 
     # registers a new user, as per user email login and password, and returns that User object
@@ -50,6 +53,9 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    connected_contact = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True)
+    business_card = models.BooleanField(default=False)
+    # business_card_url = models.CharField(max_length=10)
 
     # the field the user logs in with
     USERNAME_FIELD = 'email'
