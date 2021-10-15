@@ -46,7 +46,7 @@ class AccountManager(BaseUserManager):
 
 # Models a user of the app, or developer/superuser of the app
 class User(AbstractBaseUser):
-    email = models.CharField(max_length=50, primary_key=True)
+    email = models.EmailField(max_length=50, primary_key=True)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
     is_superuser = models.BooleanField(default=False)
