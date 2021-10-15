@@ -63,3 +63,12 @@ class SocialMediaSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaSite
         fields = ['site', 'icon', 'is_default']
+
+
+class ContactImpDateSerializer(serializers.ModelSerializer):
+    # imp_date = ImportantDateSerializer
+    contact = ContactSerializer
+
+    class Meta:
+        model = ImportantDate
+        fields = '__all__'

@@ -638,6 +638,40 @@ def update_important_date(request, important_date_id):
         return Response({'errors': data}, status=400)
 
 
+def calc_days_until_imp_date(imp_date):
+    # check to see how far away an important date is
+    if isinstance(imp_date, type(None)):
+        return False
+
+    today = date.today()
+
+    # decide whether important date should be shown for this window, find days until
+    delta = imp_date - today
+    return delta.days
+
+
+class ApiImpDateCountdown(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        days_window = self.kwargs['days_window']
+        within_window = []
+
+        # goes through all contacts and checks if they are overdue
+        for contact in Contact.objects.all():
+            imp_dates = ImportantDate.objects.all().filter(contact=contact)
+            for imp_date in imp_dates:
+                days_until = calc_days_until_imp_date(imp_date.date)
+                if str(contact.author) == str(user.email) and days_until < days_window:
+                    within_window.append(imp_date)
+        return within_window
+
+    queryset = Contact.objects.all()
+    #serializer_class = ContactImpDateSerializer
+    serializer_class = ImportantDateOutSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
 
 
 

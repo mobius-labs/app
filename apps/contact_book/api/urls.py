@@ -51,6 +51,7 @@ urlpatterns = [
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
     path('get_important_dates/<int:contact_id>', get_important_dates, name='get_important_dates'),
     path('delete_important_date/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date')
+    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date'),
+    path('imp_date_countdown/<int:days_window>', ApiImpDateCountdown.as_view(), name='imp_date_countdown')
 
 ]
