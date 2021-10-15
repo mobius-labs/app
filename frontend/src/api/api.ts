@@ -2,16 +2,22 @@ import axios, { AxiosInstance } from "axios";
 import Oruga from "@oruga-ui/oruga-next";
 import { Store } from "vuex";
 import { State } from "@/store";
+import { Router } from "vue-router";
 
 // TODO: figure out a better solution to these global vars
 let instance: AxiosInstance | null = null;
 let orugaInstance: typeof Oruga | null = null;
 let vuexStore: Store<State> | null = null;
+let routerInstance: Router | null = null;
 
 const BASE_URL = "/api";
 
 export const setOrugaInstance = (oruga: typeof Oruga) => {
     orugaInstance = oruga;
+};
+
+export const setRouterInstance = (router: Router) => {
+    routerInstance = router;
 };
 
 export const setStore = (store: Store<State>) => {
@@ -65,6 +71,28 @@ export const getAxiosInstance = () => {
                             variant: "danger",
                             duration: 5000,
                             closable: true,
+                        });
+                    }
+                }
+                if (
+                    error.response &&
+                    error.response.status === 401 &&
+                    error.response.data &&
+                    error.response.data.detail === "Invalid token."
+                ) {
+                    console.warn(
+                        "Authentication failed, redirecting to login page"
+                    );
+                    if (
+                        routerInstance !== null &&
+                        orugaInstance !== null &&
+                        vuexStore !== null
+                    ) {
+                        vuexStore.dispatch("logout", {
+                            router: routerInstance,
+                            oruga: orugaInstance,
+                            logoutMessage: "You need to login again.",
+                            redirectURL: "/login",
                         });
                     }
                 }
