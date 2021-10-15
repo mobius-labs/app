@@ -632,6 +632,7 @@ export default defineComponent({
             }, CONTACTS_AUTOSAVE_REQUEST_MS);
         },
 
+        // returns true if the user hasn't yet saved changes to this contact
         hasUnsavedChanges(): boolean {
             return (
                 !this.model.matchesServer() ||

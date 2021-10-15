@@ -3,13 +3,30 @@ name: Frontend lint + run tests
 on: [push]
 
 jobs:
-  build:
+  changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      frontend: ${{ steps.changes.outputs.frontend }}
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - 'package.json'
+              - 'package-lock.json'
+
+  frontend:
+    needs: changes
+    # we only run this workflow if files have changed in the frontend
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Use Node.js
+      - uses: actions/setup-node@v2
         with:
           node-version: "16.x"
       - run: npm ci
