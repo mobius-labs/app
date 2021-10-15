@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import IntegrityError
 from django.db.models import Model
 from django.shortcuts import render, get_object_or_404, get_list_or_404
@@ -15,6 +17,7 @@ from rest_framework.authentication import TokenAuthentication
 from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
+from datetime import date
 
 # ---------------------------------------- CONTACTS ----------------------------------------
 
@@ -141,32 +144,37 @@ def update_contact_by_id(request, contact_id):
         return Response({'errors': data}, status=400)
 
 
-def is_overdue(contact, today):
+def calc_days_until_catchup(contact):
     # check to see if contact is overdue to be contacted
     if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
         return False
 
-    return contact.last_time_contacted + timedelta(days=365/contact.regularity_of_contact) < today
+    today = date.today()
+
+    # decide whether contact should be shown for this window, find days until
+    delta = contact.last_time_contacted - today + timedelta(days=365/contact.regularity_of_contact)
+    return delta.days
 
 
-class ApiNotifyOverdueCatchUp(ListAPIView):
+class ApiCatchupCountdown(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        today = date.today()
-        overdue_to_contact = []
+        days_window = self.kwargs['days_window']
+        within_window = []
 
         # goes through all contacts and checks if they are overdue
         for contact in Contact.objects.all():
-            print(1)
-            if str(contact.author) == str(user.email) and is_overdue(contact, today):
-                overdue_to_contact.append(contact)
-                print("yes: ", contact)
-        return overdue_to_contact
+            days_until_catchup = calc_days_until_catchup(contact)
+            if str(contact.author) == str(user.email) and days_until_catchup < days_window:
+                within_window.append(contact)
+        return within_window
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
 
 
 # ---------------------------------------- PHONE NUMBERS ----------------------------------------
