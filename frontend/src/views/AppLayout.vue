@@ -18,7 +18,7 @@
                     <o-dropdown aria-role="list">
                         <template #trigger>
                             <UserIcon
-                                :user="user"
+                                :email="user ? user.email : null"
                                 class="user-profile-container"
                             >
                                 <template #fallback>
@@ -93,8 +93,8 @@
             </div>
         </nav>
         <div class="app-content is-relative">
-            <router-view v-slot="{ Component, route }">
-                <transition :name="route.meta.transitionName">
+            <router-view v-slot="{ Component }">
+                <transition name="fade">
                     <component :is="Component"></component>
                 </transition>
             </router-view>

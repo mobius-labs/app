@@ -32,7 +32,7 @@ class NumberSerializer(serializers.ModelSerializer):
 class ImportantDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDate
-        fields = ['date', 'get_alert', 'id']
+        fields = ['date', 'get_alert', 'important_date_type', 'id']
 
 
 class ImportantDateOutSerializer(serializers.ModelSerializer):
@@ -50,13 +50,7 @@ class ImportantDateTypeSerializer(serializers.ModelSerializer):
 class SocialMediaContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaContact
-        fields = ['link', 'id']
-
-
-class SocialMediaContactOutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SocialMediaContact
-        fields = ['link', 'social_media_site',]
+        fields = ['link', 'social_media_site', 'id']
 
 
 class SocialMediaSiteSerializer(serializers.ModelSerializer):

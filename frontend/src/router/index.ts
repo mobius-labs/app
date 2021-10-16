@@ -76,12 +76,12 @@ const routes = [
             {
                 path: "",
                 component: AppDashboard,
-                meta: { title: "Dashboard", height: 1 },
+                meta: { title: "Dashboard" },
             },
             {
                 path: "contacts/:id?",
                 component: Contacts,
-                meta: { title: "Contacts", height: 2 },
+                meta: { title: "Contacts" },
                 props: (route: RouteLocationNormalized) => {
                     if (route.query.initialData) {
                         return {
@@ -104,7 +104,7 @@ const routes = [
             {
                 path: "business-card",
                 component: BusinessCardEdit,
-                meta: { title: "eBusiness Card", height: 3, darkMode: true },
+                meta: { title: "eBusiness Card", darkMode: true },
             },
         ],
     },
@@ -117,16 +117,6 @@ const router = createRouter({
 });
 
 const APP_TITLE = "Möbius CRM";
-
-router.afterEach((to, from) => {
-    if (to.meta.height && from.meta.height) {
-        to.meta.transitionName = "fade";
-        // to.meta.transitionName =
-        //     (to.meta.height as number) > (from.meta.height as number)
-        //         ? "slide-up"
-        //         : "slide-down";
-    }
-});
 
 router.beforeEach((to, from, next) => {
     store.dispatch("determineAuthStatus").then((authenticated) => {

@@ -5,7 +5,7 @@
                 v-show="gravatarLoaded"
                 :src="gravatarIconSrc"
                 alt=""
-                style="position: absolute; left: 0; top: 0"
+                class="img"
                 key="gravatar"
                 @load="onGravatarLoaded"
                 @error="onGravatarLoadError"
@@ -23,17 +23,25 @@ import { defineComponent } from "vue";
 export default defineComponent({
     name: "UserIcon",
     props: {
-        user: { type: Object, default: null },
+        email: { type: String, default: null },
     },
     data() {
         return { gravatarLoaded: null as boolean | null };
     },
     computed: {
         gravatarIconSrc() {
-            if (this.user == null) {
+            if (!this.email) {
                 return null;
             }
-            return gravatar.url(this.user.email, { d: "404", s: "200" });
+            return gravatar.url(this.email, { d: "404", s: "200" });
+        },
+    },
+    watch: {
+        email(newValue) {
+            if (!newValue) {
+                console.log("resetting loading state");
+                this.gravatarLoaded = null;
+            }
         },
     },
     methods: {
@@ -50,6 +58,12 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
-@import "../styles/variables";
+<style scoped>
+.img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
 </style>

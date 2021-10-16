@@ -93,7 +93,6 @@
                 :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
                 @close="shouldEditContactDetails = false"
                 @contact-updated="onContactUpdated"
-                @discard-changes="discardChanges"
                 @cancel-discard="isDiscardChangesDialogActive = false"
             >
                 <div class="content">
@@ -296,9 +295,6 @@ export default defineComponent({
                 )
             );
         },
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        discardChanges() {},
     },
 });
 </script>

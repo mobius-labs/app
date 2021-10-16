@@ -3,17 +3,14 @@
         <div :class="'bc bc-theme-' + theme">
             <div class="bc-photo">
                 <transition name="fade" mode="out-in">
-                    <UserIcon
-                        :user="primaryEmail ? { email: primaryEmail } : null"
-                        class="bc-icon"
-                    >
+                    <UserIcon :email="primaryEmail" class="bc-icon">
                         <template #loading>
                             <o-skeleton
                                 key="loading"
                                 animated
                                 circle
-                                width="6rem"
-                                height="6rem"
+                                width="8em"
+                                height="8em"
                             ></o-skeleton>
                         </template>
                     </UserIcon>
@@ -121,7 +118,6 @@ export default defineComponent({
     },
     computed: {
         primaryEmail() {
-            // return 'foo';
             if (this.contact && this.contact.emails.length > 0) {
                 return this.contact.emails[0].email_address;
             }

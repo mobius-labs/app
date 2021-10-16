@@ -668,7 +668,6 @@ class ApiImpDateCountdown(ListAPIView):
         return within_window
 
     queryset = Contact.objects.all()
-    #serializer_class = ContactImpDateSerializer
     serializer_class = ImportantDateOutSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination

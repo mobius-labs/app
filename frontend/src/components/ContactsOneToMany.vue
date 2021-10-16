@@ -50,7 +50,7 @@
 <script lang="ts">
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
-import { Model, PrimaryKey } from "@/api/model";
+import { Model } from "@/api/model";
 import { CONTACTS_AUTOSAVE_REQUEST_MS, ServerContactId } from "@/api/contacts";
 import { defineComponent, PropType } from "vue";
 

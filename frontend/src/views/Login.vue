@@ -78,7 +78,6 @@ interface SuccessfulLoginResponse {
 })
 export default class Login extends Vue {
     model = new Model({
-        id: null,
         username: "",
         password: "",
     });
