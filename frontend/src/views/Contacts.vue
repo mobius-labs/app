@@ -1,7 +1,7 @@
 <template>
     <div
         class="is-flex is-align-items-stretch is-full-height"
-        style="position: absolute; left: 0; top: 0"
+        style="position: absolute; left: 0; top: 0; width: 100%"
     >
         <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="app-header">

@@ -84,7 +84,7 @@ export default defineComponent({
         title: { type: String, required: true },
         addButtonText: { type: String, required: true },
         initialItems: {
-            type: Array as PropType<(Record<string, any> & PrimaryKey)[]>,
+            type: Array as PropType<Record<string, any>[]>,
             required: true,
         },
         serverId: {
@@ -92,7 +92,7 @@ export default defineComponent({
             default: null,
         },
         freshItem: {
-            type: Function as PropType<() => Record<string, any> & PrimaryKey>,
+            type: Function as PropType<() => Record<string, any>>,
             required: true,
         },
         apiName: { type: String, required: true },
