@@ -2,6 +2,7 @@
     <ValidatedField
         v-slot="{ value, setValue }"
         :model="model"
+        :update-value="updateValue"
         name="pronouns"
         label="Pronouns"
     >
@@ -29,6 +30,11 @@ class Props {
     model = prop({
         type: Object as PropType<Model>,
         required: true,
+    });
+
+    updateValue = prop({
+        type: Function as PropType<(x: Record<string, any>) => void | null>,
+        default: null,
     });
 }
 
