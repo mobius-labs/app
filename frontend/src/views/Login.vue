@@ -5,32 +5,48 @@
                 <Logo type="is-large-logo" />
             </div>
 
-            <o-field label="Email">
-                <o-input
-                    v-model="email"
-                    placeholder="Enter 'test'"
-                    icon="envelope"
-                />
-            </o-field>
+            <NonFieldErrorsList :model="model" />
 
-            <o-field label="Password">
+            <ValidatedField
+                :model="model"
+                name="username"
+                label="Email"
+                placeholder="Enter your email"
+                icon="envelope"
+                required
+            ></ValidatedField>
+
+            <ValidatedField
+                v-slot="{ value, setValue }"
+                :model="model"
+                label="Password"
+                name="password"
+            >
                 <o-input
-                    v-model="password"
-                    placeholder="Enter 'test'"
+                    :model-value="value"
+                    placeholder="************"
                     icon="lock"
                     type="password"
+                    required
+                    @update:model-value="setValue"
+                    @keyup.enter="onSubmit"
                 />
-            </o-field>
-            <p class="has-text-right mb-4">
-                <router-link to="/forgot"> Forgot password? </router-link>
+            </ValidatedField>
+            <p class="has-text-right mb-4 has-text-primary">
+                <router-link to="/forgot">
+                    <p class="has-text-primary">Forgot password?</p>
+                </router-link>
             </p>
             <div>
                 <o-button
                     class="is-fullwidth is-medium is-primary"
                     variant=""
+                    :disabled="model.isSubmitting"
                     @click="onSubmit"
                 >
-                    Login
+                    <SpinnerOverlay :active="model.isSubmitting">
+                        Login
+                    </SpinnerOverlay>
                 </o-button>
             </div>
         </div>
@@ -44,26 +60,51 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import Logo from "@/components/Logo.vue";
+import { Options, Vue } from "vue-class-component";
+import { getAxiosInstance } from "@/api/api";
+import ValidatedField from "@/components/ValidatedField.vue";
+import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
+import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
 
-export default defineComponent({
-    name: "Login",
-    components: { Logo },
-    data() {
-        return {
-            email: "",
-            password: "",
-        };
-    },
-    methods: {
-        onSubmit() {
-            if (this.email === "test" && this.password === "test") {
-                this.$router.push("/app");
-            }
-        },
-    },
-});
+interface SuccessfulLoginResponse {
+    token: string;
+}
+
+@Options({
+    components: { NonFieldErrorsList, SpinnerOverlay, ValidatedField, Logo },
+})
+export default class Login extends Vue {
+    model = new Model({
+        username: "",
+        password: "",
+    });
+
+    async created() {
+        if (await this.$store.dispatch("determineAuthStatus")) {
+            this.$oruga.notification.open(
+                defaultToast("info", "You're already logged in.")
+            );
+            await this.$router.replace("/app");
+        }
+    }
+
+    async onSubmit() {
+        await this.model.tryUpdate(async () => {
+            const response = await getAxiosInstance().post(
+                "account/login",
+                this.model.model
+            );
+            await this.$store.dispatch("login", {
+                token: (response.data as SuccessfulLoginResponse).token,
+                router: this.$router,
+                oruga: this.$oruga,
+            });
+        });
+    }
+}
 </script>
 
 <style scoped>

@@ -1,135 +1,452 @@
 <template>
     <div class="is-flex is-align-items-stretch is-full-height">
-        <div class="contacts-list">
+        <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
                 <div class="ml-6 mr-4">
                     <o-input
-                        class=""
+                        :model-value="searchQuery"
                         type="search"
                         icon="search"
                         placeholder="Search for contacts..."
+                        @update:model-value="debounceUpdateSearchQuery"
                     />
                 </div>
+
+                <div class="is-flex-grow-1"></div>
+
+                <o-button
+                    variant="primary"
+                    icon-left="plus"
+                    :disabled="isAddContactButtonDisabled"
+                    @click="addContact"
+                    >Add Contact</o-button
+                >
             </div>
 
-            <o-table
-                hoverable
-                focusable
-                :data="fakeContacts"
-                :v-model:selected="selected"
-            >
-                <o-table-column v-slot="props" label="Name">
-                    {{ props.row.name }}
-                </o-table-column>
-                <o-table-column v-slot="props" label="Contacts">
-                    <span v-if="props.row.email" class="tag mr-2"
-                        ><o-icon icon="envelope" class="mr-0" />{{
-                            props.row.email
-                        }}</span
-                    >
-                    <span v-if="props.row.phone" class="tag mr-2"
-                        ><o-icon icon="phone" class="mr-0" />{{
-                            props.row.phone
-                        }}</span
-                    >
-                </o-table-column>
-                <o-table-column v-slot="props" label="Address">
-                    {{ props.row.address }}
-                </o-table-column>
-                <o-table-column
-                    v-if="selected === null"
-                    v-slot="props"
-                    label="Last Contacted"
+            <div class="is-relative is-flex-1 is-flex-direction-column is-flex">
+                <o-loading :active="loading" :full-page="false">
+                    <Spinner size="large"></Spinner>
+                </o-loading>
+
+                <!-- TODO: make this header sticky -->
+                <!-- TODO: make page size derived from server -->
+                <o-table
+                    hoverable
+                    focusable
+                    paginated
+                    backend-pagination
+                    backend-sorting
+                    :data="contacts"
+                    v-model:current-page="currentPage"
+                    @sort="onSortChanged"
+                    :per-page="20"
+                    :total="totalContacts"
                 >
-                    {{ props.row.lastContacted }}
-                </o-table-column>
-                <o-table-column
-                    v-if="selected === null"
-                    v-slot="props"
-                    label="Social Media"
-                >
-                    <span v-if="props.row.facebook" class="tag is-link"
-                        ><o-icon
-                            icon="facebook"
-                            pack="fab"
-                            class="mr-0"
-                        ></o-icon
-                        >{{ props.row.facebook }}</span
+                    <o-table-column
+                        v-slot="props"
+                        label="First Name"
+                        field="first_name"
+                        sortable
+                        v-if="!isContactsEditExpanded"
                     >
-                    <span v-if="props.row.instagram" class="tag is-link"
-                        ><o-icon
-                            icon="instagram"
-                            pack="fab"
-                            class="mr-0"
-                        ></o-icon
-                        >{{ props.row.instagram }}</span
+                        {{ props.row.contact.first_name }}
+                    </o-table-column>
+                    <o-table-column
+                        v-slot="props"
+                        label="Surname"
+                        field="surname"
+                        sortable
+                        v-if="!isContactsEditExpanded"
                     >
-                </o-table-column>
-                <o-table-column v-slot="props" label="Actions">
-                    <o-button
-                        icon-left="pencil-alt"
-                        variant="warning"
-                        @click="selected = props.row"
+                        {{ props.row.contact.surname }}
+                    </o-table-column>
+                    <o-table-column
+                        v-slot="props"
+                        label="Name"
+                        v-if="isContactsEditExpanded"
                     >
-                        Edit
-                    </o-button>
-                </o-table-column>
-            </o-table>
+                        {{ getFullName(props.row.contact) }}
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Phone Nos. & Emails">
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="email"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
+                        >
+                            <span class="tag mr-2"
+                                ><o-icon icon="envelope" class="mr-0" /><a
+                                    :href="'mailto:' + item.email_address"
+                                    class="has-text-grey-darker"
+                                    >{{ item.email_address }}</a
+                                ></span
+                            >
+                        </ContactsOneToManyList>
+
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="phone_no"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
+                        >
+                            <span class="tag mr-2"
+                                ><o-icon icon="phone" class="mr-0" />{{
+                                    item.number
+                                }}</span
+                            >
+                        </ContactsOneToManyList>
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Address">
+                        <ContactsOneToManyList
+                            v-slot="{ item }"
+                            api-name="address"
+                            :contact-id="props.row.contact.id"
+                            :version="props.row.version"
+                        >
+                            <p class="is-size-7">
+                                {{ item.address_line_one }}<br />{{
+                                    item.address_line_two
+                                }}<br />{{ item.suburb }} {{ item.state }}
+                                {{ item.postcode }}
+                            </p>
+                        </ContactsOneToManyList>
+                    </o-table-column>
+                    <o-table-column
+                        v-if="!isContactsEditExpanded"
+                        v-slot="props"
+                        label="Regularity of Contact"
+                        field="regularity_of_contact"
+                        sortable
+                    >
+                        {{
+                            displayRegularity(
+                                props.row.contact.regularity_of_contact
+                            )
+                        }}
+                    </o-table-column>
+                    <o-table-column v-slot="props" label="Actions">
+                        <div class="buttons">
+                            <o-button
+                                icon-left="pencil-alt"
+                                variant="warning"
+                                @click="
+                                    $router.push(
+                                        '/app/contacts/' + props.row.contact.id
+                                    )
+                                "
+                            >
+                                Edit
+                            </o-button>
+
+                            <o-button
+                                icon-left="trash"
+                                variant="info"
+                                @click="deleteContact(props.row.localId)"
+                            >
+                                Delete
+                            </o-button>
+                        </div>
+                    </o-table-column>
+                    <template #empty>
+                        <p>No results found.</p>
+                    </template>
+                    <!-- TODO: when https://github.com/oruga-ui/oruga/issues/208 is fixed,
+                               try to fix pagination to the bottom of the window -->
+                    <!--                <template #footer>-->
+                    <!--                    <tr>Footer</tr>-->
+                    <!--                </template>-->
+                </o-table>
+            </div>
         </div>
 
-        <ContactsEdit
-            :expanded="selected !== null"
-            :contact="selected"
-            @close="selected = null"
-        />
+        <div
+            :class="{ 'edit-contacts': true, expanded: isContactsEditExpanded }"
+        >
+            <ContactsEdit
+                v-if="isContactsEditExpanded"
+                ref="contactsEdit"
+                :local-id="selectedLocalId"
+                :server-id="selectedServerId"
+                :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
+                @contact-updated="onContactUpdated"
+                @discard-changes="discardChanges"
+                @cancel-discard="isDiscardChangesDialogActive = false"
+            />
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import ContactsEdit from "../components/ContactsEdit.vue";
+import { Options, Vue } from "vue-class-component";
+import {
+    Contact,
+    ContactId,
+    displayRegularity,
+    getFullName,
+    ServerContactId,
+} from "@/api/contacts";
+import { getAxiosInstance } from "@/api/api";
+import { defaultToast } from "@/toasts";
+import Spinner from "../components/Spinner.vue";
+import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
+import debounce from "lodash/debounce";
 
-// this data doesn't represent what will be returned by the API, instead,
-// it is super simplified just for displaying in this mockup
-const fakeContacts = [
-    {
-        name: "James McAlfey",
-        email: "james@gmail.com",
-        address: "93 Foobar St",
-        phone: "9888 2932",
-        lastContacted: "6 months ago",
-        facebook: "james.mcalfey",
-    },
-    {
-        name: "Foo Bar",
-        email: "james@yahoo.com",
-        address: "93 Foobar St",
-        phone: "9234 2932",
-        lastContacted: "yesterday",
-        instagram: "foo.bar",
-    },
-];
+class Props {
+    selectedId: number | null = null;
+}
 
-export default {
-    name: "Contacts",
-    components: { ContactsEdit },
-    data() {
-        return {
-            fakeContacts: fakeContacts,
-            selected: null,
-        };
+interface LocalContact {
+    contact: Contact;
+    localId: ContactId;
+    // when this version # is incremented, the contact will refresh from the server
+    version: number;
+}
+
+interface ContactsListResponse {
+    count: number;
+    results: Contact[];
+}
+
+interface SortData {
+    field: string;
+    direction: "asc" | "desc";
+}
+
+@Options({
+    components: { ContactsEdit, Spinner, ContactsOneToManyList },
+    watch: {
+        searchQuery: "loadAllContacts",
+        currentPage: "loadAllContacts",
+        sortData: "loadAllContacts",
     },
-};
+})
+export default class Contacts extends Vue.with(Props) {
+    searchQuery = "";
+    contacts: LocalContact[] = [];
+    sortData: SortData | null = null;
+    totalContacts = 0;
+    currentPage = 1;
+    nextClientContactId = -1;
+    getFullName = getFullName;
+    displayRegularity = displayRegularity;
+    isDiscardChangesDialogActive = false;
+    loading = false;
+    nextFn?: () => void;
+    serverToLocalIdMap = new Map<ServerContactId, ContactId>();
+
+    debounceUpdateSearchQuery = debounce((v: string) => {
+        this.searchQuery = v;
+    }, 500);
+
+    static NEW_CONTACT = -1;
+
+    async mounted() {
+        await this.loadAllContacts();
+    }
+
+    get isContactsEditExpanded() {
+        return this.selectedId !== null;
+    }
+
+    get isAddContactButtonDisabled() {
+        return this.selectedId === Contacts.NEW_CONTACT;
+    }
+
+    get selectedLocalId() {
+        if (this.selectedId === Contacts.NEW_CONTACT) {
+            return this.nextClientContactId;
+        }
+        return this.serverToLocalIdMap.get(this.selectedId) || this.selectedId;
+    }
+
+    get selectedServerId() {
+        return this.selectedId === Contacts.NEW_CONTACT
+            ? null
+            : this.selectedId;
+    }
+
+    get orderingParam() {
+        if (!this.sortData) {
+            return null;
+        }
+        return this.sortData.direction === "asc"
+            ? this.sortData.field
+            : "-" + this.sortData.field;
+    }
+
+    hasUnsavedChanges(): boolean {
+        return this.$refs.contactsEdit
+            ? (
+                  this.$refs.contactsEdit as typeof ContactsEdit
+              ).hasUnsavedChanges()
+            : false;
+    }
+
+    findContactById(localId: ContactId): LocalContact | null {
+        for (const contact of this.contacts) {
+            if (contact.localId === localId) {
+                return contact;
+            }
+        }
+        return null;
+    }
+
+    async loadAllContacts() {
+        this.loading = true;
+        const response = await getAxiosInstance().get("contact_book/list", {
+            params: {
+                search: this.searchQuery,
+                page: this.currentPage,
+                ordering: this.orderingParam,
+            },
+        });
+        const data = response.data as ContactsListResponse;
+
+        this.totalContacts = data.count;
+
+        this.contacts = data.results.map((serverContact: Contact) => {
+            const localId =
+                this.serverToLocalIdMap.get(serverContact.id!) ||
+                serverContact.id!;
+            const localContact = this.findContactById(localId);
+
+            return {
+                contact: serverContact,
+                localId,
+                version: localContact ? localContact.version : 1,
+            };
+        });
+        this.loading = false;
+    }
+
+    async deleteContact(id: ContactId) {
+        const contact = this.findContactById(id);
+        if (contact) {
+            try {
+                await getAxiosInstance().delete(
+                    "contact_book/delete_contact_by_id/" + contact.contact.id
+                );
+                this.$oruga.notification.open(
+                    defaultToast("info", "Contact deleted")
+                );
+                await this.loadAllContacts();
+            } catch (e) {
+                this.$oruga.notification.open(
+                    defaultToast("danger", "Failed to delete contact")
+                );
+            }
+        }
+    }
+
+    // updates the contact info for a particular contact in-place,
+    // without reloading all the contacts from scratch
+    async onContactUpdated(
+        localId: ContactId,
+        serverId: ServerContactId,
+        newlyCreated: boolean
+    ) {
+        console.log("Contacts: received updated event for ", localId, serverId);
+        if (serverId !== null) {
+            this.serverToLocalIdMap.set(serverId, localId);
+        }
+        const contact = this.findContactById(localId);
+        if (contact) {
+            contact.version += 1;
+        }
+        await this.loadAllContacts();
+        if (newlyCreated) {
+            await this.$router.push("/app/contacts/" + serverId);
+        }
+    }
+
+    onSortChanged(field: string, direction: "asc" | "desc") {
+        this.sortData = { field, direction };
+    }
+
+    addContact() {
+        this.nextClientContactId--;
+        this.$router.push("/app/contacts/new");
+    }
+
+    checkForUnsavedChanges(next: () => void) {
+        if (this.hasUnsavedChanges()) {
+            this.isDiscardChangesDialogActive = true;
+            this.nextFn = next;
+            return;
+        }
+        next();
+    }
+
+    discardChanges() {
+        this.isDiscardChangesDialogActive = false;
+        if (this.nextFn) {
+            this.nextFn();
+        }
+    }
+
+    beforeRouteUpdate(to: any, from: any, next: () => void) {
+        this.checkForUnsavedChanges(next);
+    }
+
+    beforeRouteLeave(to: any, from: any, next: () => void) {
+        this.checkForUnsavedChanges(next);
+    }
+
+    created() {
+        window.addEventListener("beforeunload", this.beforeWindowUnload);
+    }
+
+    beforeDestroy() {
+        window.removeEventListener("beforeunload", this.beforeWindowUnload);
+    }
+
+    // if the user tries to close the tab / force refresh the page,
+    // check for unsaved changes
+    beforeWindowUnload(e: BeforeUnloadEvent) {
+        if (this.hasUnsavedChanges()) {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+    }
+}
 </script>
 
 <style scoped>
-@import "../styles/app-view.css";
-
-.contacts-list {
-    flex: 1;
+.app-header {
+    padding: 2rem;
+    display: flex;
 }
 
 .is-full-height {
     height: 100%;
+}
+
+.is-flex-1 {
+    flex: 1;
+}
+
+.edit-contacts {
+    overflow-y: auto;
+    width: 0;
+    flex: 0;
+    transition: width 0.2s ease, flex 0.2s ease;
+    border-left: 1px solid #ccc;
+}
+
+.expanded {
+    min-width: 30rem;
+    flex: 1;
+}
+
+:deep(.b-table.table-wrapper) {
+    height: 300px;
+    overflow-y: scroll;
+    flex: 1 1 auto;
+}
+
+:deep(.pagination) {
+    padding: 8px;
 }
 </style>

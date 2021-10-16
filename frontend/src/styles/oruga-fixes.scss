@@ -1,0 +1,25 @@
+// these override some of the Oruga / Bulma styles globally...
+
+// Eventually some of these could be upstreamed to the Oruga project,
+// but now overriding here will do.
+
+.o-notices--top .notification {
+  max-width: 30rem;
+}
+
+// from: https://oruga.io/components/Notification.html#examples
+.toast-notification {
+  margin: 0.5em auto;
+  text-align: center;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 12%), 0 0 6px rgb(0 0 0 / 4%);
+  border-radius: 2em;
+  padding: 0.75em 1.5em;
+  pointer-events: auto;
+  color: rgba(0, 0, 0, 0.7);
+  //background: #ffdd57;
+}
+
+// gets rid of white bar on RHS of screen
+html {
+  overflow-y: hidden;
+}

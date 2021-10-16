@@ -1,293 +1,624 @@
 <template>
-    <div :class="'edit-contacts' + (expanded ? ' expanded' : '')">
-        <transition mode="out-in">
-            <div v-if="contact === null" class="hero is-fullheight is-relative">
-                <o-button
-                    icon-left="times"
-                    class="floating-close-button"
-                    variant="light"
-                    @click="$emit('close')"
-                />
-                <div class="hero-body">
-                    <div class="is-flex-grow-1">
-                        <p
-                            class="
-                                subtitle
-                                has-text-grey-light has-text-centered
+    <transition-group mode="out-in" name="fade">
+        <div
+            v-show="loading"
+            key="loading"
+            class="hero is-fullheight is-relative"
+        >
+            <div class="hero-body">
+                <div class="is-flex-grow-1">
+                    <p class="subtitle has-text-grey-light has-text-centered">
+                        Loading Contact
+                    </p>
+                    <progress
+                        class="progress is-small is-info"
+                        max="100"
+                    ></progress>
+                </div>
+            </div>
+        </div>
+
+        <div v-show="!loading" key="main" class="is-relative">
+            <div class="level top-header">
+                <div class="level-left">
+                    <o-button
+                        icon-left="times"
+                        class="m-3"
+                        data-test="close-button"
+                        @click="$router.push('/app/contacts')"
+                    />
+                    <h2 class="title p-3" data-test="contact-name">
+                        <span v-if="fullName">{{ fullName }}</span>
+                        <span v-else>Add Contact</span>
+                    </h2>
+                </div>
+                <div class="level-right">
+                    <transition name="fade" mode="out-in">
+                        <o-button
+                            variant="primary"
+                            :disabled="saving"
+                            class="mr-3"
+                            v-if="!serverId"
+                            @click="(v) => submit()"
+                        >
+                            <SpinnerOverlay :active="saving">
+                                Save new contact
+                            </SpinnerOverlay>
+                        </o-button>
+                        <span
+                            v-else-if="
+                                (serverId && saving) ||
+                                model.isRecentlyUpdated ||
+                                model.hasErrors()
+                            "
+                            :class="
+                                model.hasErrors()
+                                    ? 'has-text-danger'
+                                    : 'has-text-primary'
                             "
                         >
-                            Please select a contact to edit.
-                        </p>
-                    </div>
+                            <span v-if="saving">Saving contact</span>
+                            <span v-else-if="model.isRecentlyUpdated"
+                                >Saved contact</span
+                            >
+                            <span v-else-if="model.hasErrors()"
+                                >Failed to save contact</span
+                            >
+                            <Spinner v-if="saving"></Spinner>
+                            <o-icon
+                                v-else-if="model.isRecentlyUpdated"
+                                icon="check-circle"
+                            ></o-icon>
+                            <o-icon
+                                v-else-if="model.hasErrors()"
+                                icon="exclamation-triangle"
+                            ></o-icon>
+                        </span>
+                    </transition>
                 </div>
             </div>
-            <div v-else class="is-relative">
-                <div class="level">
-                    <div class="level-left">
-                        <o-button
-                            icon-left="times"
-                            variant="light"
-                            class="m-3"
-                            @click="$emit('close')"
-                        />
-                        <h2 class="title p-3">
-                            {{ contact.name }}
-                        </h2>
-                    </div>
+
+            <div class="p-4">
+                <div class="space-items">
+                    <ValidatedField
+                        :model="model"
+                        name="first_name"
+                        placeholder="First Name"
+                        :update-value="updateItem"
+                        expanded
+                    />
+                    <ValidatedField
+                        :model="model"
+                        name="middle_name"
+                        placeholder="Middle Name"
+                        :update-value="updateItem"
+                        expanded
+                    >
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="surname"
+                        placeholder="Surname"
+                        :update-value="updateItem"
+                        expanded
+                    >
+                    </ValidatedField>
                 </div>
 
-                <div class="box m-3">
-                    <o-field grouped>
-                        <o-field label="First Name">
-                            <o-input
-                                name="first_name"
-                                placeholder="First Name"
-                                expanded
-                            />
-                        </o-field>
-                        <o-field label="Middle Name">
-                            <o-input
-                                name="middle_name"
-                                placeholder="Middle Name"
-                                expanded
-                            />
-                        </o-field>
-                        <o-field label="Surname">
-                            <o-input
-                                name="surname"
-                                placeholder="Surname"
-                                expanded
-                            />
-                        </o-field>
-                    </o-field>
-
-                    <o-collapse animation="slide">
-                        <template #trigger="props">
-                            <div class="card-header" role="button">
-                                <p class="card-header-title">
-                                    Extra name details
-                                </p>
-                                <a class="card-header-icon">
-                                    <o-icon
-                                        :icon="
-                                            props.open
-                                                ? 'caret-up'
-                                                : 'caret-down'
-                                        "
-                                    />
-                                </a>
-                            </div>
-                        </template>
-                        <div class="card-content no-padding">
-                            <o-field label="Nickname">
-                                <o-input
-                                    name="nickname"
-                                    placeholder="Enter a nickname"
+                <o-collapse v-model:open="extraNameOpen" animation="slide">
+                    <template #trigger="props">
+                        <div class="is-flex">
+                            <!--                                <div class="card-header" role="button">-->
+                            <p class="is-flex-grow-1">
+                                <span v-if="props.open">Hide</span>
+                                <span v-else>Show</span>
+                                nickname, pronunciation, pronouns...
+                            </p>
+                            <a>
+                                <o-icon
+                                    :icon="
+                                        props.open ? 'caret-up' : 'caret-down'
+                                    "
                                 />
-                            </o-field>
-                            <o-field label="Name Pronunciation">
-                                <o-input
-                                    name="pronunciation"
-                                    placeholder="Name pronunciation"
-                                />
-                            </o-field>
-                            <o-field label="Pronouns">
-                                <o-input
-                                    name="pronouns"
-                                    placeholder="e.g.: she/her"
-                                />
-                            </o-field>
-                            <o-field label="Title">
-                                <o-input name="title" placeholder="" />
-                            </o-field>
+                            </a>
+                            <!--                                </div>-->
                         </div>
-                    </o-collapse>
-
-                    <hr />
-
-                    <o-field label="Job Title">
-                        <o-input name="job_title" placeholder="" />
-                    </o-field>
-
-                    <o-field grouped>
-                        <o-field label="Department">
-                            <o-input
-                                name="department"
-                                expanded
-                                placeholder=""
-                            />
-                        </o-field>
-
-                        <o-field label="Company">
-                            <o-input name="company" expanded placeholder="" />
-                        </o-field>
-                    </o-field>
-
-                    <hr />
-
-                    <o-field label="Side Notes">
-                        <o-input type="textarea" style="height: 5rem" />
-                    </o-field>
-
-                    <o-field label="Last Time Contacted">
-                        <o-datepicker
-                            placeholder="select last time contacted"
-                            icon="calendar"
-                            trap-focus
+                    </template>
+                    <div class="expanded-box">
+                        <ValidatedField
+                            :model="model"
+                            name="nickname"
+                            :update-value="updateItem"
+                            placeholder="Enter a nickname"
                         />
-                    </o-field>
+                        <ValidatedField
+                            :model="model"
+                            name="name_pronunciation"
+                            :update-value="updateItem"
+                            placeholder="Add pronunciation notes here..."
+                        />
+                        <PronounSelector
+                            ref="pronouns"
+                            :model="model"
+                            :update-value="updateItem"
+                        />
+                        <ValidatedField
+                            :model="model"
+                            name="title"
+                            :update-value="updateItem"
+                            placeholder="e.g.: Mr, Mrs, Dr"
+                        ></ValidatedField>
+                    </div>
+                </o-collapse>
 
-                    <hr />
+                <hr />
 
-                    <p id="email-subtitle" class="subtitle">Email</p>
-
-                    <o-field
-                        v-for="(email, i) in emails"
-                        :key="i"
-                        class="edit-email"
+                <ContactsOneToMany
+                    v-slot="{ model, updateItem }"
+                    ref="emails"
+                    add-button-text="Add Email Address"
+                    title="Email Addresses"
+                    :fresh-item="freshEmailAddress"
+                    api-name="email"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingEmails = v)"
+                >
+                    <ValidatedField
+                        v-slot="{ value, setValue }"
+                        :label="null"
+                        :model="model"
+                        name="label"
+                        :update-value="updateItem"
+                        placeholder="Type"
                     >
-                        <o-select placeholder="Type">
-                            <option value="home">Home</option>
-                            <option value="work">Work</option>
-                            <option value="school">School</option>
+                        <o-select
+                            :model-value="value"
+                            @update:model-value="setValue"
+                        >
+                            <option value="business">Business</option>
+                            <option value="friend">Friend</option>
+                            <option value="family">Family</option>
+                            <option value="other">Other</option>
                         </o-select>
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="email_address"
+                        :label="null"
+                        :update-value="updateItem"
+                        placeholder="e.g.: johndoe@gmail.com"
+                        required
+                    ></ValidatedField>
+                </ContactsOneToMany>
 
-                        <o-input placeholder="Email address" required>{{
-                            email.address
-                        }}</o-input>
-                        <o-button
-                            id="delete-email"
-                            icon-left="times"
-                            @click="deleteEmail(i)"
-                        ></o-button>
-                    </o-field>
-
-                    <o-button
-                        class="add-email"
-                        variant="success"
-                        @click="emails.push({})"
-                        >Add email address</o-button
+                <ContactsOneToMany
+                    v-slot="{ model, updateItem }"
+                    ref="phoneNumbers"
+                    add-button-text="Add Phone Number"
+                    title="Phone Numbers"
+                    :fresh-item="freshPhoneNumber"
+                    api-name="phone_no"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingPhones = v)"
+                >
+                    <ValidatedField
+                        v-slot="{ value, setValue }"
+                        :label="null"
+                        :model="model"
+                        name="label"
+                        :update-value="updateItem"
+                        placeholder="Type"
                     >
-
-                    <br />
-                    <br />
-
-                    <p id="phone-subtitle" class="subtitle">Phone Numbers</p>
-
-                    <o-field v-for="(phone, i) in phones" :key="i">
-                        <o-select placeholder="Type">
-                            <option value="home">Home</option>
-                            <option value="work">Work</option>
-                            <option value="school">School</option>
+                        <o-select
+                            :model-value="value"
+                            @update:model-value="setValue"
+                        >
+                            <option value="business">Business</option>
+                            <option value="friend">Friend</option>
+                            <option value="family">Family</option>
+                            <option value="other">Other</option>
                         </o-select>
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="number"
+                        :label="null"
+                        :update-value="updateItem"
+                        placeholder="enter a phone number"
+                        required
+                    ></ValidatedField>
+                </ContactsOneToMany>
 
-                        <o-input placeholder="Email address" required>{{
-                            phone.number
-                        }}</o-input>
-                        <button
-                            class="delete-phone"
-                            @click="deletePhone(i)"
-                        ></button>
-                    </o-field>
+                <SocialMediaEdit
+                    ref="socialMedia"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingSocials = v)"
+                ></SocialMediaEdit>
 
-                    <o-button
-                        class="add-phone"
-                        variant="success"
-                        @click="phones.push({})"
-                        >Add phone number</o-button
-                    >
+                <ContactsOneToMany
+                    v-slot="{ model, updateItem }"
+                    ref="addresses"
+                    add-button-text="Add Address"
+                    title="Addresses"
+                    :fresh-item="freshAddress"
+                    api-name="address"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingAddresses = v)"
+                >
+                    <div class="has-background-white-ter p-3 mb-3">
+                        <ValidatedField
+                            :model="model"
+                            name="address_line_one"
+                            label="Address Line 1"
+                            :update-value="updateItem"
+                            placeholder="Address Line 1"
+                        ></ValidatedField>
+                        <ValidatedField
+                            :model="model"
+                            name="address_line_two"
+                            label="Address Line 2"
+                            :update-value="updateItem"
+                            placeholder="Address Line 2"
+                        ></ValidatedField>
+                        <div class="space-items">
+                            <ValidatedField
+                                :model="model"
+                                name="suburb"
+                                :update-value="updateItem"
+                                placeholder="Suburb"
+                            ></ValidatedField>
+                            <ValidatedField
+                                :model="model"
+                                name="postcode"
+                                :update-value="updateItem"
+                                placeholder="Postcode"
+                            ></ValidatedField>
+                            <ValidatedField
+                                :model="model"
+                                name="state"
+                                :update-value="updateItem"
+                                placeholder="State"
+                            ></ValidatedField>
+                        </div>
 
-                    <hr />
-
-                    <p id="social-subtitle" class="subtitle">Social Media</p>
-
-                    <o-field v-for="(social, i) in socials" :key="social.name">
-                        <o-select placeholder="Select a social media">
-                            <option value="facebook">Facebook</option>
-                            <option value="twitter">Twitter</option>
-                            <option value="instagram">Instagram</option>
-                        </o-select>
-                        <o-input
-                            placeholder="Enter social media profile here..."
-                            required
-                            >{{ social.name }}</o-input
+                        <o-switch
+                            :model-value="model.model.is_current"
+                            class="mb-4"
+                            @update:model-value="
+                                (v) => updateItem({ is_current: v })
+                            "
+                            >Current Address?</o-switch
                         >
 
-                        <button
-                            class="delete-social"
-                            @click="deleteSocial(i)"
-                        ></button>
-                    </o-field>
+                        <o-switch
+                            :model-value="model.model.is_hometown"
+                            class="mb-4"
+                            @update:model-value="
+                                (v) => updateItem({ is_hometown: v })
+                            "
+                            >Is Hometown?</o-switch
+                        >
+                    </div>
+                </ContactsOneToMany>
 
-                    <o-button
-                        class="add-social"
-                        variant="success"
-                        @click="socials.push({})"
-                        >Add social media</o-button
+                <ImportantDatesEdit
+                    ref="importantDates"
+                    :local-id="localId"
+                    :server-id="serverId"
+                    @update:saving="(v) => (savingImportantDates = v)"
+                ></ImportantDatesEdit>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    name="job_title"
+                    :update-value="updateItem"
+                    placeholder="e.g. Software Developer"
+                />
+
+                <o-field grouped>
+                    <ValidatedField
+                        :model="model"
+                        name="department"
+                        :update-value="updateItem"
+                        placeholder="e.g.: Middle Office"
                     >
-                </div>
+                    </ValidatedField>
+                    <ValidatedField
+                        :model="model"
+                        name="company"
+                        :update-value="updateItem"
+                        placeholder="e.g.: Pied Piper"
+                    >
+                    </ValidatedField>
+                </o-field>
+
+                <hr />
+
+                <ValidatedField
+                    :model="model"
+                    :update-value="updateItem"
+                    name="side_notes"
+                    data-test="side_notes"
+                    placeholder="Take notes about this person here to remember for next time."
+                    type="textarea"
+                >
+                </ValidatedField>
+
+                <ValidatedField
+                    v-slot="{ value, setValue }"
+                    :model="model"
+                    :update-value="updateItem"
+                    name="regularity_of_contact"
+                    label="How often to keep in touch"
+                >
+                    <o-select
+                        :model-value="value"
+                        @update:model-value="setValue"
+                    >
+                        <option value="104">Twice a week</option>
+                        <option value="52">Weekly</option>
+                        <option value="26">Fortnightly</option>
+                        <option value="12">Monthly</option>
+                        <option value="6">Every two months</option>
+                        <option value="2">Twice a year</option>
+                        <option value="1">Once a year</option>
+                    </o-select>
+                </ValidatedField>
+
+                <!--                    <o-field label="Last Time Contacted">-->
+                <!--                        <o-datepicker-->
+                <!--                            placeholder="select last time contacted"-->
+                <!--                            icon="calendar"-->
+                <!--                            trap-focus-->
+                <!--                        />-->
+                <!--       -->
             </div>
-        </transition>
-    </div>
+
+            <o-modal :active="isDiscardChangesDialogActive" width="400">
+                <div class="modal-card">
+                    <div class="modal-card-head">
+                        <div class="modal-card-title">Discard changes</div>
+                    </div>
+                    <div class="modal-card-body">
+                        <p>
+                            Are you sure you want to discard changes to this
+                            contact?
+                        </p>
+                    </div>
+                    <div class="modal-card-foot">
+                        <button
+                            class="button is-primary"
+                            @click="$emit('discard-changes')"
+                        >
+                            Discard changes
+                        </button>
+                        <button class="button" @click="$emit('cancel-discard')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </o-modal>
+        </div>
+    </transition-group>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import {
+    Contact,
+    ContactId,
+    CONTACTS_AUTOSAVE_REQUEST_MS,
+    getFullName,
+    ServerContactId,
+} from "@/api/contacts";
+import ValidatedField from "@/components/ValidatedField.vue";
+import { getAxiosInstance } from "@/api/api";
+import { defaultToast } from "@/toasts";
+import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
+import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
+import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
+import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
+import Spinner from "@/components/Spinner.vue";
+import { Model } from "@/api/model";
+import { defineComponent, PropType } from "vue";
+import PronounSelector from "@/components/PronounSelector.vue";
+
+export default defineComponent({
     name: "ContactsEdit",
+    components: {
+        PronounSelector,
+        SocialMediaEdit,
+        SpinnerOverlay,
+        ContactsOneToMany,
+        ValidatedField,
+        ImportantDatesEdit,
+        Spinner,
+    },
     props: {
-        expanded: {
-            type: Boolean,
+        localId: {
+            type: Number as PropType<ContactId>,
             required: true,
         },
-        contact: {
-            type: Object,
+        serverId: {
+            type: Number as PropType<ServerContactId>,
             default: null,
         },
+        isDiscardChangesDialogActive: { type: Boolean, default: false },
     },
-    emits: ["close"],
+    emits: ["discard-changes", "cancel-discard", "contact-updated"],
     data() {
         return {
-            socials: [],
-            emails: [],
-            phones: [],
+            model: new Model<Contact>(new Contact()),
+            extraNameOpen: false,
+            savingEmails: false,
+            savingPhones: false,
+            savingAddresses: false,
+            savingSocials: false,
+            savingImportantDates: false,
+            loading: false,
+            newlyCreated: false,
         };
     },
-    methods: {
-        deleteSocial(index) {
-            this.socials.splice(index, 1);
+    computed: {
+        saving() {
+            return (
+                this.model.isSubmitting ||
+                this.savingEmails ||
+                this.savingPhones ||
+                this.savingAddresses ||
+                this.savingSocials ||
+                this.savingImportantDates
+            );
         },
-        deleteEmail(index) {
-            this.emails.splice(index, 1);
-        },
-        deletePhone(index) {
-            this.phones.splice(index, 1);
+        fullName() {
+            if (!this.model) {
+                return null;
+            }
+            return getFullName(this.model.model as Contact);
         },
     },
-};
+    watch: { localId: "loadContact", saving: "onSavingUpdated" },
+    async mounted() {
+        await this.loadContact();
+    },
+    methods: {
+        onSavingUpdated(newVal: boolean, oldVal: boolean) {
+            if (!newVal && oldVal && this.model.model.id) {
+                // if `saving` switched from `true` to `false`, then the contact has just been updated
+                console.log(
+                    "ContactsEdit: emitting contact-updated event for contact",
+                    this.localId
+                );
+                this.$emit(
+                    "contact-updated",
+                    this.localId,
+                    this.model.model.id,
+                    this.newlyCreated
+                );
+                if (this.newlyCreated) {
+                    this.newlyCreated = false;
+                }
+            }
+        },
+
+        async loadContact() {
+            if (this.serverId === null) {
+                this.model = new Model(new Contact());
+                return;
+            }
+            this.loading = true;
+            const response = await getAxiosInstance().get(
+                "contact_book/get_contact_by_id/" + this.serverId
+            );
+            this.model = new Model(response.data as Contact);
+            this.loading = false;
+        },
+
+        async updateItem(newItem: Contact) {
+            this.model.model = {
+                ...this.model.model,
+                ...newItem,
+            };
+            // only auto-save if the contact has already been created
+            if (this.model.model.id) {
+                await this.submit(true);
+            }
+        },
+
+        async submit(hideToast?: boolean) {
+            await this.model.tryUpdate(async () => {
+                const response = await getAxiosInstance().request({
+                    url:
+                        "contact_book/" +
+                        (this.model.model.id
+                            ? "update_contact_by_id/" + this.model.model.id
+                            : "create_contact"),
+                    method: this.model.model.id ? "PUT" : "POST",
+                    data: this.model.model,
+                });
+
+                if (response.status === 201) {
+                    if (!hideToast) {
+                        this.$oruga.notification.open(
+                            defaultToast("info", "Contact created")
+                        );
+                    }
+                    this.model.captureServerResponse(response.data as Contact);
+                    this.newlyCreated = true;
+                } else {
+                    this.model.captureServerResponse(null);
+                    if (!hideToast) {
+                        this.$oruga.notification.open(
+                            defaultToast("info", "Contact updated")
+                        );
+                    }
+                }
+            }, CONTACTS_AUTOSAVE_REQUEST_MS);
+        },
+
+        // returns true if the user hasn't yet saved changes to this contact
+        hasUnsavedChanges(): boolean {
+            return (
+                !this.model.matchesServer() ||
+                (
+                    this.$refs.phoneNumbers as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.emails as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.addresses as typeof ContactsOneToMany
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.socialMedia as SocialMediaEdit
+                ).hasUnsavedChanges() ||
+                (
+                    this.$refs.importantDates as ImportantDatesEdit
+                ).hasUnsavedChanges()
+            );
+        },
+        freshEmailAddress(): Record<string, any> {
+            return { label: "other", email_address: "" };
+        },
+        freshPhoneNumber(): Record<string, any> {
+            return { label: "other", number: "" };
+        },
+        freshAddress(): Record<string, any> {
+            return { is_current: true };
+        },
+    },
+});
 </script>
 
-<style scoped>
-.edit-contacts {
-    overflow-y: auto;
-    width: 0;
-    flex: 0;
-    transition: width 0.2s ease, flex 0.2s ease;
-    border-left: 1px solid #ccc;
+<style scoped lang="scss">
+@import "../styles/variables.scss";
+
+.expanded-box {
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid $grey-lighter;
 }
 
-.expanded {
-    min-width: 30rem;
-    flex: 1;
+.top-header {
+    position: sticky;
+    z-index: 10;
+    top: 0;
+    border-radius: 0;
+    background-color: $info;
+    border-bottom: 1px solid $grey-lighter;
 }
 
-.floating-close-button {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
+.space-items {
+    display: flex;
 }
 
-.no-padding {
-    padding-left: 0;
-    padding-right: 0;
+/* TODO: make this code cleaner */
+:deep(.space-items > *:not(:last-child)) {
+    margin-right: 0.5rem;
 }
 </style>

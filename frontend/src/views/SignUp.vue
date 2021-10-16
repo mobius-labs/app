@@ -4,41 +4,66 @@
             <div class="has-text-centered">
                 <Logo type="is-large-logo" />
             </div>
-            <o-field label="Email">
+
+            <NonFieldErrorsList :model="model" />
+
+            <ValidatedField
+                v-slot="{ value, setValue }"
+                :model="model"
+                name="email"
+                label="Email"
+            >
                 <o-input
-                    v-model="email"
+                    :model-value="value"
                     placeholder="Enter your email"
                     required
                     icon="envelope"
+                    @update:model-value="setValue"
                 />
-            </o-field>
+            </ValidatedField>
 
-            <o-field label="Password">
+            <ValidatedField
+                v-slot="{ value, setValue }"
+                :model="model"
+                label="Password"
+                name="password"
+            >
                 <o-input
-                    v-model="password"
+                    :model-value="value"
                     placeholder="Enter your password"
                     required
                     type="password"
                     icon="lock"
+                    @update:model-value="setValue"
                 />
-            </o-field>
+            </ValidatedField>
 
-            <o-field label="Confirm Password">
+            <ValidatedField
+                v-slot="{ value, setValue }"
+                :model="model"
+                label="Confirm Password"
+                name="confirm_password"
+            >
                 <o-input
-                    v-model="confirmedPassword"
+                    :model-value="value"
                     placeholder="Re-enter password"
                     required
                     type="password"
                     icon="redo"
+                    @update:model-value="setValue"
+                    @keyup.enter="onSubmit"
                 />
-            </o-field>
-            <div class="">
+            </ValidatedField>
+            <div>
                 <o-button
                     class="is-fullwidth is-medium"
                     variant="primary"
+                    :disabled="model.isSubmitting"
                     @click="onSubmit"
                 >
-                    Sign up
+                    <SpinnerOverlay :active="model.isSubmitting">
+                        Sign up
+                    </SpinnerOverlay>
                 </o-button>
             </div>
         </div>
@@ -55,50 +80,59 @@
 
 <script lang="ts">
 import Logo from "@/components/Logo.vue";
-import { defineComponent } from "vue";
-import { displayErrors, getInstance } from "@/api/api";
+import { getAxiosInstance } from "@/api/api";
+import { Options, Vue } from "vue-class-component";
+import ValidatedField from "@/components/ValidatedField.vue";
+import NonFieldErrorsList from "@/components/NonFieldErrorsList.vue";
+import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
+import { defaultToast } from "@/toasts";
+import { Model } from "@/api/model";
 
-export default defineComponent({
-    name: "SignUp",
-    components: { Logo },
-    data() {
-        return {
-            email: "",
-            password: "",
-            confirmedPassword: "",
-        };
-    },
-    methods: {
-        async onSubmit() {
-            // would send
-            let data = {
-                email: this.email,
-                password: this.password,
-                confirm_password: this.confirmedPassword,
-            };
+interface SuccessfulRegisterResponse {
+    response: string;
+    token: string;
+}
 
-            let axios = getInstance();
+@Options({
+    components: { ValidatedField, Logo, SpinnerOverlay, NonFieldErrorsList },
+})
+export default class SignUp extends Vue {
+    model = new Model({
+        email: "",
+        password: "",
+        confirm_password: "",
+    });
 
-            try {
-                let response = await axios.post("account/register", data);
-                if (response.data.response === "registration_successful") {
-                    this.$oruga.notification.open({
-                        message: "Successfully registered user",
-                        variant: "success",
-                        duration: 10000,
-                        closable: true,
-                    });
-                    await this.$router.push("/");
-                }
-            } catch (e) {
-                if (e.response.data.errors) {
-                    displayErrors(e.response, this.$oruga);
-                }
-                console.log(e.response.data.errors);
+    async created() {
+        if (await this.$store.dispatch("determineAuthStatus")) {
+            this.$oruga.notification.open(
+                defaultToast(
+                    "info",
+                    "Cannot sign up - you're already logged in."
+                )
+            );
+            await this.$router.replace("/app");
+        }
+    }
+
+    async onSubmit() {
+        await this.model.tryUpdate(async () => {
+            const response = await getAxiosInstance().post(
+                "account/register",
+                this.model.model
+            );
+            const data = response.data as SuccessfulRegisterResponse;
+            if (data.response === "registration_successful") {
+                await this.$store.dispatch("login", {
+                    token: data.token,
+                    router: this.$router,
+                    oruga: this.$oruga,
+                    isSignUp: true,
+                });
             }
-        },
-    },
-});
+        });
+    }
+}
 </script>
 
 <style scoped>
