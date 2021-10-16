@@ -7,7 +7,6 @@
         label="Pronouns"
     >
         <o-select
-            ref="pronouns"
             :model-value="value"
             placeholder="Select"
             @update:model-value="setValue"

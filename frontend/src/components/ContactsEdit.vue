@@ -138,6 +138,7 @@
                             placeholder="Add pronunciation notes here..."
                         />
                         <PronounSelector
+                            ref="pronouns"
                             :model="model"
                             :update-value="updateItem"
                         />
