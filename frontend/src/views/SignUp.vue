@@ -127,6 +127,7 @@ export default class SignUp extends Vue {
                     token: data.token,
                     router: this.$router,
                     oruga: this.$oruga,
+                    isSignUp: true,
                 });
             }
         });
