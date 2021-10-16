@@ -44,7 +44,7 @@ class ImportantDateOutSerializer(serializers.ModelSerializer):
 class ImportantDateTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDateType
-        fields = ['label', 'icon', 'is_default']
+        fields = ['label', 'icon']
 
 
 class SocialMediaContactSerializer(serializers.ModelSerializer):
@@ -71,5 +71,4 @@ class FullContactSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'surname', 'middle_name', 'nickname', 'name_pronunciation', 'pronouns', 'title',
                   'relation', 'company', 'job_title', 'side_notes', 'department', 'regularity_of_contact',
                   'last_time_contacted', 'emails', 'addresses', 'phone_nos', 'important_dates', 'social_media')
-
 
