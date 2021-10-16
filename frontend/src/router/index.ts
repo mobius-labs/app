@@ -27,6 +27,9 @@ const routes = [
     {
         path: "/",
         component: AuthLayout,
+        meta: {
+            transitionName: "zoom",
+        },
         children: [
             {
                 path: "/login",

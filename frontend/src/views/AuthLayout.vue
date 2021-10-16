@@ -28,6 +28,10 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
 }
 
 .homepage-link {

@@ -169,4 +169,10 @@ export default class Home extends Vue {
     margin: 0 7rem;
     box-shadow: 0 0.5em 1em -0.125em, 0 0 0 1px;
 }
+
+.home {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
 </style>
