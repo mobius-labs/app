@@ -7,38 +7,38 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = ['first_name', 'surname', 'middle_name', 'nickname', 'name_pronunciation', 'pronouns', 'title',
                   'relation', 'company', 'job_title', 'side_notes', 'department', 'regularity_of_contact',
-                  'last_time_contacted']
+                  'last_time_contacted', 'id']
 
 
 class EmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
-        fields = ['email_address', 'label']
+        fields = ['email_address', 'label', 'id']
 
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ['state', 'country', 'postcode', 'address_line_one', 'address_line_two', 'suburb', 'city',
-                  'start_of_habitation', 'end_of_habitation', 'is_current', 'is_hometown']
+                  'start_of_habitation', 'end_of_habitation', 'is_current', 'is_hometown', 'id']
 
 
 class NumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Number
-        fields = ['number', 'label']
+        fields = ['number', 'label', 'id']
 
 
 class ImportantDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDate
-        fields = ['date', 'get_alert']
+        fields = ['date', 'get_alert', 'id']
 
 
 class ImportantDateOutSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDate
-        fields = ['date', 'get_alert', 'contact', 'important_date_type']
+        fields = ['date', 'get_alert', 'contact', 'important_date_type', 'id']
 
 
 class ImportantDateTypeSerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class ImportantDateTypeSerializer(serializers.ModelSerializer):
 class SocialMediaContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaContact
-        fields = ['link']
+        fields = ['link', 'id']
 
 
 class SocialMediaContactOutSerializer(serializers.ModelSerializer):
@@ -62,13 +62,6 @@ class SocialMediaContactOutSerializer(serializers.ModelSerializer):
 class SocialMediaSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaSite
-        fields = ['site', 'icon', 'is_default']
+        fields = ['site', 'icon', 'is_default', 'id']
 
 
-class ContactImpDateSerializer(serializers.ModelSerializer):
-    # imp_date = ImportantDateSerializer
-    contact = ContactSerializer
-
-    class Meta:
-        model = ImportantDate
-        fields = '__all__'
