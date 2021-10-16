@@ -168,7 +168,9 @@ class ApiCatchupCountdown(ListAPIView):
         # goes through all contacts and checks if they are overdue
         for contact in Contact.objects.all():
             days_until_catchup = calc_days_until_catchup(contact)
-            if str(contact.author) == str(user.email) and days_until_catchup < days_window:
+            if (str(contact.author) == str(user.email) and (days_until_catchup < days_window)
+                and not isinstance(contact.last_time_contacted, type(None))
+                    and not isinstance(contact.regularity_of_contact, type(None))):
                 within_window.append(contact)
         return within_window
 
@@ -595,7 +597,6 @@ def get_important_dates(request, contact_id):
 def delete_important_date(request, important_date_id):
     user = request.user
     important_date = get_object_or_404(ImportantDate, id=important_date_id)
-    print('herhe')
 
     if str(important_date.contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
@@ -626,8 +627,6 @@ def update_important_date(request, important_date_id):
 
 def calc_days_until_imp_date(imp_date):
     # check to see how far away an important date is
-    if isinstance(imp_date, type(None)):
-        return False
 
     today = date.today()
 
@@ -653,7 +652,6 @@ class ApiImpDateCountdown(ListAPIView):
         return within_window
 
     queryset = Contact.objects.all()
-    #serializer_class = ContactImpDateSerializer
     serializer_class = ImportantDateOutSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
