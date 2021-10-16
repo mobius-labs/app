@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -45,8 +46,12 @@ def create_contact(request):
 @permission_classes([IsAuthenticated])
 def create_user_contact(request):
     user = request.user
+
+    if user.connected_contact is not None:
+        return Response(ALREADY_ADDED_RESPONSE, status=400)
+
     contact = Contact(author=user)
-    
+
     serializer = ContactSerializer(contact, data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -69,7 +74,7 @@ def get_contact_by_id(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
+    serializer = FullContactSerializer(contact)
     return Response(serializer.data)
 
 
@@ -78,11 +83,13 @@ def get_contact_by_id(request, contact_id):
 def get_user_contacts(request):
     user = request.user
     contact = user.connected_contact
+    if contact is None:
+        return HttpResponse(status=404)
 
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
+    serializer = FullContactSerializer(contact)
     return Response(serializer.data)
 
 
@@ -93,20 +100,27 @@ def get_business_cards(request, email):
     contact = user.connected_contact
 
     if user.business_card:
-        serializer = ContactSerializer(contact)
-        return Response(serializer.data)
+        serializer = FullContactSerializer(contact)
+        data = serializer.data
+        data['business_card_theme'] = user.business_card_theme
+        return Response(data)
     else:
-        return Response({"user's business card is not shareable"})
+        return Response({"user's business card is not shareable"}, status=404)
 
 
 class ApiContactList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Contact.objects.filter(author=user.email)
+        for_user = Contact.objects.filter(author=user.email)
+
+        # exclude the user's own contact from this queryset
+        if user.connected_contact is not None:
+            for_user = for_user.exclude(pk=user.connected_contact.pk)
+        return for_user
 
     queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
@@ -424,11 +438,12 @@ def create_social_media_site(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def get_social_media_sites(request):
-    sites_user_has_created = SocialMediaSite.objects.all().filter(author=request.user)
-    built_in_sites = SocialMediaSite.objects.all().filter(author__isnull=True)
-    sites = sites_user_has_created.union(built_in_sites)
+    sites = SocialMediaSite.objects.all().filter(author__isnull=True)
+    if request.user is not None:
+        sites = sites.union(SocialMediaSite.objects.all().filter(author=request.user))
+
     serializer = SocialMediaSiteSerializer(sites, many=True)
     return Response(serializer.data)
 

@@ -63,6 +63,7 @@
                 <o-input
                     :model-value="value"
                     placeholder="Enter username or paste URL"
+                    @keyup.enter="submit"
                     @update:model-value="(v) => (newLinkValue = v)"
                 />
             </o-tooltip>

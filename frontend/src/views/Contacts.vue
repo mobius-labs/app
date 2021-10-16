@@ -1,5 +1,8 @@
 <template>
-    <div class="is-flex is-align-items-stretch is-full-height">
+    <div
+        class="is-flex is-align-items-stretch is-full-height"
+        style="position: absolute; left: 0; top: 0; width: 100%"
+    >
         <div class="is-flex-1 is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
@@ -40,7 +43,7 @@
                     :data="contacts"
                     v-model:current-page="currentPage"
                     @sort="onSortChanged"
-                    :per-page="20"
+                    :per-page="10"
                     :total="totalContacts"
                 >
                     <o-table-column
@@ -69,48 +72,37 @@
                         {{ getFullName(props.row.contact) }}
                     </o-table-column>
                     <o-table-column v-slot="props" label="Phone Nos. & Emails">
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="email"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <span
+                            class="tag mr-2"
+                            v-for="item in props.row.contact.emails"
+                            :key="item.id"
+                            ><o-icon icon="envelope" class="mr-0" /><a
+                                :href="'mailto:' + item.email_address"
+                                class="has-text-grey-darker"
+                                >{{ item.email_address }}</a
+                            ></span
                         >
-                            <span class="tag mr-2"
-                                ><o-icon icon="envelope" class="mr-0" /><a
-                                    :href="'mailto:' + item.email_address"
-                                    class="has-text-grey-darker"
-                                    >{{ item.email_address }}</a
-                                ></span
-                            >
-                        </ContactsOneToManyList>
 
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="phone_no"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <span
+                            class="tag mr-2"
+                            v-for="item in props.row.contact.phone_nos"
+                            :key="item.id"
+                            ><o-icon icon="phone" class="mr-0" />{{
+                                item.number
+                            }}</span
                         >
-                            <span class="tag mr-2"
-                                ><o-icon icon="phone" class="mr-0" />{{
-                                    item.number
-                                }}</span
-                            >
-                        </ContactsOneToManyList>
                     </o-table-column>
                     <o-table-column v-slot="props" label="Address">
-                        <ContactsOneToManyList
-                            v-slot="{ item }"
-                            api-name="address"
-                            :contact-id="props.row.contact.id"
-                            :version="props.row.version"
+                        <p
+                            class="is-size-7"
+                            v-for="item in props.row.contact.addresses"
+                            :key="item.id"
                         >
-                            <p class="is-size-7">
-                                {{ item.address_line_one }}<br />{{
-                                    item.address_line_two
-                                }}<br />{{ item.suburb }} {{ item.state }}
-                                {{ item.postcode }}
-                            </p>
-                        </ContactsOneToManyList>
+                            {{ item.address_line_one }}<br />{{
+                                item.address_line_two
+                            }}<br />{{ item.suburb }} {{ item.state }}
+                            {{ item.postcode }}
+                        </p>
                     </o-table-column>
                     <o-table-column
                         v-if="!isContactsEditExpanded"
@@ -161,17 +153,16 @@
         </div>
 
         <div
-            :class="{ 'edit-contacts': true, expanded: isContactsEditExpanded }"
+            :class="{ 'right-flyout': true, expanded: isContactsEditExpanded }"
         >
             <ContactsEdit
                 v-if="isContactsEditExpanded"
                 ref="contactsEdit"
                 :local-id="selectedLocalId"
+                :initial-data="initialData"
                 :server-id="selectedServerId"
-                :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
+                @close="onContactEditClosed"
                 @contact-updated="onContactUpdated"
-                @discard-changes="discardChanges"
-                @cancel-discard="isDiscardChangesDialogActive = false"
             />
         </div>
     </div>
@@ -184,17 +175,18 @@ import {
     Contact,
     ContactId,
     displayRegularity,
+    FullContact,
     getFullName,
     ServerContactId,
 } from "@/api/contacts";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
-import ContactsOneToManyList from "@/components/ContactsOneToManyList.vue";
 import debounce from "lodash/debounce";
 
 class Props {
     selectedId: number | null = null;
+    initialData?: FullContact;
 }
 
 interface LocalContact {
@@ -215,7 +207,7 @@ interface SortData {
 }
 
 @Options({
-    components: { ContactsEdit, Spinner, ContactsOneToManyList },
+    components: { ContactsEdit, Spinner },
     watch: {
         searchQuery: "loadAllContacts",
         currentPage: "loadAllContacts",
@@ -231,9 +223,7 @@ export default class Contacts extends Vue.with(Props) {
     nextClientContactId = -1;
     getFullName = getFullName;
     displayRegularity = displayRegularity;
-    isDiscardChangesDialogActive = false;
     loading = false;
-    nextFn?: () => void;
     serverToLocalIdMap = new Map<ServerContactId, ContactId>();
 
     debounceUpdateSearchQuery = debounce((v: string) => {
@@ -241,10 +231,6 @@ export default class Contacts extends Vue.with(Props) {
     }, 500);
 
     static NEW_CONTACT = -1;
-
-    async mounted() {
-        await this.loadAllContacts();
-    }
 
     get isContactsEditExpanded() {
         return this.selectedId !== null;
@@ -274,14 +260,6 @@ export default class Contacts extends Vue.with(Props) {
         return this.sortData.direction === "asc"
             ? this.sortData.field
             : "-" + this.sortData.field;
-    }
-
-    hasUnsavedChanges(): boolean {
-        return this.$refs.contactsEdit
-            ? (
-                  this.$refs.contactsEdit as typeof ContactsEdit
-              ).hasUnsavedChanges()
-            : false;
     }
 
     findContactById(localId: ContactId): LocalContact | null {
@@ -361,6 +339,10 @@ export default class Contacts extends Vue.with(Props) {
         }
     }
 
+    onContactEditClosed() {
+        this.$router.push("/app/contacts");
+    }
+
     onSortChanged(field: string, direction: "asc" | "desc") {
         this.sortData = { field, direction };
     }
@@ -370,50 +352,35 @@ export default class Contacts extends Vue.with(Props) {
         this.$router.push("/app/contacts/new");
     }
 
-    checkForUnsavedChanges(next: () => void) {
-        if (this.hasUnsavedChanges()) {
-            this.isDiscardChangesDialogActive = true;
-            this.nextFn = next;
-            return;
-        }
-        next();
-    }
-
-    discardChanges() {
-        this.isDiscardChangesDialogActive = false;
-        if (this.nextFn) {
-            this.nextFn();
-        }
+    async mounted() {
+        await this.loadAllContacts();
     }
 
     beforeRouteUpdate(to: any, from: any, next: () => void) {
-        this.checkForUnsavedChanges(next);
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
+        }
     }
 
     beforeRouteLeave(to: any, from: any, next: () => void) {
-        this.checkForUnsavedChanges(next);
-    }
-
-    created() {
-        window.addEventListener("beforeunload", this.beforeWindowUnload);
-    }
-
-    beforeDestroy() {
-        window.removeEventListener("beforeunload", this.beforeWindowUnload);
-    }
-
-    // if the user tries to close the tab / force refresh the page,
-    // check for unsaved changes
-    beforeWindowUnload(e: BeforeUnloadEvent) {
-        if (this.hasUnsavedChanges()) {
-            e.preventDefault();
-            e.returnValue = "";
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
         }
     }
 }
 </script>
 
 <style scoped>
+@import "../styles/flyout.css";
+
 .app-header {
     padding: 2rem;
     display: flex;
@@ -424,19 +391,6 @@ export default class Contacts extends Vue.with(Props) {
 }
 
 .is-flex-1 {
-    flex: 1;
-}
-
-.edit-contacts {
-    overflow-y: auto;
-    width: 0;
-    flex: 0;
-    transition: width 0.2s ease, flex 0.2s ease;
-    border-left: 1px solid #ccc;
-}
-
-.expanded {
-    min-width: 30rem;
     flex: 1;
 }
 

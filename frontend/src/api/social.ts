@@ -1,4 +1,5 @@
 import { escapeRegExp } from "@/api/utils";
+import { getAxiosInstance } from "@/api/api";
 
 export interface SocialMediaSite {
     site: string;
@@ -23,6 +24,19 @@ function getRegexForSite(site: SocialMediaSite) {
 export interface Recognition {
     site: SocialMediaSite;
     username: string;
+}
+
+export async function getSocialMediaSites(): Promise<
+    Map<string, SocialMediaSite>
+> {
+    const response = await getAxiosInstance().get(
+        "/contact_book/get_social_media_sites/"
+    );
+    const sites = new Map();
+    for (const site of response.data as SocialMediaSite[]) {
+        sites.set(site.site, site);
+    }
+    return sites;
 }
 
 // tries to match a pasted URL with a particular social media site.
