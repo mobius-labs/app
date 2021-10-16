@@ -12,7 +12,7 @@ import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
 import "@fortawesome/fontawesome-free/scss/regular.scss";
 import "@fortawesome/fontawesome-free/scss/solid.scss";
 import "@fortawesome/fontawesome-free/scss/brands.scss";
-import { setStore, setOrugaInstance } from "@/api/api";
+import { setStore, setOrugaInstance, setRouterInstance } from "@/api/api";
 import store from "./store";
 
 // this makes Typescript no longer complain about a missing
@@ -33,4 +33,5 @@ app.use(Oruga, {
 
 const root = app.mount("#app");
 setOrugaInstance(root.$oruga);
+setRouterInstance(router);
 setStore(store);

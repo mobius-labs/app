@@ -13,7 +13,7 @@
                 :name="name"
                 :model-value="currentValue"
                 v-bind="$attrs"
-                @update:model-value="doUpdateValue"
+                @update:model-value="debounceUpdateValue"
             />
         </slot>
     </o-field>
@@ -24,6 +24,7 @@ import { prop, Vue } from "vue-class-component";
 import { PropType } from "vue";
 import { convertToTitleCase } from "@/api/utils";
 import { Model } from "@/api/model";
+import debounce from "lodash/debounce";
 
 class Props {
     label?: string | null;
@@ -54,6 +55,9 @@ export default class ValidatedField extends Vue.with(Props) {
         }
         return this.label;
     }
+
+    // by default, text inputs won't update until some time after the user has been typing
+    debounceUpdateValue = debounce(this.doUpdateValue.bind(this), 500);
 
     doUpdateValue(v: any) {
         if (this.updateValue !== null) {

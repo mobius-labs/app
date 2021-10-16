@@ -20,7 +20,6 @@
             <slot
                 :model="model"
                 :update-item="(v) => updateItem(id, v)"
-                :debounce-update-item="(v) => debounceUpdateItem(id, v)"
                 :delete-item="() => deleteItem(id)"
             ></slot>
             <button
@@ -49,11 +48,14 @@
 </template>
 
 <script lang="ts">
-import { debounce, delay } from "@/api/utils";
 import { getAxiosInstance } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import { Model } from "@/api/model";
-import { ContactId, ServerContactId } from "@/api/contacts";
+import {
+    ContactId,
+    CONTACTS_AUTOSAVE_REQUEST_MS,
+    ServerContactId,
+} from "@/api/contacts";
 import { defineComponent, PropType } from "vue";
 
 // negative numbers are "client IDs", specific to this component,
@@ -104,14 +106,6 @@ export default defineComponent({
         return {
             items: new Map<LocalItemId, Model>(),
             nextLocalId: -1,
-            recentlyUpdated: new Set<LocalItemId>(),
-            queuedUpdates: new Set<LocalItemId>(),
-            clearRecentlyUpdatedAfterDelay: debounce((id: LocalItemId) => {
-                (this.recentlyUpdated as unknown as Set<LocalItemId>).delete(
-                    id
-                );
-            }, 3000),
-            debounceUpdateItem: debounce(this.updateItem.bind(this), 700),
         };
     },
     computed: {
@@ -121,7 +115,7 @@ export default defineComponent({
                     const status = new Status();
                     if (model.nonFieldErrors.length > 0) {
                         status.dangerMessage = model.nonFieldErrors.join(", ");
-                    } else if (this.recentlyUpdated.has(id)) {
+                    } else if (model.isRecentlyUpdated) {
                         status.successMessage = "Updated";
                     }
                     return [id, status];
@@ -169,50 +163,21 @@ export default defineComponent({
             }
         },
 
-        markRecentlyUpdated(itemId: LocalItemId) {
-            this.recentlyUpdated.add(itemId);
-            this.clearRecentlyUpdatedAfterDelay(itemId);
-        },
-
         addItem() {
             this.items.set(this.nextLocalId--, new Model(this.freshItem()));
         },
 
-        markRequestAsInFlight(model: Model) {
-            model.isSubmitting = true;
+        markRequestAsInFlight() {
             this.$emit("update:saving", true);
         },
 
-        maybeStopSaving() {
-            let updating = false;
+        markRequestFinished() {
             for (const item of this.items.values()) {
                 if (item.isSubmitting) {
-                    updating = true;
-                    break;
+                    return;
                 }
             }
-            if (!updating) {
-                this.$emit("update:saving", false);
-            }
-        },
-
-        async markRequestFinished(itemId: LocalItemId) {
-            // this delay is just to make the UI 'feel' better
-            await delay(700);
-            const item = this.items.get(itemId);
-            if (item) {
-                item.isSubmitting = false;
-            }
-
-            this.maybeStopSaving();
-
-            // if any new requests to update the item came in whilst we were waiting for a server response,
-            // then dispatch those now...
-            if (this.queuedUpdates.has(itemId)) {
-                console.log("ContactsOneToMany: dispatching update request...");
-                this.queuedUpdates.delete(itemId);
-                await this.updateItemOnServer(itemId);
-            }
+            this.$emit("update:saving", false);
         },
 
         getUpdateUrlForModel(model: Model) {
@@ -246,13 +211,14 @@ export default defineComponent({
 
             if (model.isSubmitting) {
                 console.log("ContactsOneToMany: queuing update request...");
-                this.queuedUpdates.add(itemId);
+                model.hasUpdateQueued = true;
                 return;
             }
             // we want to never send more than one request at a time for this item id...
-            this.markRequestAsInFlight(model);
-            let error;
-            try {
+            this.markRequestAsInFlight();
+
+            // delay is just to make the UI 'feel' better
+            await model.tryUpdate(async () => {
                 const response = await getAxiosInstance().request({
                     url: this.getUpdateUrlForModel(model),
                     method: model.model.id ? "PUT" : "POST",
@@ -263,14 +229,10 @@ export default defineComponent({
                     // let's add the id from the server...
                     model.model.id = data.id;
                 }
-                this.markRecentlyUpdated(itemId);
-            } catch (e) {
-                error = e;
-                console.warn(e);
-            }
-            model.captureServerResponse(null, error);
+                model.captureServerResponse(null);
+            }, CONTACTS_AUTOSAVE_REQUEST_MS);
 
-            await this.markRequestFinished(itemId);
+            this.markRequestFinished();
         },
 
         async deleteItem(id: LocalItemId) {
@@ -284,21 +246,22 @@ export default defineComponent({
                 return;
             }
             this.items.delete(id);
-            if (this.serverId === null || !item.model.id) {
+            if (!item.model.id) {
                 // nothing to delete
                 return;
             }
-
-            this.markRequestAsInFlight(item);
+            this.markRequestAsInFlight();
             try {
-                await getAxiosInstance().delete(
-                    "/contact_book/delete_" +
-                        this.apiName +
-                        "_by_" +
-                        this.firstLetterOfApiName +
-                        "id/" +
-                        item.model.id
-                );
+                await item.tryDelete(async () => {
+                    await getAxiosInstance().delete(
+                        "/contact_book/delete_" +
+                            this.apiName +
+                            "_by_" +
+                            this.firstLetterOfApiName +
+                            "id/" +
+                            item.model.id
+                    );
+                });
             } catch (e) {
                 console.error(e);
                 this.$oruga.notification.open(
@@ -306,10 +269,10 @@ export default defineComponent({
                 );
                 return;
             }
-            await this.markRequestFinished(id);
+            this.markRequestFinished();
         },
 
-        async updateItem(id: LocalItemId, newValue: Record<string, any>) {
+        updateItem(id: LocalItemId, newValue: Record<string, any>) {
             console.log("ContactsOneToMany: request to update", id, newValue);
             const item = this.items.get(id);
             if (!item) {
@@ -319,15 +282,12 @@ export default defineComponent({
                 ...item.model,
                 ...newValue,
             };
-            await this.updateItemOnServer(id);
+            this.updateItemOnServer(id);
         },
 
         hasUnsavedChanges() {
-            if (this.queuedUpdates.size > 0) {
-                return true;
-            }
             for (const model of this.items.values()) {
-                if (model.hasErrors()) {
+                if (model.hasErrors() || model.hasUpdateQueued) {
                     return true;
                 }
             }

@@ -28,6 +28,7 @@ const store = createStore({
             }
             const token = getToken();
             if (token) {
+                console.log("Retrieved token from local storage");
                 commit("setToken", token);
                 return true;
             }
@@ -35,8 +36,8 @@ const store = createStore({
         },
         async login({ commit }, { token, router, oruga, isSignUp }) {
             commit("setToken", token);
-            console.log("redirecting...");
             persistToken(token);
+            console.log("redirecting...");
             if (isSignUp) {
                 // TODO: get rid of this, and add logic to beforeEach() hook to check onboard status
                 await router.push("/onboard");
@@ -56,13 +57,16 @@ const store = createStore({
                 });
             }
         },
-        async logout({ commit }, { router, oruga }) {
+        async logout(
+            { commit },
+            { router, oruga, logoutMessage, redirectURL }
+        ) {
             commit("setToken", null);
-            console.log("logged out");
-            await router.push("/");
             invalidateToken();
+            console.log("logged out");
+            await router.push(redirectURL || "/");
             oruga.notification.open({
-                message: "You are now logged out.",
+                message: logoutMessage || "You are now logged out.",
                 variant: "info",
                 rootClass: "toast-notification",
                 duration: 5000,

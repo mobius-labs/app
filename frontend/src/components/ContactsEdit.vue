@@ -33,17 +33,48 @@
                     </h2>
                 </div>
                 <div class="level-right">
-                    <o-button
-                        variant="primary"
-                        :disabled="saving"
-                        class="mr-3"
-                        @click="submit"
-                    >
-                        <SpinnerOverlay :active="saving">
-                            <span v-if="serverId">Save contact</span>
-                            <span v-else>Save new contact</span>
-                        </SpinnerOverlay>
-                    </o-button>
+                    <transition name="fade" mode="out-in">
+                        <o-button
+                            variant="primary"
+                            :disabled="saving"
+                            class="mr-3"
+                            v-if="!serverId"
+                            @click="(v) => submit()"
+                        >
+                            <SpinnerOverlay :active="saving">
+                                Save new contact
+                            </SpinnerOverlay>
+                        </o-button>
+                        <span
+                            v-else-if="
+                                (serverId && saving) ||
+                                model.isRecentlyUpdated ||
+                                model.hasErrors()
+                            "
+                            :class="
+                                model.hasErrors()
+                                    ? 'has-text-danger'
+                                    : 'has-text-primary'
+                            "
+                        >
+                            <span v-if="saving">Saving contact</span>
+                            <span v-else-if="model.isRecentlyUpdated"
+                                >Saved contact</span
+                            >
+                            <span v-else-if="model.hasErrors()"
+                                >Failed to save contact</span
+                            >
+                            <Spinner v-if="saving"></Spinner>
+                            <o-icon
+                                v-else-if="model.isRecentlyUpdated"
+                                icon="check-circle"
+                            ></o-icon>
+                            <o-icon
+                                v-else-if="model.hasErrors()"
+                                icon="exclamation-triangle"
+                            ></o-icon>
+                        </span>
+                    </transition>
                 </div>
             </div>
 
@@ -53,12 +84,14 @@
                         :model="model"
                         name="first_name"
                         placeholder="First Name"
+                        :update-value="updateItem"
                         expanded
                     />
                     <ValidatedField
                         :model="model"
                         name="middle_name"
                         placeholder="Middle Name"
+                        :update-value="updateItem"
                         expanded
                     >
                     </ValidatedField>
@@ -66,6 +99,7 @@
                         :model="model"
                         name="surname"
                         placeholder="Surname"
+                        :update-value="updateItem"
                         expanded
                     >
                     </ValidatedField>
@@ -94,17 +128,23 @@
                         <ValidatedField
                             :model="model"
                             name="nickname"
+                            :update-value="updateItem"
                             placeholder="Enter a nickname"
                         />
                         <ValidatedField
                             :model="model"
                             name="name_pronunciation"
+                            :update-value="updateItem"
                             placeholder="Add pronunciation notes here..."
                         />
-                        <PronounSelector :model="model" />
+                        <PronounSelector
+                            :model="model"
+                            :update-value="updateItem"
+                        />
                         <ValidatedField
                             :model="model"
                             name="title"
+                            :update-value="updateItem"
                             placeholder="e.g.: Mr, Mrs, Dr"
                         ></ValidatedField>
                     </div>
@@ -113,7 +153,7 @@
                 <hr />
 
                 <ContactsOneToMany
-                    v-slot="{ model, updateItem, debounceUpdateItem }"
+                    v-slot="{ model, updateItem }"
                     ref="emails"
                     add-button-text="Add Email Address"
                     title="Email Addresses"
@@ -145,14 +185,14 @@
                         :model="model"
                         name="email_address"
                         :label="null"
-                        :update-value="debounceUpdateItem"
+                        :update-value="updateItem"
                         placeholder="e.g.: johndoe@gmail.com"
                         required
                     ></ValidatedField>
                 </ContactsOneToMany>
 
                 <ContactsOneToMany
-                    v-slot="{ model, updateItem, debounceUpdateItem }"
+                    v-slot="{ model, updateItem }"
                     ref="phoneNumbers"
                     add-button-text="Add Phone Number"
                     title="Phone Numbers"
@@ -184,7 +224,7 @@
                         :model="model"
                         name="number"
                         :label="null"
-                        :update-value="debounceUpdateItem"
+                        :update-value="updateItem"
                         placeholder="enter a phone number"
                         required
                     ></ValidatedField>
@@ -198,7 +238,7 @@
                 ></SocialMediaEdit>
 
                 <ContactsOneToMany
-                    v-slot="{ model, updateItem, debounceUpdateItem }"
+                    v-slot="{ model, updateItem }"
                     ref="addresses"
                     add-button-text="Add Address"
                     title="Addresses"
@@ -213,33 +253,33 @@
                             :model="model"
                             name="address_line_one"
                             label="Address Line 1"
-                            :update-value="debounceUpdateItem"
+                            :update-value="updateItem"
                             placeholder="Address Line 1"
                         ></ValidatedField>
                         <ValidatedField
                             :model="model"
                             name="address_line_two"
                             label="Address Line 2"
-                            :update-value="debounceUpdateItem"
+                            :update-value="updateItem"
                             placeholder="Address Line 2"
                         ></ValidatedField>
                         <div class="space-items">
                             <ValidatedField
                                 :model="model"
                                 name="suburb"
-                                :update-value="debounceUpdateItem"
+                                :update-value="updateItem"
                                 placeholder="Suburb"
                             ></ValidatedField>
                             <ValidatedField
                                 :model="model"
                                 name="postcode"
-                                :update-value="debounceUpdateItem"
+                                :update-value="updateItem"
                                 placeholder="Postcode"
                             ></ValidatedField>
                             <ValidatedField
                                 :model="model"
                                 name="state"
-                                :update-value="debounceUpdateItem"
+                                :update-value="updateItem"
                                 placeholder="State"
                             ></ValidatedField>
                         </div>
@@ -276,6 +316,7 @@
                 <ValidatedField
                     :model="model"
                     name="job_title"
+                    :update-value="updateItem"
                     placeholder="e.g. Software Developer"
                 />
 
@@ -283,12 +324,14 @@
                     <ValidatedField
                         :model="model"
                         name="department"
+                        :update-value="updateItem"
                         placeholder="e.g.: Middle Office"
                     >
                     </ValidatedField>
                     <ValidatedField
                         :model="model"
                         name="company"
+                        :update-value="updateItem"
                         placeholder="e.g.: Pied Piper"
                     >
                     </ValidatedField>
@@ -298,6 +341,7 @@
 
                 <ValidatedField
                     :model="model"
+                    :update-value="updateItem"
                     name="side_notes"
                     data-test="side_notes"
                     placeholder="Take notes about this person here to remember for next time."
@@ -308,6 +352,7 @@
                 <ValidatedField
                     v-slot="{ value, setValue }"
                     :model="model"
+                    :update-value="updateItem"
                     name="regularity_of_contact"
                     label="How often to keep in touch"
                 >
@@ -366,6 +411,7 @@
 import {
     Contact,
     ContactId,
+    CONTACTS_AUTOSAVE_REQUEST_MS,
     getFullName,
     ServerContactId,
 } from "@/api/contacts";
@@ -376,6 +422,7 @@ import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import SpinnerOverlay from "@/components/SpinnerOverlay.vue";
 import SocialMediaEdit from "@/components/SocialMediaEdit.vue";
 import ImportantDatesEdit from "@/components/ImportantDatesEdit.vue";
+import Spinner from "@/components/Spinner.vue";
 import { Model } from "@/api/model";
 import { defineComponent, PropType } from "vue";
 import PronounSelector from "@/components/PronounSelector.vue";
@@ -389,6 +436,7 @@ export default defineComponent({
         ContactsOneToMany,
         ValidatedField,
         ImportantDatesEdit,
+        Spinner,
     },
     props: {
         localId: {
@@ -412,6 +460,7 @@ export default defineComponent({
             savingSocials: false,
             savingImportantDates: false,
             loading: false,
+            newlyCreated: false,
         };
     },
     computed: {
@@ -444,7 +493,15 @@ export default defineComponent({
                     "ContactsEdit: emitting contact-updated event for contact",
                     this.localId
                 );
-                this.$emit("contact-updated", this.localId, this.model.model);
+                this.$emit(
+                    "contact-updated",
+                    this.localId,
+                    this.model.model.id,
+                    this.newlyCreated
+                );
+                if (this.newlyCreated) {
+                    this.newlyCreated = false;
+                }
             }
         },
 
@@ -461,8 +518,18 @@ export default defineComponent({
             this.loading = false;
         },
 
-        async submit() {
-            let created = false;
+        async updateItem(newItem: Contact) {
+            this.model.model = {
+                ...this.model.model,
+                ...newItem,
+            };
+            // only auto-save if the contact has already been created
+            if (this.model.model.id) {
+                await this.submit(true);
+            }
+        },
+
+        async submit(hideToast?: boolean) {
             await this.model.tryUpdate(async () => {
                 const response = await getAxiosInstance().request({
                     url:
@@ -475,24 +542,25 @@ export default defineComponent({
                 });
 
                 if (response.status === 201) {
-                    this.$oruga.notification.open(
-                        defaultToast("info", "Contact created")
-                    );
+                    if (!hideToast) {
+                        this.$oruga.notification.open(
+                            defaultToast("info", "Contact created")
+                        );
+                    }
                     this.model.captureServerResponse(response.data as Contact);
-                    created = true;
+                    this.newlyCreated = true;
                 } else {
                     this.model.captureServerResponse(null);
-                    this.$oruga.notification.open(
-                        defaultToast("info", "Contact updated")
-                    );
+                    if (!hideToast) {
+                        this.$oruga.notification.open(
+                            defaultToast("info", "Contact updated")
+                        );
+                    }
                 }
-            });
-            if (created) {
-                console.log("ContactsEdit: switching to edit view");
-                await this.$router.push("/app/contacts/" + this.model.model.id);
-            }
+            }, CONTACTS_AUTOSAVE_REQUEST_MS);
         },
 
+        // returns true if the user hasn't yet saved changes to this contact
         hasUnsavedChanges(): boolean {
             return (
                 !this.model.matchesServer() ||

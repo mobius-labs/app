@@ -20,6 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # REST FRAMEWORK URLS
-    path('api/account/', include('apps.account.api.urls', 'account_api')),
-    path('api/contact_book/', include('apps.contact_book.api.urls', 'contact_api'))
+    path('api/account/', include('apps.account.api.urls', namespace='registrations')),
+    path('api/contact_book/', include('apps.contact_book.api.urls', namespace='contacts'))
 ]

@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
-import { deepCopy, valuesEqual } from "@/api/utils";
+import { deepCopy, delay, valuesEqual } from "@/api/utils";
+import debounce from "lodash/debounce";
 
 interface ValidationResponse {
     errors: Record<string, string[]>;
@@ -25,6 +26,14 @@ export class Model<T = Record<string, any>> {
 
     // true if a request is currently in-flight
     isSubmitting = false;
+
+    // true if the item was updated in the last few seconds or so (useful to display an "updated" message for a short while)
+    isRecentlyUpdated = false;
+
+    // true if we have made updates since last sending off a request... if so, we should probs update again
+    hasUpdateQueued = false;
+
+    clearRecentlyUpdatedAfterDelay = debounce(this.clearRecentlyUpdated, 3000);
 
     constructor(model: T) {
         this.model = deepCopy(model);
@@ -117,16 +126,46 @@ export class Model<T = Record<string, any>> {
         }
     }
 
-    // a convenience function to try and make an API call, handling errors appropriately.
-    async tryUpdate(request: () => Promise<void>) {
+    // a convenience function to try and make a POST or PUT API call, handling errors appropriately.
+    async tryUpdate(updateFunc: () => Promise<void>, delayMs?: number) {
         this.isSubmitting = true;
 
         try {
-            await request();
+            await updateFunc();
+            if (delayMs) {
+                await delay(delayMs);
+            }
+            this.markRecentlyUpdated();
         } catch (e) {
+            this.isRecentlyUpdated = false;
             this.captureServerResponse(null, e);
         }
 
+        // if any new requests to update the item came in whilst we were waiting for a server response,
+        // then dispatch those now...
+        if (this.hasUpdateQueued) {
+            console.log("Model: dispatching update request...");
+            this.hasUpdateQueued = false;
+            await this.tryUpdate(updateFunc, delayMs);
+        }
+
         this.isSubmitting = false;
+    }
+
+    // a convenience function to delete this model, handling errors where needed
+    async tryDelete(deleteFunc: () => Promise<void>) {
+        this.isSubmitting = true;
+
+        await deleteFunc();
+    }
+
+    markRecentlyUpdated() {
+        this.isRecentlyUpdated = true;
+        this.clearRecentlyUpdatedAfterDelay();
+    }
+
+    clearRecentlyUpdated() {
+        console.log("clearing", this);
+        this.isRecentlyUpdated = false;
     }
 }

@@ -7,13 +7,16 @@
     "build": "env NODE_ENV=development npx vue-cli-service build --mode development",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
-    "lint": "vue-cli-service lint && npx prettier --check ."
+    "lint": "vue-cli-service lint --no-fix && npx prettier --check .",
+    "fix": "vue-cli-service lint && npx prettier --write ."
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@oruga-ui/oruga-next": "^0.4.4",
     "axios": "^0.23.0",
     "core-js": "^3.6.5",
+    "lodash": "^4.17.21",
+    "luxon": "^2.0.2",
     "my-vue-app": "github:oruga-ui/oruga-bulma",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
@@ -22,6 +25,8 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
+    "@types/lodash": "^4.14.175",
+    "@types/luxon": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vue/cli-plugin-babel": "~5.0.0-beta.5",

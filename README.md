@@ -60,3 +60,16 @@ Do the following to setup postgres:
 > python manage.py migrate
 > python manage.py createsuperuser
 ```
+
+## Testing
+
+To run Django unit tests, run:
+
+```
+> python manage.py test
+```
+To see unit test code coverage, run:
+```
+> python -m coverage run --source=apps --branch manage.py test
+> coverage report
+```
