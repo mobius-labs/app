@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -14,6 +16,7 @@ from rest_framework.generics import ListAPIView
 from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
+from datetime import date
 
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
@@ -157,32 +160,37 @@ def update_contact_by_id(request, contact_id):
         return Response({'errors': data}, status=400)
 
 
-def is_overdue(contact, today):
+def calc_days_until_catchup(contact):
     # check to see if contact is overdue to be contacted
     if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
         return False
 
-    return contact.last_time_contacted + timedelta(days=365/contact.regularity_of_contact) < today
+    today = date.today()
+
+    # decide whether contact should be shown for this window, find days until
+    delta = contact.last_time_contacted - today + timedelta(days=365/contact.regularity_of_contact)
+    return delta.days
 
 
-class ApiNotifyOverdueCatchUp(ListAPIView):
+class ApiCatchupCountdown(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        today = date.today()
-        overdue_to_contact = []
+        days_window = self.kwargs['days_window']
+        within_window = []
 
         # goes through all contacts and checks if they are overdue
         for contact in Contact.objects.all():
-            print(1)
-            if str(contact.author) == str(user.email) and is_overdue(contact, today):
-                overdue_to_contact.append(contact)
-                print("yes: ", contact)
-        return overdue_to_contact
+            days_until_catchup = calc_days_until_catchup(contact)
+            if str(contact.author) == str(user.email) and days_until_catchup < days_window:
+                within_window.append(contact)
+        return within_window
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
 
 
 # ---------------------------------------- PHONE NUMBERS ----------------------------------------
@@ -631,6 +639,40 @@ def update_important_date(request, important_date_id):
         return Response({'errors': data}, status=400)
 
 
+def calc_days_until_imp_date(imp_date):
+    # check to see how far away an important date is
+    if isinstance(imp_date, type(None)):
+        return False
+
+    today = date.today()
+
+    # decide whether important date should be shown for this window, find days until
+    delta = imp_date - today
+    return delta.days
+
+
+class ApiImpDateCountdown(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        days_window = self.kwargs['days_window']
+        within_window = []
+
+        # goes through all contacts and checks if they are overdue
+        for contact in Contact.objects.all():
+            imp_dates = ImportantDate.objects.all().filter(contact=contact)
+            for imp_date in imp_dates:
+                days_until = calc_days_until_imp_date(imp_date.date)
+                if str(contact.author) == str(user.email) and days_window > days_until >= 0:
+                    within_window.append(imp_date)
+        return within_window
+
+    queryset = Contact.objects.all()
+    #serializer_class = ContactImpDateSerializer
+    serializer_class = ImportantDateOutSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
 
 
 

@@ -195,8 +195,11 @@ describe("ContactsEdit component unit tests", () => {
             propsData: NEW_CONTACT_PROPS,
         });
         expect(
-            wrapper.findComponent({ ref: "pronouns" }).props("placeholder")
-        ).toBe("...");
+            wrapper
+                .getComponent({ ref: "pronouns" })
+                .getComponent({ name: "o-select" })
+                .props("placeholder")
+        ).toBe("Select");
     });
 
     test("Title field exists", () => {
