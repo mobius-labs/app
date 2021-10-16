@@ -1,7 +1,7 @@
 <template>
-    <div class="login-page">
+    <div class="hero is-fullheight is-primary auth-page">
         <div class="homepage-link">
-            <router-link to="/" class="has-text-warning"
+            <router-link to="/" class="has-text-white"
                 >Go back to homepage...</router-link
             >
         </div>
@@ -20,18 +20,14 @@ export default {
 };
 </script>
 
-<style scoped>
-.login-page {
+<style scoped lang="scss">
+@import "../styles/app.scss";
+
+.auth-page {
     display: flex;
-    height: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)),
-        url("https://free4kwallpapers.com/uploads/wallpaper/kurzgesagt-wallpaper-2560x1440-wallpaper.jpg")
-            no-repeat center center;
-    background-size: cover;
-    position: relative;
 }
 
 .homepage-link {

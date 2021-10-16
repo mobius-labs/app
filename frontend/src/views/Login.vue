@@ -32,8 +32,10 @@
                     @keyup.enter="onSubmit"
                 />
             </ValidatedField>
-            <p class="has-text-right mb-4">
-                <router-link to="/forgot">Forgot password?</router-link>
+            <p class="has-text-right mb-4 has-text-primary">
+                <router-link to="/forgot">
+                    <p class="has-text-primary">Forgot password?</p>
+                </router-link>
             </p>
             <div>
                 <o-button

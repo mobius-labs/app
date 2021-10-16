@@ -34,17 +34,28 @@ const store = createStore({
             }
             return false;
         },
-        async login({ commit }, { token, router, oruga }) {
+        async login({ commit }, { token, router, oruga, isSignUp }) {
             commit("setToken", token);
             persistToken(token);
             console.log("redirecting...");
-            await router.push("/app");
-            oruga.notification.open({
-                message: "Welcome!",
-                variant: "success",
-                rootClass: "toast-notification",
-                duration: 5000,
-            });
+            if (isSignUp) {
+                // TODO: get rid of this, and add logic to beforeEach() hook to check onboard status
+                await router.push("/onboard");
+                oruga.notification.open({
+                    message: "Yay!",
+                    variant: "link",
+                    rootClass: "toast-notification",
+                    duration: 5000,
+                });
+            } else {
+                await router.push("/app");
+                oruga.notification.open({
+                    message: "Welcome!",
+                    variant: "link",
+                    rootClass: "toast-notification",
+                    duration: 5000,
+                });
+            }
         },
         async logout(
             { commit },
