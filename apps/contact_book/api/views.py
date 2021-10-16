@@ -662,7 +662,7 @@ class ApiImpDateCountdown(ListAPIView):
             imp_dates = ImportantDate.objects.all().filter(contact=contact)
             for imp_date in imp_dates:
                 days_until = calc_days_until_imp_date(imp_date.date)
-                if str(contact.author) == str(user.email) and days_until < days_window:
+                if str(contact.author) == str(user.email) and days_window > days_until >= 0:
                     within_window.append(imp_date)
         return within_window
 
