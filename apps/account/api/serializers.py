@@ -41,5 +41,5 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['business_card', 'email']
+        fields = ['business_card', 'email', 'connected_contact']
         read_only_fields = ['email']

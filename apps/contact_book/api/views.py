@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from apps.account.models import User
+from apps.account.api.serializers import UserSerializer
 from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -14,9 +15,10 @@ from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
 ALREADY_ADDED_RESPONSE = {'non_field_errors': ['This item already exists']}
+NOT_FOUND_RESPONSE = {'non_field_errors': ['This item does not exist']}
+
 
 # ---------------------------------------- CONTACTS ----------------------------------------
 
@@ -43,7 +45,7 @@ def create_contact(request):
 def create_user_contact(request):
     user = request.user
     contact = Contact(author=user)
-    
+
     serializer = ContactSerializer(contact, data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -73,14 +75,15 @@ def get_contact_by_id(request, contact_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_contacts(request):
-    user = request.user
-    contact = user.connected_contact
+    # contact = user.connected_contact
 
-    if str(contact.author) != str(user.email):
-        return Response(NOT_PERMITTED_RESPONSE, status=403)
+    # if contact is not None:
+    #     if str(contact.author) != str(user.email):
+    #         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
-    return Response(serializer.data)
+    serializer_user = UserSerializer(request.user)
+    # serializer = ContactSerializer(contact)
+    return Response(serializer_user.data['connected_contact'])
 
 
 @api_view(['GET'])
@@ -148,7 +151,7 @@ def is_overdue(contact, today):
     if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
         return False
 
-    return contact.last_time_contacted + timedelta(days=365/contact.regularity_of_contact) < today
+    return contact.last_time_contacted + timedelta(days=365 / contact.regularity_of_contact) < today
 
 
 class ApiNotifyOverdueCatchUp(ListAPIView):
@@ -614,16 +617,3 @@ def update_important_date(request, important_date_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
-
-
-
-
-
-
-
-
-
-
-
-
-
