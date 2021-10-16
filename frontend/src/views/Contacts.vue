@@ -161,11 +161,8 @@
                 :local-id="selectedLocalId"
                 :initial-data="initialData"
                 :server-id="selectedServerId"
-                :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
                 @close="onContactEditClosed"
                 @contact-updated="onContactUpdated"
-                @discard-changes="discardChanges"
-                @cancel-discard="isDiscardChangesDialogActive = false"
             />
         </div>
     </div>
@@ -226,9 +223,7 @@ export default class Contacts extends Vue.with(Props) {
     nextClientContactId = -1;
     getFullName = getFullName;
     displayRegularity = displayRegularity;
-    isDiscardChangesDialogActive = false;
     loading = false;
-    nextFn?: () => void;
     serverToLocalIdMap = new Map<ServerContactId, ContactId>();
 
     debounceUpdateSearchQuery = debounce((v: string) => {
@@ -265,14 +260,6 @@ export default class Contacts extends Vue.with(Props) {
         return this.sortData.direction === "asc"
             ? this.sortData.field
             : "-" + this.sortData.field;
-    }
-
-    hasUnsavedChanges(): boolean {
-        return this.$refs.contactsEdit
-            ? (
-                  this.$refs.contactsEdit as typeof ContactsEdit
-              ).hasUnsavedChanges()
-            : false;
     }
 
     findContactById(localId: ContactId): LocalContact | null {
@@ -365,45 +352,27 @@ export default class Contacts extends Vue.with(Props) {
         this.$router.push("/app/contacts/new");
     }
 
-    checkForUnsavedChanges(next: () => void) {
-        if (this.hasUnsavedChanges()) {
-            this.isDiscardChangesDialogActive = true;
-            this.nextFn = next;
-            return;
-        }
-        next();
-    }
-
-    discardChanges() {
-        this.isDiscardChangesDialogActive = false;
-        if (this.nextFn) {
-            this.nextFn();
-        }
-    }
-
-    beforeRouteUpdate(to: any, from: any, next: () => void) {
-        this.checkForUnsavedChanges(next);
-    }
-
-    beforeRouteLeave(to: any, from: any, next: () => void) {
-        this.checkForUnsavedChanges(next);
-    }
-
-    async created() {
-        window.addEventListener("beforeunload", this.beforeWindowUnload);
+    async mounted() {
         await this.loadAllContacts();
     }
 
-    beforeDestroy() {
-        window.removeEventListener("beforeunload", this.beforeWindowUnload);
+    beforeRouteUpdate(to: any, from: any, next: () => void) {
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
+        }
     }
 
-    // if the user tries to close the tab / force refresh the page,
-    // check for unsaved changes
-    beforeWindowUnload(e: BeforeUnloadEvent) {
-        if (this.hasUnsavedChanges()) {
-            e.preventDefault();
-            e.returnValue = "";
+    beforeRouteLeave(to: any, from: any, next: () => void) {
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
         }
     }
 }

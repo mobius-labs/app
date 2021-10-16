@@ -410,11 +410,14 @@
                     <div class="modal-card-foot">
                         <button
                             class="button is-primary"
-                            @click="$emit('discard-changes')"
+                            @click="discardChanges"
                         >
                             Discard changes
                         </button>
-                        <button class="button" @click="$emit('cancel-discard')">
+                        <button
+                            class="button"
+                            @click="isDiscardChangesDialogActive = false"
+                        >
                             Cancel
                         </button>
                     </div>
@@ -472,7 +475,6 @@ export default defineComponent({
             default: null,
         },
         isBusinessCard: { type: Boolean, default: false },
-        isDiscardChangesDialogActive: { type: Boolean, default: false },
     },
     emits: ["discard-changes", "cancel-discard", "contact-updated", "close"],
     data() {
@@ -485,6 +487,8 @@ export default defineComponent({
             loading: false,
             newlyCreated: false,
             loadingFailed: false,
+            nextFn: null as (() => void) | null,
+            isDiscardChangesDialogActive: false,
         };
     },
     computed: {
@@ -517,6 +521,10 @@ export default defineComponent({
     watch: { localId: "loadContact", saving: "onSavingUpdated" },
     async mounted() {
         await this.loadContact();
+        window.addEventListener("beforeunload", this.beforeWindowUnload);
+    },
+    beforeUnmount() {
+        window.removeEventListener("beforeunload", this.beforeWindowUnload);
     },
     methods: {
         onSavingUpdated(newVal: boolean, oldVal: boolean) {
@@ -650,6 +658,32 @@ export default defineComponent({
         },
         freshAddress(): Record<string, any> {
             return { is_current: true };
+        },
+
+        checkForUnsavedChanges(next: () => void) {
+            if (this.hasUnsavedChanges()) {
+                this.isDiscardChangesDialogActive = true;
+                this.nextFn = next;
+            } else {
+                next();
+            }
+        },
+
+        discardChanges() {
+            this.isDiscardChangesDialogActive = false;
+            if (this.nextFn) {
+                this.nextFn();
+            }
+        },
+
+        // if the user tries to close the tab / force refresh the page,
+        // check for unsaved changes
+        beforeWindowUnload(e: BeforeUnloadEvent) {
+            console.log("unsaved changes", this.hasUnsavedChanges());
+            if (this.hasUnsavedChanges()) {
+                e.preventDefault();
+                e.returnValue = "";
+            }
         },
     },
 });

@@ -37,6 +37,7 @@
                 style="overflow-y: auto; padding: 5rem 0"
             >
                 <BusinessCard
+                    preview
                     :contact="updatingTheme ? null : userContact"
                     :theme="updatingTheme ? 'default' : derivedTheme"
                 />
@@ -90,10 +91,8 @@
                 :local-id="1"
                 :server-id="userContact.id"
                 :is-business-card="true"
-                :is-discard-changes-dialog-active="isDiscardChangesDialogActive"
-                @close="shouldEditContactDetails = false"
+                @close="tryClose"
                 @contact-updated="onContactUpdated"
-                @cancel-discard="isDiscardChangesDialogActive = false"
             >
                 <div class="content">
                     <p>
@@ -193,7 +192,6 @@ export default defineComponent({
         return {
             shouldEditContactDetails: false,
             userContact: null as Contact | null,
-            isDiscardChangesDialogActive: false,
             isThemeSelectorModalActive: false,
             user: null as User | null,
             CARD_THEMES: CARD_THEMES,
@@ -219,6 +217,24 @@ export default defineComponent({
     mounted() {
         this.fetchUserDetails();
         this.fetchUserContact();
+    },
+    beforeRouteUpdate(to: any, from: any, next: () => void) {
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
+        }
+    },
+    beforeRouteLeave(to: any, from: any, next: () => void) {
+        if (this.$refs.contactsEdit) {
+            (
+                this.$refs.contactsEdit as typeof ContactsEdit
+            ).checkForUnsavedChanges(next);
+        } else {
+            next();
+        }
     },
     methods: {
         async fetchUserDetails() {
@@ -294,6 +310,16 @@ export default defineComponent({
                         "</a>"
                 )
             );
+        },
+
+        tryClose() {
+            if (this.$refs.contactsEdit) {
+                (
+                    this.$refs.contactsEdit as typeof ContactsEdit
+                ).checkForUnsavedChanges(() => {
+                    this.shouldEditContactDetails = false;
+                });
+            }
         },
     },
 });

@@ -3,7 +3,11 @@
         <div :class="'bc bc-theme-' + theme">
             <div class="bc-photo">
                 <transition name="fade" mode="out-in">
-                    <UserIcon :email="primaryEmail" class="bc-icon">
+                    <UserIcon
+                        v-if="!contact || primaryEmail"
+                        :email="primaryEmail"
+                        class="bc-icon"
+                    >
                         <template #loading>
                             <o-skeleton
                                 key="loading"
@@ -55,6 +59,12 @@
                                 <o-icon icon="phone"></o-icon>{{ item.number }}
                             </div>
                             <div
+                                v-if="preview && contact.phone_nos.length === 0"
+                            >
+                                <o-icon icon="phone"></o-icon
+                                ><em class="bc-placeholder">[Phone Number]</em>
+                            </div>
+                            <div
                                 v-for="item in contact.emails"
                                 :key="item.id"
                                 class="bc-item bc-email-item"
@@ -63,6 +73,10 @@
                                 ><a :href="'mailto:' + item.email_address">{{
                                     item.email_address
                                 }}</a>
+                            </div>
+                            <div v-if="preview && contact.emails.length === 0">
+                                <o-icon icon="envelope"></o-icon
+                                ><em class="bc-placeholder">[Email Address]</em>
                             </div>
                             <div
                                 v-for="item in contact.social_media"
@@ -75,12 +89,36 @@
                                 ></SocialMediaItem>
                             </div>
                             <div
+                                v-if="
+                                    preview && contact.social_media.length === 0
+                                "
+                            >
+                                <div>
+                                    <o-icon icon="link"></o-icon
+                                    ><em class="bc-placeholder"
+                                        >[Social Media X]</em
+                                    >
+                                </div>
+                                <div>
+                                    <o-icon icon="link"></o-icon
+                                    ><em class="bc-placeholder"
+                                        >[Social Media Y]</em
+                                    >
+                                </div>
+                            </div>
+                            <div
                                 v-for="item in contact.addresses"
                                 :key="item.id"
                                 class="bc-item bc-address-item"
                             >
                                 <o-icon icon="map-marker-alt"></o-icon
                                 >{{ concatAddress(item) }}
+                            </div>
+                            <div
+                                v-if="preview && contact.addresses.length === 0"
+                            >
+                                <o-icon icon="map-marker-alt"></o-icon
+                                ><em class="bc-placeholder">[Address]</em>
                             </div>
                         </div>
                         <o-skeleton
@@ -107,6 +145,7 @@ export default defineComponent({
     components: { UserIcon, SocialMediaItem },
     props: {
         contact: { type: Object as PropType<FullContact>, default: null },
+        preview: { type: Boolean, default: false },
         theme: { type: String, required: true },
     },
     data() {
@@ -133,7 +172,7 @@ export default defineComponent({
 <style scoped lang="scss">
 @import "../styles/variables";
 .bc-wrapper {
-    width: 30rem;
+    width: 28rem;
 
     @media screen and (max-width: 35rem) {
         width: auto !important;
@@ -155,6 +194,10 @@ export default defineComponent({
     padding: 2em;
     border-radius: 0.5em;
     font-size: 0.8em;
+    min-height: 18em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .bc:hover,
