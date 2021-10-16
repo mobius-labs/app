@@ -10,12 +10,6 @@
         >
             <div class="level">
                 <div class="level-left">
-                    <!--<router-link to="/app">
-                        <img
-                            src="../assets/mobius-logo-example.png"
-                            class="app-menu-logo"
-                        />
-                    </router-link>-->
                     <router-link to="/app">
                         <Logo type="is-medium-logo" />
                     </router-link>
@@ -39,6 +33,7 @@
                                             is-flex
                                             is-align-items-center
                                             is-justify-content-center
+                                            user-profile-fallback
                                         "
                                     >
                                         <o-icon
@@ -199,9 +194,14 @@ export default class AppLayout extends Vue {
     border-radius: 50%;
     width: 3rem;
     height: 3rem;
-    border: 2px solid $primary;
     overflow: hidden;
     transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    :deep(img),
+    .user-profile-fallback {
+        border-radius: 50%;
+        border: 2px solid $primary;
+    }
 
     .user-profile-icon {
         color: $primary;

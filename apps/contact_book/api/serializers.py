@@ -62,7 +62,7 @@ class SocialMediaContactOutSerializer(serializers.ModelSerializer):
 class SocialMediaSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMediaSite
-        fields = ['site', 'url_format', 'icon', 'id']
+        fields = ['site', 'url_format', 'icon']
 
 
 class FullContactSerializer(serializers.ModelSerializer):

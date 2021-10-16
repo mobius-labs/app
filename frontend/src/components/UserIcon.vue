@@ -1,9 +1,6 @@
 <template>
-    <div
-        style="position: relative"
-        v-if="!hideOnFailure || gravatarLoaded !== false"
-    >
-        <transition-group name="fade">
+    <div class="is-relative">
+        <transition-group name="fade" mode="out-in">
             <img
                 v-show="gravatarLoaded"
                 :src="gravatarIconSrc"
@@ -13,7 +10,8 @@
                 @load="onGravatarLoaded"
                 @error="onGravatarLoadError"
             />
-            <slot v-if="!gravatarLoaded" name="fallback"></slot>
+            <slot v-if="gravatarLoaded === null" name="loading"></slot>
+            <slot v-else-if="gravatarLoaded === false" name="fallback"></slot>
         </transition-group>
     </div>
 </template>
@@ -26,16 +24,9 @@ export default defineComponent({
     name: "UserIcon",
     props: {
         user: { type: Object, default: null },
-        hideOnFailure: { type: Boolean, default: false },
     },
     data() {
         return { gravatarLoaded: null as boolean | null };
-    },
-    emits: ["update:loaded"],
-    watch: {
-        gravatarLoaded(newVal) {
-            this.$emit("update:loaded", newVal);
-        },
     },
     computed: {
         gravatarIconSrc() {

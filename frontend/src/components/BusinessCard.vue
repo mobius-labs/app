@@ -5,16 +5,11 @@
                 <transition name="fade" mode="out-in">
                     <UserIcon
                         :user="primaryEmail ? { email: primaryEmail } : null"
-                        :class="{
-                            'bc-icon': true,
-                            'bc-icon-loading': !gravatarLoaded,
-                        }"
-                        :hide-on-failure="true"
-                        @update:loaded="(v) => (gravatarLoaded = v)"
+                        class="bc-icon"
                     >
-                        <template #fallback>
+                        <template #loading>
                             <o-skeleton
-                                key="fallback"
+                                key="loading"
                                 animated
                                 circle
                                 width="6rem"
@@ -122,7 +117,6 @@ export default defineComponent({
             fullName: getFullName,
             concatAddress: concatAddress,
             socialMediaSites: new Map(),
-            gravatarLoaded: null as boolean | null,
         };
     },
     computed: {
@@ -187,13 +181,12 @@ export default defineComponent({
 .bc-icon {
     width: 8em;
     height: 8em;
-    border: 2px solid $grey-dark;
     transition: border-color 0.2s ease;
-    border-radius: 50%;
     overflow: hidden;
 
-    &.bc-icon-loading {
-        border-color: transparent;
+    :deep(img) {
+        border: 2px solid $grey-dark;
+        border-radius: 50%;
     }
 }
 
