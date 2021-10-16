@@ -9,7 +9,7 @@ urlpatterns = [
     path('create_contact', create_contact, name="create_contact"),
     path('create_user_contact', create_user_contact, name="create_user_contact"),
     path('list', ApiContactList.as_view(), name='list'),
-    path('overdue_catchup', ApiNotifyOverdueCatchUp.as_view(), name='overdue_catchup'),
+    path('catchup_countdown/<int:days_window>', ApiCatchupCountdown.as_view(), name='catchup_countdown'),
     path('get_contact_by_id/<int:contact_id>', get_contact_by_id, name="get_contact_by_id"),
     path('delete_contact_by_id/<int:contact_id>', delete_contact_by_id, name="delete_contact_by_id"),
     path('update_contact_by_id/<int:contact_id>', update_contact_by_id, name="update_contact_by_id"),
@@ -49,8 +49,9 @@ urlpatterns = [
     path('create_important_date_type/', create_important_date_type, name='create_important_date_type'),
     path('get_important_date_types/', get_important_date_types, name='get_important_date_types'),
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
-    path('get_important_dates_by_cid/<int:contact_id>', get_important_dates, name='get_important_dates'),
-    path('delete_important_date_by_iid/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date')
+    path('get_important_dates/<int:contact_id>', get_important_dates, name='get_important_dates'),
+    path('delete_important_date/<int:important_date_id>', delete_important_date, name='delete_important_date'),
+    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date'),
+    path('imp_date_countdown/<int:days_window>', ApiImpDateCountdown.as_view(), name='imp_date_countdown')
 
 ]
