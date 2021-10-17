@@ -1,0 +1,22 @@
+.right-flyout {
+  overflow-y: auto;
+  width: 0;
+  flex: 0;
+  transition: width 0.2s ease, flex 0.2s ease;
+  border-left: 1px solid #ccc;
+}
+
+.right-flyout-main {
+  flex: 1;
+}
+
+@media screen and (max-width: 1600px) {
+  [data-expanded="true"] .right-flyout-main {
+    display: none !important;
+  }
+}
+
+[data-expanded="true"] .right-flyout {
+  min-width: 30rem;
+  flex: 1;
+}

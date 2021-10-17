@@ -2,6 +2,7 @@
 
 import { PrimaryKey } from "@/api/model";
 import { deepCopy } from "@/api/utils";
+import { DateTime } from "luxon";
 
 export type ContactId = number;
 
@@ -17,9 +18,13 @@ export class Contact {
     title: string | null = null;
     first_name: string | null = null;
     middle_name: string | null = null;
+    pronouns: string | null = null;
     surname: string | null = null;
     company: string | null = "";
     job_title: string | null = "";
+    department: string | null = "";
+    regularity_of_contact: number | null = null;
+    last_time_contacted: string | null = null;
 }
 
 export interface Address {
@@ -55,6 +60,18 @@ export interface ContactOneToManys {
     emails: Email[];
     phone_nos: Phone[];
     important_dates: ImportantDate[];
+}
+
+export class FullContact extends Contact implements ContactOneToManys {
+    social_media: SocialMedia[] = [];
+    addresses: Address[] = [];
+    emails: Email[] = [];
+    phone_nos: Phone[] = [];
+    important_dates: ImportantDate[] = [];
+}
+
+export interface ImportantDateContact extends ImportantDate {
+    contact: FullContact;
 }
 
 export function emptyOneToManys(): ContactOneToManys {
@@ -105,14 +122,6 @@ export function splitContactAndOneToManys(
     return [c as Contact, oneToManys];
 }
 
-export class FullContact extends Contact implements ContactOneToManys {
-    social_media: SocialMedia[] = [];
-    addresses: Address[] = [];
-    emails: Email[] = [];
-    phone_nos: Phone[] = [];
-    important_dates: ImportantDate[] = [];
-}
-
 export function getFullName(contact: Contact) {
     let s = "";
     if (contact.title) {
@@ -128,6 +137,10 @@ export function getFullName(contact: Contact) {
         s += contact.surname;
     }
     return s;
+}
+
+export function dateToDjangoString(v: Date) {
+    return DateTime.fromJSDate(v).toFormat("yyyy-MM-dd");
 }
 
 export function concatAddress(address: Address) {

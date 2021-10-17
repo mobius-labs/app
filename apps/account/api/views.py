@@ -60,5 +60,5 @@ def get_business_card_visibility(request):
 @permission_classes([IsAuthenticated])
 def get_info(request):
     serialised = UserSerializer(request.user)
-    return Response(serialised.data['email'])
+    return Response(serialised.data)
 

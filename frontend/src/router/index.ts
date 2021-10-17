@@ -3,6 +3,8 @@ import {
     createWebHistory,
     RouteLocationNormalized,
 } from "vue-router";
+
+import { getAxiosInstance } from "@/api/api";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import SignUp from "../views/SignUp.vue";
@@ -66,7 +68,7 @@ const routes = [
         path: "/onboard",
         name: "Onboard",
         component: OnboardLayout,
-        meta: { title: "Onboard " },
+        meta: { title: "Onboard", allowNotOnboarded: true },
     },
     {
         path: "/app",
@@ -119,16 +121,34 @@ const router = createRouter({
 const APP_TITLE = "Möbius CRM";
 
 router.beforeEach((to, from, next) => {
-    store.dispatch("determineAuthStatus").then((authenticated) => {
+    store.dispatch("determineAuthStatus").then(async (authenticated) => {
         if (!authenticated && to.meta.allowGuests !== true) {
             next({
                 path: "/login",
             });
             return;
         }
+
+        if (
+            authenticated &&
+            !to.meta.allowNotOnboarded &&
+            !to.meta.allowGuests
+        ) {
+            // user is authenticated - check if they've onboarded
+            try {
+                await getAxiosInstance().get("contact_book/get_user_contacts");
+            } catch (e) {
+                if (e.response.status === 404) {
+                    next({
+                        path: "/onboard",
+                    });
+                    return;
+                }
+            }
+        }
+
         next();
     });
-    // TODO: check onboarded status here
 });
 
 router.afterEach((to) => {

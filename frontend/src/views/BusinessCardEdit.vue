@@ -2,8 +2,11 @@
     <div
         class="is-flex"
         style="height: 100%; position: absolute; left: 0; top: 0; width: 100%"
+        :data-expanded="!!isEditingContactDetails"
     >
-        <div class="is-flex-1 is-flex is-flex-direction-column">
+        <div
+            class="is-flex-1 is-flex is-flex-direction-column right-flyout-main"
+        >
             <div
                 class="has-background-black-ter is-flex"
                 style="padding: 2rem; margin-bottom: 0"
@@ -82,9 +85,7 @@
                 </transition>
             </div>
         </div>
-        <div
-            :class="{ 'right-flyout': true, expanded: isEditingContactDetails }"
-        >
+        <div class="right-flyout">
             <ContactsEdit
                 v-if="isEditingContactDetails"
                 ref="contactsEdit"
@@ -326,7 +327,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "../styles/flyout.css";
+@import "../styles/flyout";
 @import "../styles/variables";
 
 .is-flex-1 {
@@ -335,10 +336,6 @@ export default defineComponent({
 
 .edit-button {
     margin-top: 1.5rem;
-
-    a:hover {
-        color: lighten($link, 10%);
-    }
 }
 
 .theme-list {

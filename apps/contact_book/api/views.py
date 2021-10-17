@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from apps.account.models import User
+from apps.account.api.serializers import UserSerializer
 from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -18,9 +19,10 @@ from datetime import date, timedelta
 from rest_framework.filters import SearchFilter, OrderingFilter
 from datetime import date
 
-
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
 ALREADY_ADDED_RESPONSE = {'non_field_errors': ['This item already exists']}
+NOT_FOUND_RESPONSE = {'non_field_errors': ['This item does not exist']}
+
 
 # ---------------------------------------- CONTACTS ----------------------------------------
 
@@ -164,13 +166,11 @@ def calc_days_until_catchup(contact):
     # check to see if contact is overdue to be contacted
     if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
         return False
-
     today = date.today()
 
     # decide whether contact should be shown for this window, find days until
     delta = contact.last_time_contacted - today + timedelta(days=365/contact.regularity_of_contact)
     return delta.days
-
 
 class ApiCatchupCountdown(ListAPIView):
 
@@ -189,7 +189,7 @@ class ApiCatchupCountdown(ListAPIView):
         return within_window
 
     queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (OrderingFilter, )
@@ -639,7 +639,6 @@ def update_important_date(request, important_date_id):
         data = serializer.errors
         return Response({'errors': data}, status=400)
 
-
 def calc_days_until_imp_date(imp_date):
     # check to see how far away an important date is
 
@@ -662,7 +661,7 @@ class ApiImpDateCountdown(ListAPIView):
             imp_dates = ImportantDate.objects.all().filter(contact=contact)
             for imp_date in imp_dates:
                 days_until = calc_days_until_imp_date(imp_date.date)
-                if str(contact.author) == str(user.email) and days_window > days_until >= 0:
+                if str(contact.author) == str(user.email) and days_window > days_until >= 0 and imp_date.get_alert:
                     within_window.append(imp_date)
         return within_window
 
@@ -671,14 +670,4 @@ class ApiImpDateCountdown(ListAPIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (OrderingFilter, )
-
-
-
-
-
-
-
-
-
-
 
