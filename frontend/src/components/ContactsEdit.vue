@@ -140,7 +140,7 @@
                             :model="model"
                             name="title"
                             :update-value="updateItem"
-                            placeholder="e.g.: Mr, Mrs, Dr"
+                            placeholder="e.g.: Dr., Ms., Prof., Mr."
                         ></ValidatedField>
                         <ValidatedField
                             :model="model"

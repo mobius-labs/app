@@ -45,10 +45,10 @@
                                     placeholder="Your middle name"
                                 />
                                 <ValidatedField
-                                    label="Last Name"
+                                    label="Surname"
                                     :model="model"
                                     name="surname"
-                                    placeholder="Your last name"
+                                    placeholder="Your surname"
                                 />
                             </div>
                             <PronounSelector :model="model" />
@@ -81,6 +81,7 @@
                                     placeholder="Your department"
                                 />
                             </div>
+                            <!-- TODO: these two fields are never saved -->
                             <ValidatedField
                                 label="Work address"
                                 :model="model"
