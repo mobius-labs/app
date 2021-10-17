@@ -169,7 +169,6 @@ export class Model<T = Record<string, any>> {
     }
 
     clearRecentlyUpdated() {
-        console.log("clearing", this);
         this.isRecentlyUpdated = false;
     }
 }

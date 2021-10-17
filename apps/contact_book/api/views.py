@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -13,11 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from datetime import date, timedelta
+from datetime import timedelta, date
 
 from rest_framework.filters import SearchFilter, OrderingFilter
-from datetime import date
-
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
 ALREADY_ADDED_RESPONSE = {'non_field_errors': ['This item already exists']}
@@ -671,14 +667,3 @@ class ApiImpDateCountdown(ListAPIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (OrderingFilter, )
-
-
-
-
-
-
-
-
-
-
-

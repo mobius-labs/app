@@ -58,15 +58,15 @@
                 <p class="menu-label">General</p>
                 <ul class="menu-list">
                     <li>
-                        <router-link to="/app"> Dashboard </router-link>
+                        <router-link to="/app">Dashboard</router-link>
                     </li>
                     <li>
                         <router-link to="/app/contacts">Contacts</router-link>
-                        <!--                    <ul>-->
-                        <!--                        <li><a>Close Friends</a></li>-->
-                        <!--                        <li><a>Family</a></li>-->
-                        <!--                        <li><a>Networking</a></li>-->
-                        <!--                    </ul>-->
+                        <!--                        <ul>-->
+                        <!--                            <li><router-link to="/app/contacts/new"> Add Contact</router-link></li>-->
+                        <!--                            <li><a>Family</a></li>-->
+                        <!--                            <li><a>Networking</a></li>-->
+                        <!--                        </ul>-->
                     </li>
                     <!--                    <li>-->
                     <!--                        <router-link to="/app"-->

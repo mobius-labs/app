@@ -19,6 +19,15 @@
                 <div class="is-flex-grow-1"></div>
 
                 <o-button
+                    tag="router-link"
+                    to="/app/scan-card"
+                    variant="info"
+                    icon-left="camera"
+                    class="mr-3"
+                    >Scan Business Card</o-button
+                >
+
+                <o-button
                     variant="primary"
                     icon-left="plus"
                     :disabled="isAddContactButtonDisabled"

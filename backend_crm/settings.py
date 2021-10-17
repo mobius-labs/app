@@ -25,6 +25,9 @@ env = environ.Env(
     SECRET_KEY=(str, "django-insecure-_ebl0tc6sx*1ltrg-6j8a!ai9i#0z6$h*+o!daj6zkj#to__t^")
 )
 
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
