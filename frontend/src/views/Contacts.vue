@@ -7,7 +7,10 @@
         <div class="right-flyout-main is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
-                <div class="ml-6 mr-4">
+
+                <div class="is-flex-grow-1"></div>
+
+                <div class="ml-3 mr-3">
                     <o-input
                         :model-value="searchQuery"
                         type="search"
@@ -16,8 +19,6 @@
                         @update:model-value="debounceUpdateSearchQuery"
                     />
                 </div>
-
-                <div class="is-flex-grow-1"></div>
 
                 <o-button
                     tag="router-link"
@@ -110,7 +111,8 @@
                         >
                             {{ item.address_line_one }}<br />{{
                                 item.address_line_two
-                            }}<br />{{ item.suburb }} {{ item.state }}
+                            }}<br />{{ item.suburb }}
+                            {{ item.state }}
                             {{ item.postcode }}
                         </p>
                     </o-table-column>
@@ -389,6 +391,13 @@ export default class Contacts extends Vue.with(Props) {
 .app-header {
     padding: 2rem;
     display: flex;
+}
+
+@media screen and (max-width: 1900px) {
+    .app-header {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
 }
 
 .is-full-height {

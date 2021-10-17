@@ -4,9 +4,10 @@
             <div class="bc-photo">
                 <transition name="fade" mode="out-in">
                     <UserIcon
-                        v-if="!contact || primaryEmail"
+                        v-show="gravatarLoaded !== false"
                         :email="primaryEmail"
                         class="bc-icon"
+                        @update:loaded="(v) => (gravatarLoaded = v)"
                     >
                         <template #loading>
                             <o-skeleton
@@ -153,6 +154,7 @@ export default defineComponent({
             fullName: getFullName,
             concatAddress: concatAddress,
             socialMediaSites: new Map(),
+            gravatarLoaded: null,
         };
     },
     computed: {
@@ -218,10 +220,10 @@ export default defineComponent({
 }
 
 .bc-icon {
-    width: 8em;
-    height: 8em;
     transition: border-color 0.2s ease;
     overflow: hidden;
+    width: 8em;
+    height: 8em;
 
     :deep(img) {
         border: 2px solid $grey-dark;

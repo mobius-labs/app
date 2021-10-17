@@ -43,6 +43,9 @@ export default defineComponent({
                 this.gravatarLoaded = null;
             }
         },
+        gravatarLoaded() {
+            this.$emit("update:loaded", this.gravatarLoaded);
+        },
     },
     methods: {
         onGravatarLoaded() {

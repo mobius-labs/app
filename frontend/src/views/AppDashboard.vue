@@ -427,7 +427,14 @@ export default defineComponent({
             const data = response.data as ListResponse<FullContact>;
             this.catchUps = {
                 ...data,
-                results: data.results.map((c) => new ContactCatchUp(c)),
+                results: data.results
+                    .map((c) => new ContactCatchUp(c))
+                    .sort((c1, c2) => {
+                        return (
+                            c1.catchUpDate.toMillis() -
+                            c2.catchUpDate.toMillis()
+                        );
+                    }),
             };
         },
         async fetchImportantDates() {
@@ -436,7 +443,15 @@ export default defineComponent({
             );
             console.log(response.data);
             const data = response.data as ListResponse<ImportantDateContact>;
-            this.importantDates = { ...data, results: data.results };
+            this.importantDates = {
+                ...data,
+                results: data.results.sort((i1, i2) => {
+                    return (
+                        DateTime.fromISO(i1.date).toMillis() -
+                        DateTime.fromISO(i2.date).toMillis()
+                    );
+                }),
+            };
         },
         async fetchUserFirstName() {
             const response = await getAxiosInstance().get(
