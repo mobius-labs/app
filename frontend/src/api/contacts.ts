@@ -17,9 +17,11 @@ export class Contact {
     title: string | null = null;
     first_name: string | null = null;
     middle_name: string | null = null;
+    pronouns: string | null = null;
     surname: string | null = null;
     company: string | null = "";
     job_title: string | null = "";
+    department: string | null = "";
 }
 
 export interface Address {

@@ -198,13 +198,27 @@ export default class OnboardLayout extends Vue {
     }
 
     onError() {
-        // if (this.model.hasErrorsForFields(["title", "first_name", "middle_name", "last_name", "pronouns"])) {
-        //     this.activeStep = 2;
-        // } else if (this.model.hasErrorFields(["job_title", "company", "department"])) {
-        //     this.activeStep = 3;
-        // } else {
-        //     this.activeStep = 1;
-        // }
+        if (
+            this.model.hasErrorsForFields([
+                "title",
+                "first_name",
+                "middle_name",
+                "surname",
+                "pronouns",
+            ])
+        ) {
+            this.activeStep = 2;
+        } else if (
+            this.model.hasErrorsForFields([
+                "job_title",
+                "company",
+                "department",
+            ])
+        ) {
+            this.activeStep = 3;
+        } else {
+            this.activeStep = 1;
+        }
     }
 }
 </script>
