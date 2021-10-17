@@ -84,7 +84,7 @@ def business_card_ocr(request):
         emails = business_card.fields.get("Emails")
         if emails:
             for email in emails.value:
-                try_save_model(Email(contact=contact, email_address=email.value), messages)
+                try_save_model(Email(contact=contact, email_address=email, label='other'), messages)
 
         websites = business_card.fields.get("Websites")
         if websites:
