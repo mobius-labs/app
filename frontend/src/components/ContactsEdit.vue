@@ -35,7 +35,10 @@
                     <h2 class="title p-3" data-test="contact-name">
                         <span v-if="isBusinessCard">Edit business card</span>
                         <span v-else-if="fullName">{{ fullName }}</span>
-                        <span v-else>Add Contact</span>
+                        <span v-else-if="!serverId">Add Contact</span>
+                        <span v-else class="has-text-grey-light"
+                            >[no name]</span
+                        >
                     </h2>
                 </div>
                 <div class="level-right">
@@ -135,6 +138,12 @@
                     <div class="expanded-box">
                         <ValidatedField
                             :model="model"
+                            name="title"
+                            :update-value="updateItem"
+                            placeholder="e.g.: Mr, Mrs, Dr"
+                        ></ValidatedField>
+                        <ValidatedField
+                            :model="model"
                             name="nickname"
                             :update-value="updateItem"
                             placeholder="Enter a nickname"
@@ -150,12 +159,6 @@
                             :model="model"
                             :update-value="updateItem"
                         />
-                        <ValidatedField
-                            :model="model"
-                            name="title"
-                            :update-value="updateItem"
-                            placeholder="e.g.: Mr, Mrs, Dr"
-                        ></ValidatedField>
                     </div>
                 </o-collapse>
 

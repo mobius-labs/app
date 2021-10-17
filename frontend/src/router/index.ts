@@ -20,6 +20,7 @@ import OnboardLayout from "../views/OnboardLayout.vue";
 import { nextTick } from "vue";
 import store from "@/store";
 import BusinessCardView from "../views/BusinessCardView.vue";
+import ScanCard from "@/views/ScanCard.vue";
 
 const routes = [
     {
@@ -107,6 +108,11 @@ const routes = [
                 path: "business-card",
                 component: BusinessCardEdit,
                 meta: { title: "eBusiness Card", darkMode: true },
+            },
+            {
+                path: "scan-card",
+                component: ScanCard,
+                meta: { title: "Scan Business Card" },
             },
         ],
     },

@@ -50,13 +50,14 @@ class Contact(models.Model):
 def save(connected_contact, user):
     user.connected_contact = connected_contact
 
+
 # each contact has any number of addresses
 class Address(models.Model):
     state = models.CharField(max_length=10, null=True, blank=True)
     country = models.CharField(max_length=45, null=True, blank=True)
     postcode = models.CharField(max_length=10, null=True, blank=True)
-    address_line_one = models.CharField(max_length=45)
-    address_line_two = models.CharField(max_length=45, null=True, blank=True)
+    address_line_one = models.CharField(max_length=127)
+    address_line_two = models.CharField(max_length=127, null=True, blank=True)
     suburb = models.CharField(max_length=45, null=True, blank=True)
     city = models.CharField(max_length=45, null=True, blank=True)
     start_of_habitation = models.DateTimeField(null=True, blank=True)
@@ -84,7 +85,7 @@ class Number(models.Model):
 # each user has any number of emails
 class Email(models.Model):
 
-    email_address = models.EmailField(max_length=45)
+    email_address = models.EmailField(max_length=320)
     label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True, blank=True)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 
@@ -108,7 +109,7 @@ class SocialMediaSite(models.Model):
 # each user has any number of social media links
 class SocialMediaContact(models.Model):
 
-    link = models.CharField(max_length=45)
+    link = models.CharField(max_length=300)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     social_media_site = models.ForeignKey(SocialMediaSite, on_delete=models.CASCADE)
 

@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.contact_book.api.views import *
+from apps.contact_book.api.views_ocr import business_card_ocr
 
 app_name = 'contact_book'
 
@@ -52,6 +53,9 @@ urlpatterns = [
     path('get_important_dates_by_cid/<int:contact_id>', get_important_dates, name='get_important_dates'),
     path('delete_important_date_by_iid/<int:important_date_id>', delete_important_date, name='delete_important_date'),
     path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date'),
-    path('imp_date_countdown/<int:days_window>', ApiImpDateCountdown.as_view(), name='imp_date_countdown')
+    path('imp_date_countdown/<int:days_window>', ApiImpDateCountdown.as_view(), name='imp_date_countdown'),
+
+    # business card AI functionality
+    path('business_card_ocr', business_card_ocr, name='business_card_ocr')
 
 ]
