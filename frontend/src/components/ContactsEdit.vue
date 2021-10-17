@@ -359,13 +359,21 @@
 
                 <ValidatedField
                     v-if="!isBusinessCard"
+                    v-slot="{ value, setValue }"
                     :model="model"
                     :update-value="updateItem"
-                    name="side_notes"
-                    data-test="side_notes"
-                    placeholder="Take notes about this person here to remember for next time."
-                    type="textarea"
+                    name="last_time_contacted"
+                    label="Last Catch Up"
                 >
+                    <o-datepicker
+                        :model-value="value ? new Date(value) : null"
+                        @update:model-value="
+                            (v) => setValue(convertDateToString(v))
+                        "
+                        placeholder="select last time contacted"
+                        icon="calendar"
+                        trap-focus
+                    />
                 </ValidatedField>
 
                 <ValidatedField
@@ -380,23 +388,27 @@
                         :model-value="value"
                         @update:model-value="setValue"
                     >
-                        <option value="104">Twice a week</option>
-                        <option value="52">Weekly</option>
-                        <option value="26">Fortnightly</option>
-                        <option value="12">Monthly</option>
-                        <option value="6">Every two months</option>
-                        <option value="2">Twice a year</option>
-                        <option value="1">Once a year</option>
+                        <option :value="null">Never</option>
+                        <option :value="104">Twice a week</option>
+                        <option :value="52">Weekly</option>
+                        <option :value="26">Fortnightly</option>
+                        <option :value="12">Monthly</option>
+                        <option :value="6">Every two months</option>
+                        <option :value="2">Twice a year</option>
+                        <option :value="1">Once a year</option>
                     </o-select>
                 </ValidatedField>
 
-                <!--                    <o-field label="Last Time Contacted">-->
-                <!--                        <o-datepicker-->
-                <!--                            placeholder="select last time contacted"-->
-                <!--                            icon="calendar"-->
-                <!--                            trap-focus-->
-                <!--                        />-->
-                <!--       -->
+                <ValidatedField
+                    v-if="!isBusinessCard"
+                    :model="model"
+                    :update-value="updateItem"
+                    name="side_notes"
+                    data-test="side_notes"
+                    placeholder="Take notes about this person here to remember for next time."
+                    type="textarea"
+                >
+                </ValidatedField>
             </div>
 
             <o-modal :active="isDiscardChangesDialogActive" width="400">
@@ -440,6 +452,7 @@ import {
     ServerContactId,
     emptyOneToManys,
     splitContactAndOneToManys,
+    dateToDjangoString,
 } from "@/api/contacts";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
@@ -689,6 +702,8 @@ export default defineComponent({
                 e.returnValue = "";
             }
         },
+
+        convertDateToString: dateToDjangoString,
     },
 });
 </script>

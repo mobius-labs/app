@@ -50,11 +50,12 @@ urlpatterns = [
     path('create_important_date_type/', create_important_date_type, name='create_important_date_type'),
     path('get_important_date_types/', get_important_date_types, name='get_important_date_types'),
     path('create_important_date/<int:contact_id>', create_important_date, name='create_important_date'),
-    path('get_important_dates/<int:contact_id>', get_important_dates, name='get_important_dates'),
-    path('delete_important_date/<int:important_date_id>', delete_important_date, name='delete_important_date'),
-    path('update_important_date/<int:important_date_id>', update_important_date, name='update_important_date'),
+    path('get_important_dates_by_cid/<int:contact_id>', get_important_dates, name='get_important_dates'),
+    path('delete_important_date_by_iid/<int:important_date_id>', delete_important_date, name='delete_important_date'),
+    path('update_important_date_by_iid/<int:important_date_id>', update_important_date, name='update_important_date'),
     path('imp_date_countdown/<int:days_window>', ApiImpDateCountdown.as_view(), name='imp_date_countdown'),
 
+    # business card AI functionality
     path('business_card_ocr', business_card_ocr, name='business_card_ocr')
 
 ]

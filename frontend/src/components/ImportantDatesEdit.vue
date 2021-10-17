@@ -60,7 +60,7 @@
             <o-datepicker
                 :model-value="value ? new Date(value) : null"
                 placeholder="enter date here"
-                @update:model-value="(v) => setDateValue(v, setValue)"
+                @update:model-value="(v) => setValue(convertDateToString(v))"
             ></o-datepicker>
         </ValidatedField>
         <o-switch
@@ -77,8 +77,11 @@ import { Options, Vue } from "vue-class-component";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
-import { ImportantDate, ServerContactId } from "@/api/contacts";
-import { DateTime } from "luxon";
+import {
+    dateToDjangoString,
+    ImportantDate,
+    ServerContactId,
+} from "@/api/contacts";
 
 class Props {
     initialItems!: ImportantDate[];
@@ -114,7 +117,7 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
     }
 
     freshImportantDate(): Record<string, any> {
-        return { get_alert: false };
+        return { get_alert: true, important_date_type: "Birthday" };
     }
 
     hasUnsavedChanges() {
@@ -123,9 +126,7 @@ export default class ImportantDatesEdit extends Vue.with(Props) {
         ).hasUnsavedChanges();
     }
 
-    setDateValue(v: Date, setValue: (v: string) => void) {
-        setValue(DateTime.fromJSDate(v).toFormat("yyyy-MM-dd"));
-    }
+    convertDateToString = dateToDjangoString;
 }
 </script>
 

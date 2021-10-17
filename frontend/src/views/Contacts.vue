@@ -2,8 +2,9 @@
     <div
         class="is-flex is-align-items-stretch is-full-height"
         style="position: absolute; left: 0; top: 0; width: 100%"
+        :data-expanded="isContactsEditExpanded"
     >
-        <div class="is-flex-1 is-flex is-flex-direction-column">
+        <div class="right-flyout-main is-flex is-flex-direction-column">
             <div class="app-header">
                 <h1 class="title">Contacts</h1>
                 <div class="ml-6 mr-4">
@@ -161,9 +162,7 @@
             </div>
         </div>
 
-        <div
-            :class="{ 'right-flyout': true, expanded: isContactsEditExpanded }"
-        >
+        <div class="right-flyout">
             <ContactsEdit
                 v-if="isContactsEditExpanded"
                 ref="contactsEdit"
@@ -188,7 +187,7 @@ import {
     getFullName,
     ServerContactId,
 } from "@/api/contacts";
-import { getAxiosInstance } from "@/api/api";
+import { getAxiosInstance, ListResponse } from "@/api/api";
 import { defaultToast } from "@/toasts";
 import Spinner from "../components/Spinner.vue";
 import debounce from "lodash/debounce";
@@ -205,10 +204,7 @@ interface LocalContact {
     version: number;
 }
 
-interface ContactsListResponse {
-    count: number;
-    results: Contact[];
-}
+type ContactsListResponse = ListResponse<Contact>;
 
 interface SortData {
     field: string;
@@ -388,7 +384,7 @@ export default class Contacts extends Vue.with(Props) {
 </script>
 
 <style scoped>
-@import "../styles/flyout.css";
+@import "../styles/flyout.scss";
 
 .app-header {
     padding: 2rem;

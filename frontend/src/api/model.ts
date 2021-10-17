@@ -66,6 +66,15 @@ export class Model<T = Record<string, any>> {
         return !!this.errors[fieldName as string];
     }
 
+    hasErrorsForFields(fields: (keyof T)[]): boolean {
+        for (const field of fields) {
+            if (this.hasErrorsForField(field)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // true if the user has changed this field since last submitting
     isSubmittedValueStale<Key extends keyof T>(fieldName: Key) {
         return this.lastSubmittedModel[fieldName] !== this.model[fieldName];
@@ -131,7 +140,11 @@ export class Model<T = Record<string, any>> {
     }
 
     // a convenience function to try and make a POST or PUT API call, handling errors appropriately.
-    async tryUpdate(updateFunc: () => Promise<void>, delayMs?: number) {
+    async tryUpdate(
+        updateFunc: () => Promise<void>,
+        delayMs?: number,
+        onError?: () => void
+    ) {
         this.isSubmitting = true;
 
         try {
@@ -143,6 +156,9 @@ export class Model<T = Record<string, any>> {
         } catch (e) {
             this.isRecentlyUpdated = false;
             this.captureServerResponse(null, e);
+            if (onError) {
+                onError();
+            }
         }
 
         // if any new requests to update the item came in whilst we were waiting for a server response,

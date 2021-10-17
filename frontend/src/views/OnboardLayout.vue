@@ -2,10 +2,15 @@
     <section class="hero is-primary is-fullheight">
         <div class="hero-body column">
             <div class="box is-white has-content-centered welcome-box">
-                <o-steps animated rounded custom-navigation>
-                    <o-step-item icon="birthday-cake" step="1">
+                <o-steps
+                    v-model="activeStep"
+                    animated
+                    rounded
+                    custom-navigation
+                >
+                    <o-step-item icon="birthday-cake" step="0">
                         <div class="container has-text-centered">
-                            <p class="title is-1 has-text-primary">
+                            <p class="title is-2 has-text-primary">
                                 Congratulations on creating your account!
                             </p>
                             <p class="title is-4 has-text-primary">
@@ -13,7 +18,7 @@
                             </p>
                         </div>
                     </o-step-item>
-                    <o-step-item icon="user" step="2">
+                    <o-step-item icon="user" step="1">
                         <div class="p-1 has-text-left">
                             <p class="title is-3 has-text-primary">
                                 First, we'll cover the basics...
@@ -49,7 +54,7 @@
                             <PronounSelector :model="model" />
                         </div>
                     </o-step-item>
-                    <o-step-item icon="search" step="3">
+                    <o-step-item icon="search" step="2">
                         <div class="container has-text-left">
                             <p class="title is-3 has-text-primary mb-2">
                                 And then, we'll add some more details...
@@ -90,7 +95,7 @@
                             />
                         </div>
                     </o-step-item>
-                    <o-step-item icon="check" step="4">
+                    <o-step-item icon="check" step="3">
                         <div class="container has-text-centered">
                             <p class="title is-3 has-text-primary">
                                 ...and now, you're all set.
@@ -156,28 +161,64 @@ import PronounSelector from "@/components/PronounSelector.vue";
         ValidatedField,
         SpinnerOverlay,
     },
+    watch: {
+        activeStep: "printActiveStep",
+    },
 })
 export default class OnboardLayout extends Vue {
     model = new Model(new Contact());
     saving = false;
+    activeStep = 1;
 
     async submitUserDetails() {
-        await this.model.tryUpdate(async () => {
-            const response = await getAxiosInstance().request({
-                url: "contact_book/create_contact",
-                method: "POST",
-                data: this.model.model,
-            });
+        await this.model.tryUpdate(
+            async () => {
+                const response = await getAxiosInstance().request({
+                    url: "contact_book/create_user_contact",
+                    method: "POST",
+                    data: this.model.model,
+                });
 
-            if (response.status === 201) {
-                console.log("good request!");
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact created")
-                );
-                this.model.captureServerResponse(response.data as Contact);
-                await this.$router.push("/app");
-            }
-        });
+                if (response.status === 201) {
+                    console.log("good request!");
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact created")
+                    );
+                    this.model.captureServerResponse(response.data as Contact);
+                    await this.$router.push("/app");
+                }
+            },
+            undefined,
+            this.onError.bind(this)
+        );
+    }
+
+    printActiveStep() {
+        console.log(this.activeStep);
+    }
+
+    onError() {
+        if (
+            this.model.hasErrorsForFields([
+                "title",
+                "first_name",
+                "middle_name",
+                "surname",
+                "pronouns",
+            ])
+        ) {
+            this.activeStep = 2;
+        } else if (
+            this.model.hasErrorsForFields([
+                "job_title",
+                "company",
+                "department",
+            ])
+        ) {
+            this.activeStep = 3;
+        } else {
+            this.activeStep = 1;
+        }
     }
 }
 </script>

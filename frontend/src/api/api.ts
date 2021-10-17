@@ -103,3 +103,10 @@ export const getAxiosInstance = () => {
 
     return instance;
 };
+
+export interface ListResponse<T> {
+    count: number;
+    previous: string | null;
+    next: string | null;
+    results: T[];
+}

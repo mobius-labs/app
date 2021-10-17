@@ -45,7 +45,7 @@ class RegistrationViewTests(TestCase):
 
     def test_get_info(self):
         self.assertEqual(self.get_info_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.get_info_response.data, self.request_data['email'])
+        self.assertEqual(self.get_info_response.data['email'], self.request_data['email'])
 
 
 
