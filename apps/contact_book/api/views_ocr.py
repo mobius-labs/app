@@ -66,8 +66,15 @@ def business_card_ocr(request):
         contact_names = business_card.fields.get("ContactNames")
         if contact_names and len(contact_names.value) > 0:
             name = contact_names.value[0]
-            contact.first_name = name.value["FirstName"].value if "FirstName" in name.value else ""
-            contact.surname = name.value["LastName"].value if "LastName" in name.value else ""
+            if "FirstName" in name.value:
+                contact.first_name = name.value["FirstName"].value
+            if "LastName" in name.value:
+                contact.surname = name.value["LastName"].value
+
+            # swap them if needed
+            if not contact.first_name and contact.surname:
+                contact.first_name = contact.surname
+                contact.surname = ""
         company_names = business_card.fields.get("CompanyNames")
         if company_names and len(company_names.value) > 0:
             contact.company = company_names.value[0].value
