@@ -47,7 +47,7 @@
                                 <ValidatedField
                                     label="Last Name"
                                     :model="model"
-                                    name="last_name"
+                                    name="surname"
                                     placeholder="Your last name"
                                 />
                             </div>

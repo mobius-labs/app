@@ -65,8 +65,9 @@ def business_card_ocr(request):
 
         contact_names = business_card.fields.get("ContactNames")
         if contact_names and len(contact_names.value) > 0:
-            contact.first_name = contact_names.value[0].value["FirstName"].value
-            contact.surname = contact_names.value[0].value["LastName"].value
+            name = contact_names.value[0]
+            contact.first_name = name.value["FirstName"].value if "FirstName" in name.value else ""
+            contact.surname = name.value["LastName"].value if "LastName" in name.value else ""
         company_names = business_card.fields.get("CompanyNames")
         if company_names and len(company_names.value) > 0:
             contact.company = company_names.value[0].value
@@ -113,7 +114,7 @@ def business_card_ocr(request):
         other_phones = business_card.fields.get("OtherPhones")
         if other_phones:
             for other_phone in other_phones.value:
-                try_save_model(Number(contact=contact, number=other_phone.value, label='other'), messages)
+                try_save_model(Number(contact=contact, number=other_phone.value_data.text, label='other'), messages)
 
         return Response({
             'item': FullContactSerializer(contact).data,
