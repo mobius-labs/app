@@ -189,7 +189,7 @@ class ApiCatchupCountdown(ListAPIView):
         return within_window
 
     queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (OrderingFilter, )
@@ -661,7 +661,7 @@ class ApiImpDateCountdown(ListAPIView):
             imp_dates = ImportantDate.objects.all().filter(contact=contact)
             for imp_date in imp_dates:
                 days_until = calc_days_until_imp_date(imp_date.date)
-                if str(contact.author) == str(user.email) and days_window > days_until >= 0:
+                if str(contact.author) == str(user.email) and days_window > days_until >= 0 and imp_date.get_alert:
                     within_window.append(imp_date)
         return within_window
 

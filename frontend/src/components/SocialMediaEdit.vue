@@ -49,7 +49,7 @@ export default class SocialMediaEdit extends Vue.with(Props) {
     }
 
     freshSocialMedia(): Record<string, any> {
-        return {};
+        return { social_media_site: "Other" };
     }
 
     hasUnsavedChanges() {

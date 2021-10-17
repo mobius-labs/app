@@ -35,12 +35,6 @@ class ImportantDateSerializer(serializers.ModelSerializer):
         fields = ['date', 'get_alert', 'important_date_type', 'id']
 
 
-class ImportantDateOutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImportantDate
-        fields = ['date', 'get_alert', 'contact', 'important_date_type', 'id']
-
-
 class ImportantDateTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportantDateType
@@ -72,3 +66,10 @@ class FullContactSerializer(serializers.ModelSerializer):
                   'relation', 'company', 'job_title', 'side_notes', 'department', 'regularity_of_contact',
                   'last_time_contacted', 'emails', 'addresses', 'phone_nos', 'important_dates', 'social_media')
 
+
+class ImportantDateOutSerializer(serializers.ModelSerializer):
+    contact = FullContactSerializer()
+
+    class Meta:
+        model = ImportantDate
+        fields = ['date', 'get_alert', 'contact', 'important_date_type', 'id']

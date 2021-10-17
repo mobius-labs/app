@@ -3,6 +3,7 @@ import Oruga from "@oruga-ui/oruga-next";
 import { Store } from "vuex";
 import { State } from "@/store";
 import { Router } from "vue-router";
+import { FullContact } from "@/api/contacts";
 
 // TODO: figure out a better solution to these global vars
 let instance: AxiosInstance | null = null;
@@ -103,3 +104,10 @@ export const getAxiosInstance = () => {
 
     return instance;
 };
+
+export interface ListResponse<T> {
+    count: number;
+    previous: string | null;
+    next: string | null;
+    results: T[];
+}
