@@ -2,33 +2,17 @@
     <div style="overflow-y: scroll; height: 100%">
         <div class="hero is-primary is-medium">
             <div class="hero-body">
-                <div class="section p-0">
-                    <h1 v-if="firstName" class="title is-1 fade-in-text">
-                        Hello, {{ firstName }}.
-                    </h1>
-                    <h1 v-else>
-                        Welcome
-                        <div class="progress"></div>
-                    </h1>
-                </div>
-                <div
-                    class="
-                        section
-                        is-flex is-flex-direction-row
-                        mt-2
-                        p-0
-                        fade-in-text
-                    "
-                >
-                    <h2 class="subtitle">
-                        Here's what's coming up in the next
-                        <InlineSelect
-                            :model-value="timeframe"
-                            @update:model-value="(v) => (timeframe = v)"
-                            :options="timeframeOptions"
-                        ></InlineSelect>
-                    </h2>
-                </div>
+                <h1 v-if="firstName" class="title is-1 fade-in-text">
+                    Hello, {{ firstName }}.
+                </h1>
+                <h2 class="subtitle is-size-4 mt-2 fade-in-text">
+                    Here's what's coming up in the next
+                    <InlineSelect
+                        :model-value="timeframe"
+                        @update:model-value="(v) => (timeframe = v)"
+                        :options="timeframeOptions"
+                    ></InlineSelect>
+                </h2>
             </div>
         </div>
         <div>
@@ -275,19 +259,36 @@
                             </div>
 
                             <div class="level-right has-text-black">
-                                <o-switch
-                                    :model-value="impDate.get_alert"
-                                    @update:model-value="
-                                        (v) => updateDateAlert(impDate, v)
-                                    "
-                                >
-                                    <span v-if="impDate.get_alert"
-                                        >Receive notifications</span
+                                <div>
+                                    <o-switch
+                                        :model-value="impDate.get_alert"
+                                        @update:model-value="
+                                            (v) => updateDateAlert(impDate, v)
+                                        "
                                     >
-                                    <span v-else
-                                        >Don't receive notifications</span
-                                    >
-                                </o-switch>
+                                        <span v-if="impDate.get_alert"
+                                            >Receive notifications</span
+                                        >
+                                        <span v-else
+                                            >Don't receive notifications</span
+                                        >
+                                    </o-switch>
+                                    <p>
+                                        <o-button
+                                            tag="router-link"
+                                            variant="text"
+                                            :to="
+                                                '/app/contacts/' +
+                                                impDate.contact.id
+                                            "
+                                            class="ml-3 mt-3"
+                                            icon-left="pencil-alt"
+                                            >Edit
+                                            {{ impDate.contact.first_name }}'s
+                                            details</o-button
+                                        >
+                                    </p>
+                                </div>
                             </div>
                             <!--                             <o-button tag="router-link" :to="'/app/contacts/' + impDate.contact.id" variant="light" icon-left="user-edit" style="padding-top: 0"></o-button>-->
                             <!--                                 {{ impDate }}-->
@@ -367,10 +368,10 @@ export default defineComponent({
                 },
             ],
             timeframeOptions: {
-                "1": "Day",
-                "7": "Week",
-                "14": "Fortnight",
-                "30": "Month",
+                "1": "day",
+                "7": "week",
+                "14": "fortnight",
+                "30": "month",
             },
             catchUps: {
                 count: 0,

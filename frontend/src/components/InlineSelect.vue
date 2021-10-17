@@ -45,7 +45,7 @@ export default defineComponent({
 @import "../styles/variables.scss";
 
 .trigger {
-    padding: 0.5rem 0.5rem 1rem 1rem;
+    padding: 0.5rem 0.5rem 1rem 0.2rem;
     border-radius: 10px;
     color: #eee;
     transition: background-color 1s ease;
