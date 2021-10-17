@@ -14,10 +14,12 @@ import AppDashboard from "../views/AppDashboard.vue";
 import Contacts from "../views/Contacts.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import AuthLayout from "../views/AuthLayout.vue";
+import BusinessCardEdit from "../views/BusinessCardEdit.vue";
 import OnboardLayout from "../views/OnboardLayout.vue";
 
 import { nextTick } from "vue";
 import store from "@/store";
+import BusinessCardView from "../views/BusinessCardView.vue";
 
 const routes = [
     {
@@ -25,6 +27,18 @@ const routes = [
         name: "Home",
         component: Home,
         meta: { title: "Home", allowGuests: true },
+    },
+    {
+        path: "/card/:email",
+        name: "View Business Card",
+        component: BusinessCardView,
+        meta: {
+            title: "View Business Card",
+            allowGuests: true,
+        },
+        props: (route: RouteLocationNormalized) => {
+            return { email: route.params.email };
+        },
     },
     {
         path: "/",
@@ -71,6 +85,14 @@ const routes = [
                 component: Contacts,
                 meta: { title: "Contacts" },
                 props: (route: RouteLocationNormalized) => {
+                    if (route.query.initialData) {
+                        return {
+                            selectedId: Contacts.NEW_CONTACT,
+                            initialData: JSON.parse(
+                                route.query.initialData as string
+                            ),
+                        };
+                    }
                     if (route.params.id === "new") {
                         return { selectedId: Contacts.NEW_CONTACT };
                     }
@@ -80,6 +102,11 @@ const routes = [
                             : Number.parseInt(route.params.id as string),
                     };
                 },
+            },
+            {
+                path: "business-card",
+                component: BusinessCardEdit,
+                meta: { title: "eBusiness Card", darkMode: true },
             },
         ],
     },

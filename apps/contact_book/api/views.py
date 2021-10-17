@@ -1,4 +1,7 @@
+import datetime
+
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,6 +17,7 @@ from rest_framework.generics import ListAPIView
 from datetime import date, timedelta
 
 from rest_framework.filters import SearchFilter, OrderingFilter
+from datetime import date
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
 ALREADY_ADDED_RESPONSE = {'non_field_errors': ['This item already exists']}
@@ -44,6 +48,10 @@ def create_contact(request):
 @permission_classes([IsAuthenticated])
 def create_user_contact(request):
     user = request.user
+
+    if user.connected_contact is not None:
+        return Response(ALREADY_ADDED_RESPONSE, status=400)
+
     contact = Contact(author=user)
 
     serializer = ContactSerializer(contact, data=request.data)
@@ -68,27 +76,23 @@ def get_contact_by_id(request, contact_id):
     if str(contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer = ContactSerializer(contact)
+    serializer = FullContactSerializer(contact)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_contacts(request):
-    # contact = user.connected_contact
+    user = request.user
+    contact = user.connected_contact
+    if contact is None:
+        return HttpResponse(status=404)
 
-    # if contact is not None:
-    #     if str(contact.author) != str(user.email):
-    #         return Response(NOT_PERMITTED_RESPONSE, status=403)
+    if str(contact.author) != str(user.email):
+        return Response(NOT_PERMITTED_RESPONSE, status=403)
 
-    serializer_user = UserSerializer(request.user)
-    print(request.user.connected_contact)
-    print(serializer_user.data)
-    # serializer = ContactSerializer(contact)
-    if serializer_user.data['connected_contact'] is None:
-        return Response({}, status=404)
-    else:
-        return Response(serializer_user.data['connected_contact'])
+    serializer = FullContactSerializer(contact)
+    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -98,20 +102,27 @@ def get_business_cards(request, email):
     contact = user.connected_contact
 
     if user.business_card:
-        serializer = ContactSerializer(contact)
-        return Response(serializer.data)
+        serializer = FullContactSerializer(contact)
+        data = serializer.data
+        data['business_card_theme'] = user.business_card_theme
+        return Response(data)
     else:
-        return Response({"user's business card is not shareable"})
+        return Response({"user's business card is not shareable"}, status=404)
 
 
 class ApiContactList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Contact.objects.filter(author=user.email)
+        for_user = Contact.objects.filter(author=user.email)
+
+        # exclude the user's own contact from this queryset
+        if user.connected_contact is not None:
+            for_user = for_user.exclude(pk=user.connected_contact.pk)
+        return for_user
 
     queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
@@ -151,32 +162,37 @@ def update_contact_by_id(request, contact_id):
         return Response({'errors': data}, status=400)
 
 
-def is_overdue(contact, today):
+def calc_days_until_catchup(contact):
     # check to see if contact is overdue to be contacted
     if isinstance(contact.last_time_contacted, type(None)) or isinstance(contact.regularity_of_contact, type(None)):
         return False
+    today = date.today()
 
-    return contact.last_time_contacted + timedelta(days=365 / contact.regularity_of_contact) < today
+    # decide whether contact should be shown for this window, find days until
+    delta = contact.last_time_contacted - today + timedelta(days=365/contact.regularity_of_contact)
+    return delta.days
 
-
-class ApiNotifyOverdueCatchUp(ListAPIView):
+class ApiCatchupCountdown(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        today = date.today()
-        overdue_to_contact = []
+        days_window = self.kwargs['days_window']
+        within_window = []
 
         # goes through all contacts and checks if they are overdue
         for contact in Contact.objects.all():
-            print(1)
-            if str(contact.author) == str(user.email) and is_overdue(contact, today):
-                overdue_to_contact.append(contact)
-                print("yes: ", contact)
-        return overdue_to_contact
+            days_until_catchup = calc_days_until_catchup(contact)
+            if (str(contact.author) == str(user.email) and (days_until_catchup < days_window)
+                and not isinstance(contact.last_time_contacted, type(None))
+                    and not isinstance(contact.regularity_of_contact, type(None))):
+                within_window.append(contact)
+        return within_window
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
 
 
 # ---------------------------------------- PHONE NUMBERS ----------------------------------------
@@ -422,11 +438,12 @@ def create_social_media_site(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def get_social_media_sites(request):
-    sites_user_has_created = SocialMediaSite.objects.all().filter(author=request.user)
-    built_in_sites = SocialMediaSite.objects.all().filter(author__isnull=True)
-    sites = sites_user_has_created.union(built_in_sites)
+    sites = SocialMediaSite.objects.all().filter(author__isnull=True)
+    if request.user is not None:
+        sites = sites.union(SocialMediaSite.objects.all().filter(author=request.user))
+
     serializer = SocialMediaSiteSerializer(sites, many=True)
     return Response(serializer.data)
 
@@ -595,7 +612,6 @@ def get_important_dates(request, contact_id):
 def delete_important_date(request, important_date_id):
     user = request.user
     important_date = get_object_or_404(ImportantDate, id=important_date_id)
-    print('herhe')
 
     if str(important_date.contact.author) != str(user.email):
         return Response(NOT_PERMITTED_RESPONSE, status=403)
@@ -622,3 +638,36 @@ def update_important_date(request, important_date_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
+def calc_days_until_imp_date(imp_date):
+    # check to see how far away an important date is
+
+    today = date.today()
+
+    # decide whether important date should be shown for this window, find days until
+    delta = imp_date - today
+    return delta.days
+
+
+class ApiImpDateCountdown(ListAPIView):
+
+    def get_queryset(self):
+        user = self.request.user
+        days_window = self.kwargs['days_window']
+        within_window = []
+
+        # goes through all contacts and checks if they are overdue
+        for contact in Contact.objects.all():
+            imp_dates = ImportantDate.objects.all().filter(contact=contact)
+            for imp_date in imp_dates:
+                days_until = calc_days_until_imp_date(imp_date.date)
+                if str(contact.author) == str(user.email) and days_window > days_until >= 0:
+                    within_window.append(imp_date)
+        return within_window
+
+    queryset = Contact.objects.all()
+    serializer_class = ImportantDateOutSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+    filter_backends = (OrderingFilter, )
+

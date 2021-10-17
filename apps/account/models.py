@@ -46,7 +46,7 @@ class AccountManager(BaseUserManager):
 
 # Models a user of the app, or developer/superuser of the app
 class User(AbstractBaseUser):
-    email = models.CharField(max_length=50, primary_key=True)
+    email = models.EmailField(max_length=50, primary_key=True)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
     is_superuser = models.BooleanField(default=False)
@@ -55,6 +55,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     connected_contact = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True)
     business_card = models.BooleanField(default=False)
+    business_card_theme = models.CharField(max_length=30, null=True)
     # business_card_url = models.CharField(max_length=10)
 
     # the field the user logs in with
@@ -78,8 +79,6 @@ class User(AbstractBaseUser):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
-
-
 
 
 

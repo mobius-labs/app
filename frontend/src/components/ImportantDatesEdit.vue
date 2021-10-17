@@ -6,9 +6,12 @@
         title="Important Dates"
         :fresh-item="freshImportantDate"
         api-name="important_date"
-        :local-id="localId"
+        :initial-items="initialItems"
         :server-id="serverId"
-        @update:saving="(v) => $emit('update:saving', v)"
+        @update:saving="(a, v) => $emit('update:saving', a, v)"
+        @update:recently-updated="
+            (a, v) => $emit('update:recently-updated', a, v)
+        "
     >
         <ValidatedField
             v-slot="{ value, setValue }"
@@ -74,11 +77,11 @@ import { Options, Vue } from "vue-class-component";
 import ContactsOneToMany from "@/components/ContactsOneToMany.vue";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
-import { ContactId, ServerContactId } from "@/api/contacts";
+import { ImportantDate, ServerContactId } from "@/api/contacts";
 import { DateTime } from "luxon";
 
 class Props {
-    localId!: ContactId;
+    initialItems!: ImportantDate[];
     serverId!: ServerContactId;
 }
 
@@ -90,6 +93,7 @@ interface ImportantDateType {
 // A specialized version of ContactsOneToMany, for editing ImportantDates
 @Options({
     components: { ContactsOneToMany, ValidatedField },
+    emits: ["update:saving", "update:recently-updated"],
 })
 export default class ImportantDatesEdit extends Vue.with(Props) {
     importantDateTypesSearch = "";

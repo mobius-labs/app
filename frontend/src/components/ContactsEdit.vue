@@ -8,9 +8,14 @@
             <div class="hero-body">
                 <div class="is-flex-grow-1">
                     <p class="subtitle has-text-grey-light has-text-centered">
-                        Loading Contact
+                        <span v-if="loadingFailed"
+                            >Failed to load contact. Perhaps it has been
+                            deleted?</span
+                        >
+                        <span v-else>Loading Contact</span>
                     </p>
                     <progress
+                        v-if="!loadingFailed"
                         class="progress is-small is-info"
                         max="100"
                     ></progress>
@@ -25,10 +30,11 @@
                         icon-left="times"
                         class="m-3"
                         data-test="close-button"
-                        @click="$router.push('/app/contacts')"
+                        @click="$emit('close')"
                     />
                     <h2 class="title p-3" data-test="contact-name">
-                        <span v-if="fullName">{{ fullName }}</span>
+                        <span v-if="isBusinessCard">Edit business card</span>
+                        <span v-else-if="fullName">{{ fullName }}</span>
                         <span v-else>Add Contact</span>
                     </h2>
                 </div>
@@ -48,7 +54,7 @@
                         <span
                             v-else-if="
                                 (serverId && saving) ||
-                                model.isRecentlyUpdated ||
+                                isRecentlyUpdated ||
                                 model.hasErrors()
                             "
                             :class="
@@ -58,7 +64,7 @@
                             "
                         >
                             <span v-if="saving">Saving contact</span>
-                            <span v-else-if="model.isRecentlyUpdated"
+                            <span v-else-if="isRecentlyUpdated"
                                 >Saved contact</span
                             >
                             <span v-else-if="model.hasErrors()"
@@ -66,7 +72,7 @@
                             >
                             <Spinner v-if="saving"></Spinner>
                             <o-icon
-                                v-else-if="model.isRecentlyUpdated"
+                                v-else-if="isRecentlyUpdated"
                                 icon="check-circle"
                             ></o-icon>
                             <o-icon
@@ -79,6 +85,8 @@
             </div>
 
             <div class="p-4">
+                <slot></slot>
+
                 <div class="space-items">
                     <ValidatedField
                         :model="model"
@@ -160,9 +168,10 @@
                     title="Email Addresses"
                     :fresh-item="freshEmailAddress"
                     api-name="email"
-                    :local-id="localId"
+                    :initial-items="oneToManys.emails"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingEmails = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <ValidatedField
                         v-slot="{ value, setValue }"
@@ -199,9 +208,10 @@
                     title="Phone Numbers"
                     :fresh-item="freshPhoneNumber"
                     api-name="phone_no"
-                    :local-id="localId"
+                    :initial-items="oneToManys.phone_nos"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingPhones = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <ValidatedField
                         v-slot="{ value, setValue }"
@@ -233,9 +243,10 @@
 
                 <SocialMediaEdit
                     ref="socialMedia"
-                    :local-id="localId"
+                    :initial-items="oneToManys.social_media"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingSocials = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 ></SocialMediaEdit>
 
                 <ContactsOneToMany
@@ -245,9 +256,10 @@
                     title="Addresses"
                     :fresh-item="freshAddress"
                     api-name="address"
-                    :local-id="localId"
+                    :initial-items="oneToManys.addresses"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingAddresses = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 >
                     <div class="has-background-white-ter p-3 mb-3">
                         <ValidatedField
@@ -306,10 +318,12 @@
                 </ContactsOneToMany>
 
                 <ImportantDatesEdit
+                    v-if="!isBusinessCard"
                     ref="importantDates"
-                    :local-id="localId"
+                    :initial-items="oneToManys.important_dates"
                     :server-id="serverId"
-                    @update:saving="(v) => (savingImportantDates = v)"
+                    @update:saving="updateSavingOneToManys"
+                    @update:recently-updated="updateRecentlyUpdatedOneToManys"
                 ></ImportantDatesEdit>
 
                 <hr />
@@ -338,9 +352,10 @@
                     </ValidatedField>
                 </o-field>
 
-                <hr />
+                <hr v-if="!isBusinessCard" />
 
                 <ValidatedField
+                    v-if="!isBusinessCard"
                     :model="model"
                     :update-value="updateItem"
                     name="side_notes"
@@ -351,6 +366,7 @@
                 </ValidatedField>
 
                 <ValidatedField
+                    v-if="!isBusinessCard"
                     v-slot="{ value, setValue }"
                     :model="model"
                     :update-value="updateItem"
@@ -394,11 +410,14 @@
                     <div class="modal-card-foot">
                         <button
                             class="button is-primary"
-                            @click="$emit('discard-changes')"
+                            @click="discardChanges"
                         >
                             Discard changes
                         </button>
-                        <button class="button" @click="$emit('cancel-discard')">
+                        <button
+                            class="button"
+                            @click="isDiscardChangesDialogActive = false"
+                        >
                             Cancel
                         </button>
                     </div>
@@ -411,10 +430,13 @@
 <script lang="ts">
 import {
     Contact,
+    FullContact,
     ContactId,
     CONTACTS_AUTOSAVE_REQUEST_MS,
     getFullName,
     ServerContactId,
+    emptyOneToManys,
+    splitContactAndOneToManys,
 } from "@/api/contacts";
 import ValidatedField from "@/components/ValidatedField.vue";
 import { getAxiosInstance } from "@/api/api";
@@ -448,43 +470,61 @@ export default defineComponent({
             type: Number as PropType<ServerContactId>,
             default: null,
         },
-        isDiscardChangesDialogActive: { type: Boolean, default: false },
+        initialData: {
+            type: Object as PropType<FullContact>,
+            default: null,
+        },
+        isBusinessCard: { type: Boolean, default: false },
     },
-    emits: ["discard-changes", "cancel-discard", "contact-updated"],
+    emits: ["discard-changes", "cancel-discard", "contact-updated", "close"],
     data() {
         return {
             model: new Model<Contact>(new Contact()),
+            oneToManys: emptyOneToManys(),
             extraNameOpen: false,
-            savingEmails: false,
-            savingPhones: false,
-            savingAddresses: false,
-            savingSocials: false,
-            savingImportantDates: false,
+            savingOneToManys: {} as Record<string, boolean>,
+            recentlyUpdatedOneToManys: {} as Record<string, boolean>,
             loading: false,
             newlyCreated: false,
+            loadingFailed: false,
+            nextFn: null as (() => void) | null,
+            isDiscardChangesDialogActive: false,
         };
     },
     computed: {
         saving() {
-            return (
-                this.model.isSubmitting ||
-                this.savingEmails ||
-                this.savingPhones ||
-                this.savingAddresses ||
-                this.savingSocials ||
-                this.savingImportantDates
-            );
+            if (this.model.isSubmitting) {
+                return true;
+            }
+            for (const val of Object.values(this.savingOneToManys)) {
+                if (val) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        isRecentlyUpdated() {
+            if (this.model.isRecentlyUpdated) {
+                return true;
+            }
+            for (const val of Object.values(this.recentlyUpdatedOneToManys)) {
+                if (val) {
+                    return true;
+                }
+            }
+            return false;
         },
         fullName() {
-            if (!this.model) {
-                return null;
-            }
-            return getFullName(this.model.model as Contact);
+            return getFullName(this.model.model);
         },
     },
     watch: { localId: "loadContact", saving: "onSavingUpdated" },
     async mounted() {
         await this.loadContact();
+        window.addEventListener("beforeunload", this.beforeWindowUnload);
+    },
+    beforeUnmount() {
+        window.removeEventListener("beforeunload", this.beforeWindowUnload);
     },
     methods: {
         onSavingUpdated(newVal: boolean, oldVal: boolean) {
@@ -506,17 +546,43 @@ export default defineComponent({
             }
         },
 
+        updateSavingOneToManys(apiName: string, saving: boolean) {
+            this.savingOneToManys[apiName] = saving;
+        },
+
+        updateRecentlyUpdatedOneToManys(apiName: string, saving: boolean) {
+            this.recentlyUpdatedOneToManys[apiName] = saving;
+        },
+
         async loadContact() {
             if (this.serverId === null) {
-                this.model = new Model(new Contact());
+                if (this.initialData) {
+                    const [contact, oneToManys] = splitContactAndOneToManys(
+                        this.initialData
+                    );
+                    this.model = new Model(new Contact());
+                    this.model.model = contact;
+                    this.oneToManys = oneToManys;
+                } else {
+                    this.model = new Model(new Contact());
+                    this.oneToManys = emptyOneToManys();
+                }
                 return;
             }
             this.loading = true;
-            const response = await getAxiosInstance().get(
-                "contact_book/get_contact_by_id/" + this.serverId
-            );
-            this.model = new Model(response.data as Contact);
-            this.loading = false;
+            try {
+                const response = await getAxiosInstance().get(
+                    "contact_book/get_contact_by_id/" + this.serverId
+                );
+                const [contact, oneToManys] = splitContactAndOneToManys(
+                    response.data as FullContact
+                );
+                this.model = new Model(contact);
+                this.oneToManys = oneToManys;
+                this.loading = false;
+            } catch (e) {
+                this.loadingFailed = true;
+            }
         },
 
         async updateItem(newItem: Contact) {
@@ -548,7 +614,9 @@ export default defineComponent({
                             defaultToast("info", "Contact created")
                         );
                     }
-                    this.model.captureServerResponse(response.data as Contact);
+                    this.model.captureServerResponse(
+                        response.data as FullContact
+                    );
                     this.newlyCreated = true;
                 } else {
                     this.model.captureServerResponse(null);
@@ -590,6 +658,32 @@ export default defineComponent({
         },
         freshAddress(): Record<string, any> {
             return { is_current: true };
+        },
+
+        checkForUnsavedChanges(next: () => void) {
+            if (this.hasUnsavedChanges()) {
+                this.isDiscardChangesDialogActive = true;
+                this.nextFn = next;
+            } else {
+                next();
+            }
+        },
+
+        discardChanges() {
+            this.isDiscardChangesDialogActive = false;
+            if (this.nextFn) {
+                this.nextFn();
+            }
+        },
+
+        // if the user tries to close the tab / force refresh the page,
+        // check for unsaved changes
+        beforeWindowUnload(e: BeforeUnloadEvent) {
+            console.log("unsaved changes", this.hasUnsavedChanges());
+            if (this.hasUnsavedChanges()) {
+                e.preventDefault();
+                e.returnValue = "";
+            }
         },
     },
 });

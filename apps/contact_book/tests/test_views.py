@@ -30,6 +30,7 @@ class ContactViewTests(TestCase):
         self.request_factory = APIRequestFactory()
 
         self.contact = Contact.objects.create(**self.create_contact_request_data)
+        self.full_contact_serializer = FullContactSerializer(instance=self.contact)
         self.contact_serializer = ContactSerializer(instance=self.contact)
 
         self.create_phone_data = {
@@ -69,7 +70,7 @@ class ContactViewTests(TestCase):
 
         self.get_contact_response = get_contact_by_id(self.get_contact_request, self.contact_serializer.data['id'])
         self.assertEqual(self.get_contact_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.get_contact_response.data, self.contact_serializer.data)
+        self.assertEqual(self.get_contact_response.data, self.full_contact_serializer.data)
 
     def test_delete_contact(self):
         self.new_contact_data = {
