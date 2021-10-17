@@ -391,13 +391,8 @@ export default class Contacts extends Vue.with(Props) {
 .app-header {
     padding: 2rem;
     display: flex;
-}
-
-@media screen and (max-width: 1900px) {
-    .app-header {
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .is-full-height {
