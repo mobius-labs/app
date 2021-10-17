@@ -171,26 +171,40 @@ export default class OnboardLayout extends Vue {
     activeStep = 1;
 
     async submitUserDetails() {
-        await this.model.tryUpdate(async () => {
-            const response = await getAxiosInstance().request({
-                url: "contact_book/create_contact",
-                method: "POST",
-                data: this.model.model,
-            });
+        await this.model.tryUpdate(
+            async () => {
+                const response = await getAxiosInstance().request({
+                    url: "contact_book/create_user_contact",
+                    method: "POST",
+                    data: this.model.model,
+                });
 
-            if (response.status === 201) {
-                console.log("good request!");
-                this.$oruga.notification.open(
-                    defaultToast("info", "Contact created")
-                );
-                this.model.captureServerResponse(response.data as Contact);
-                await this.$router.push("/app");
-            }
-        });
+                if (response.status === 201) {
+                    console.log("good request!");
+                    this.$oruga.notification.open(
+                        defaultToast("info", "Contact created")
+                    );
+                    this.model.captureServerResponse(response.data as Contact);
+                    await this.$router.push("/app");
+                }
+            },
+            undefined,
+            this.onError.bind(this)
+        );
     }
 
     printActiveStep() {
         console.log(this.activeStep);
+    }
+
+    onError() {
+        // if (this.model.hasErrorsForFields(["title", "first_name", "middle_name", "last_name", "pronouns"])) {
+        //     this.activeStep = 2;
+        // } else if (this.model.hasErrorFields(["job_title", "company", "department"])) {
+        //     this.activeStep = 3;
+        // } else {
+        //     this.activeStep = 1;
+        // }
     }
 }
 </script>

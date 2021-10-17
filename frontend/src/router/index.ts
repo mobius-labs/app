@@ -54,7 +54,7 @@ const routes = [
         path: "/onboard",
         name: "Onboard",
         component: OnboardLayout,
-        meta: { title: "Onboard" },
+        meta: { title: "Onboard", allowNotOnboarded: true },
     },
     {
         path: "/app",
@@ -101,25 +101,25 @@ router.beforeEach((to, from, next) => {
             });
             return;
         }
-        if (!authenticated) {
-            next();
-            return;
-        }
 
-        // user is authenticated - check if they've onboarded
-
-        const response = await getAxiosInstance().get(
-            "contact_book/get_user_contacts"
-        );
         if (
-            (response.status === 404 || response.data === "") &&
-            to.meta.title !== "Onboard"
+            authenticated &&
+            !to.meta.allowNotOnboarded &&
+            !to.meta.allowGuests
         ) {
-            next({
-                path: "/onboard",
-            });
-            return;
+            // user is authenticated - check if they've onboarded
+            try {
+                await getAxiosInstance().get("contact_book/get_user_contacts");
+            } catch (e) {
+                if (e.response.status === 404) {
+                    next({
+                        path: "/onboard",
+                    });
+                    return;
+                }
+            }
         }
+
         next();
     });
 });

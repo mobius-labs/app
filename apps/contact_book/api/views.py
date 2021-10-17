@@ -82,8 +82,13 @@ def get_user_contacts(request):
     #         return Response(NOT_PERMITTED_RESPONSE, status=403)
 
     serializer_user = UserSerializer(request.user)
+    print(request.user.connected_contact)
+    print(serializer_user.data)
     # serializer = ContactSerializer(contact)
-    return Response(serializer_user.data['connected_contact'])
+    if serializer_user.data['connected_contact'] is None:
+        return Response({}, status=404)
+    else:
+        return Response(serializer_user.data['connected_contact'])
 
 
 @api_view(['GET'])
