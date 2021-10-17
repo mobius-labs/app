@@ -645,9 +645,10 @@ export default defineComponent({
                 (
                     this.$refs.socialMedia as SocialMediaEdit
                 ).hasUnsavedChanges() ||
-                (
-                    this.$refs.importantDates as ImportantDatesEdit
-                ).hasUnsavedChanges()
+                (this.$refs.importantDates &&
+                    (
+                        this.$refs.importantDates as ImportantDatesEdit
+                    ).hasUnsavedChanges())
             );
         },
         freshEmailAddress(): Record<string, any> {
