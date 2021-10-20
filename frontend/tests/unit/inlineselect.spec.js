@@ -5,7 +5,7 @@ import { getAxiosInstance } from "@/api/api";
 import { flushPromises } from "@vue/test-utils";
 import ContactsEdit from "../../src/components/ContactsEdit";
 
-describe("ContactsEdit component unit tests", () => {
+describe("InlineSelect component unit tests", () => {
     let mockAxios;
 
     const SELECT_PROPS = {

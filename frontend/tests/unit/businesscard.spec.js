@@ -3,7 +3,7 @@ import MockAdapter from "axios-mock-adapter";
 import { getAxiosInstance } from "@/api/api";
 import BusinessCard from "../../src/components/BusinessCard";
 
-describe("ContactsEdit component unit tests", () => {
+describe("BusinessCard component unit tests", () => {
     let mockAxios;
 
     const MOCK_EMAILS = [
