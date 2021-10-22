@@ -1,10 +1,16 @@
 # Möbius Labs
 
+📄 View our [Confluence space](https://mobius-labs.atlassian.net/wiki/spaces/MLH/overview).
+
+🖥️ Access the deployed site on [Heroku](https://mobius-labs-crm.herokuapp.com/).
+
+## Getting started
+
 For frontend getting-started docs, see the [frontend](frontend/README.md) directory.
 
 For backend documentation, continue reading.
 
-## Django setup
+### Django setup
 
 There are two different ways to go about setting up Django.
 
@@ -32,7 +38,7 @@ I recommend setting up through PyCharm but if you prefer to do everything in the
 
 4. Now try running the server with the following command `python3 manage.py runserver`. If the server runs Django should be installed correctly.
 
-## Postgres setup
+### Postgres setup
 
 In the [.env.default](.env.default) file you will notice the following variable:
 
