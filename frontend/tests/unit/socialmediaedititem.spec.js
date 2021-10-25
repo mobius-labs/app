@@ -69,11 +69,11 @@ describe("SocialMediaEditItem component unit tests", () => {
 
     // test.only("class attributes are correct", () => {
     //     expect(wrapper.vm.shouldEditLink).toEqual(false)
-    //     expect(wrapper.vm.newLinkValue).toEqual("")
+    // expect(wrapper.vm.newLinkValue).toEqual("")
     // })
 
     // test.only("editing link is false", () => {
     //     console.log(wrapper.html())
-    //     expect(wrapper.findComponent(SocialMediaEditItem).editingLink).toEqual(false)
+    //     expect(wrapper.vm.editingLink).toEqual(false)
     // })
 });
