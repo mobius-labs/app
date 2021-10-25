@@ -75,6 +75,39 @@ class ContactViewTests(TestCase):
         self.social = SocialMediaContact.objects.create(**self.create_social_data)
         self.social_serializer = SocialMediaContactSerializer(instance=self.social)
 
+        self.create_email_data = {
+            'contact': self.contact,
+            'email_address': 'moby123@gmail.com',
+            'label': 'friend'
+        }
+
+        self.email = Email.objects.create(**self.create_email_data)
+        self.email_serializer = EmailSerializer(instance=self.email)
+
+        self.site_data = {
+            'author_id': 'shiv@gmail.com',
+            'site': 'Omegle'
+        }
+        self.new_site = SocialMediaSite.objects.create(**self.site_data)
+
+        self.create_social_data = {
+            'contact': self.contact,
+            'social_media_site': self.new_site,
+            'link': 'hello'
+        }
+
+        self.social = SocialMediaContact.objects.create(**self.create_social_data)
+        self.social_serializer = SocialMediaContactSerializer(instance=self.social)
+
+        self.datetype_data = {
+            'label': 'anniversary',
+            'icon': 'anniversary',
+            'author_id': 'shiv@gmail.com'
+        }
+
+        self.datetype = ImportantDateType.objects.create(**self.datetype_data)
+        self.datetype_serializer = ImportantDateTypeSerializer(instance=self.datetype)
+
     def test_create_contact(self):
         # create post request to create contact
         self.create_contact_request = self.request_factory.post(reverse('contacts:create_contact'),
@@ -305,6 +338,198 @@ class ContactViewTests(TestCase):
                                                   self.contact_serializer.data['id']
                                                   )
         self.assertEqual(self.create_email_response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_emails(self):
+        # create get request to get email
+        self.get_email_request = self.request_factory.get(reverse('contacts:get_emails_by_cid',
+                                                                  kwargs={'contact_id': self.contact_serializer.data[
+                                                                      'id']}),
+                                                          data={}, format='json')
+        force_authenticate(self.get_email_request, user=self.user)
+
+        self.get_email_response = get_emails_by_cid(self.get_email_request, self.contact_serializer.data['id'])
+        self.assertEqual(self.get_email_response.status_code, status.HTTP_200_OK)
+
+    def test_delete_email(self):
+        self.new_email_data = {
+            'email_address': 'shiv23@gmail.com',
+            'label': 'business',
+            'contact': self.contact
+        }
+
+        self.new_email = Email.objects.create(**self.new_email_data)
+        self.new_email_serializer = EmailSerializer(instance=self.new_email)
+
+        # create delete request to delete email
+        self.delete_email_request = self.request_factory.delete(reverse('contacts:delete_email_by_eid',
+                                                                        kwargs={'email_id':
+                                                                                    self.new_email_serializer.data[
+                                                                                        'id']}),
+                                                                data={}, format='json')
+        force_authenticate(self.delete_email_request, user=self.user)
+
+        self.delete_email_response = delete_email_by_eid(self.delete_email_request,
+                                                         self.new_email_serializer.data['id'])
+        self.assertEqual(self.delete_email_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.delete_email_response.data, {'response': 'success'})
+
+    def test_update_email(self):
+        self.updated_email_data = {
+            'email_address': 'moby321@gmail.com',
+            'label': 'family'
+        }
+
+        # create update request to update email
+        self.update_email_request = self.request_factory.put(reverse('contacts:update_email_by_eid',
+                                                                     kwargs={
+                                                                         'email_id': self.email_serializer.data[
+                                                                             'id']}),
+                                                             data=self.updated_email_data, format='json')
+        force_authenticate(self.update_email_request, user=self.user)
+
+        self.update_email_response = update_email_by_eid(self.update_email_request,
+                                                         self.email_serializer.data['id'])
+        self.assertEqual(self.update_email_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.update_email_response.data, {'response': 'success'})
+
+    def test_create_site(self):
+        self.new_site_data = {
+            'author_id': 'shiv@gmail.com',
+            'site': 'Reddit'
+        }
+        # create post request to create social media site
+        self.create_site_request = self.request_factory.post(reverse('contacts:create_social_media_site'),
+                                                             data=self.new_site_data, format='json')
+        force_authenticate(self.create_site_request, user=self.user)
+
+        self.create_site_response = create_social_media_site(self.create_site_request)
+        self.assertEqual(self.create_site_response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_sites(self):
+        # create get request to get sites
+        self.get_site_request = self.request_factory.get(reverse('contacts:get_social_media_sites'),
+                                                         data={}, format='json')
+        force_authenticate(self.get_site_request, user=self.user)
+
+        self.get_site_response = get_social_media_sites(self.get_site_request)
+        self.assertEqual(self.get_site_response.status_code, status.HTTP_200_OK)
+
+    def test_create_social(self):
+        self.social_data = {
+            'social_media_site': 'Facebook',
+            'link': 'joerogan'
+        }
+        # create post request to create social media contact
+        self.create_social_request = self.request_factory.post(reverse('contacts:create_social_media_contact',
+                                                                       kwargs={
+                                                                           'contact_id': self.contact_serializer.data[
+                                                                               'id']}),
+                                                               data=self.social_data, format='json')
+        force_authenticate(self.create_social_request, user=self.user)
+
+        self.create_social_response = create_social_media_contact(self.create_social_request,
+                                                                  self.contact_serializer.data['id']
+                                                                  )
+        self.assertEqual(self.create_social_response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_social(self):
+        # create get request to get social media contacts
+        self.get_social_request = self.request_factory.get(reverse('contacts:get_socials_by_cid',
+                                                                   kwargs={'contact_id': self.contact_serializer.data[
+                                                                       'id']}),
+                                                           data={}, format='json')
+        force_authenticate(self.get_social_request, user=self.user)
+
+        self.get_social_response = get_socials_by_cid(self.get_social_request, self.contact_serializer.data['id'])
+        self.assertEqual(self.get_social_response.status_code, status.HTTP_200_OK)
+
+    def test_delete_social(self):
+        self.delete_site_data = {
+            'author_id': 'shiv@gmail.com',
+            'site': 'OnlyFans'
+        }
+        self.site_to_delete = SocialMediaSite.objects.create(**self.delete_site_data)
+
+        self.new_social_data = {
+            'link': 'troyesivan',
+            'social_media_site': self.site_to_delete,
+            'contact': self.contact
+        }
+
+        self.new_social = SocialMediaContact.objects.create(**self.new_social_data)
+        self.new_social_serializer = SocialMediaContactSerializer(instance=self.new_social)
+
+        # create delete request to delete social media contact
+        self.delete_social_request = self.request_factory.delete(reverse('contacts:delete_social_by_sid',
+                                                                         kwargs={'social_media_contact_id':
+                                                                                     self.new_social_serializer.data[
+                                                                                         'id']}),
+                                                                 data={}, format='json')
+        force_authenticate(self.delete_social_request, user=self.user)
+
+        self.delete_social_response = delete_social_by_sid(self.delete_social_request,
+                                                           self.new_social_serializer.data['id'])
+        self.assertEqual(self.delete_social_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.delete_social_response.data, {'response': 'success'})
+
+    def test_update_social(self):
+        self.updated_social_data = {
+            'link': 'hi'
+        }
+
+        # create update request to update social media contact
+        self.update_social_request = self.request_factory.put(reverse('contacts:update_social_media_contact',
+                                                                      kwargs={
+                                                                          'social_media_contact_id':
+                                                                              self.social_serializer.data[
+                                                                                  'id']}),
+                                                              data=self.updated_social_data, format='json')
+        force_authenticate(self.update_social_request, user=self.user)
+
+        self.update_social_response = update_social_media_contact(self.update_social_request,
+                                                                  self.social_serializer.data['id'])
+        self.assertEqual(self.update_social_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.update_social_response.data, {'response': 'success'})
+
+    def test_create_datetype(self):
+        self.new_datetype_data = {
+            'label': 'festival',
+            'icon': 'festival',
+            'author_id': 'shiv@gmail.com'
+        }
+        # create post request to create datetype
+        self.create_datetype_request = self.request_factory.post(reverse('contacts:create_important_date_type'),
+                                                                 data=self.new_datetype_data, format='json')
+        force_authenticate(self.create_datetype_request, user=self.user)
+
+        self.create_datetype_response = create_important_date_type(self.create_datetype_request)
+        self.assertEqual(self.create_datetype_response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_datetypes(self):
+        # create get request to get datetypes
+        self.get_datetype_request = self.request_factory.get(reverse('contacts:get_important_date_types'),
+                                                           data={}, format='json')
+        force_authenticate(self.get_datetype_request, user=self.user)
+
+        self.get_datetype_response = get_important_date_types(self.get_datetype_request)
+        self.assertEqual(self.get_datetype_response.status_code, status.HTTP_200_OK)
+
+    def test_create_date(self):
+        self.date_data = {
+            'important_date_type': 'anniversary',
+            'date': '13/12/2000'
+        }
+        # create post request to create date
+        self.create_date_request = self.request_factory.post(reverse('contacts:create_important_date',
+                                                                    kwargs={'contact_id': self.contact_serializer.data[
+                                                                       'id']}),
+                                                                 data=self.date_data, format='json')
+        force_authenticate(self.create_date_request, user=self.user)
+
+        self.create_date_response = create_important_date(self.create_date_request, self.contact_serializer.data[
+                                                                       'id'])
+        self.assertEqual(self.create_date_response.status_code, status.HTTP_201_CREATED)
+
 
     def test_get_emails(self):
         # create get request to get email
