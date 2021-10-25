@@ -558,7 +558,7 @@ def get_important_date_types(request):
     return Response(serializer.data)
 
 
-# ----------------------------------------- IMPORTANT DATE TYPE -----------------------------------------
+# ----------------------------------------- IMPORTANT DATE -----------------------------------------
 
 
 @api_view(['POST'])
