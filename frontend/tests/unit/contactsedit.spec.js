@@ -5,7 +5,6 @@ import { getAxiosInstance } from "@/api/api";
 import { flushPromises } from "@vue/test-utils";
 import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
 import { Model } from "../../src/api/model";
-import { Contact } from "../../src/api/contacts";
 
 describe("ContactsEdit component unit tests", () => {
     let mockAxios;
@@ -325,7 +324,7 @@ describe("ContactsEdit component unit tests", () => {
         });
 
         wrapper.vm.updateRecentlyUpdatedOneToManys("email", true);
-        expect(wrapper.vm.recentlyUpdatedOneToManys["email"]).toBeTruthy();
+        expect(wrapper.vm.recentlyUpdatedOneToManys.email).toBeTruthy();
     });
 
     test("load contact splits contact and onetoManys if serverId is null", () => {

@@ -1,9 +1,4 @@
-import ContactsEdit from "../../src/components/ContactsEdit.vue";
 import { mount } from "./global";
-import MockAdapter from "axios-mock-adapter";
-import { getAxiosInstance } from "@/api/api";
-import { flushPromises } from "@vue/test-utils";
-import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
 import SocialMediaItem from "../../src/components/SocialMediaItem";
 
 describe("SocialMediaItem component unit tests", () => {

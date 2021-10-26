@@ -1,6 +1,5 @@
 import UserIcon from "../../src/components/UserIcon";
 import { mount } from "./global";
-import ContactsOneToMany from "../../src/components/ContactsOneToMany";
 
 describe("UserIcon component unit tests", () => {
     let wrapper;

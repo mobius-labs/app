@@ -2,20 +2,11 @@ import { mount } from "./global";
 import MockAdapter from "axios-mock-adapter";
 import { getAxiosInstance } from "@/api/api";
 import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
-import { Model } from "@/api/model";
 
 describe("ContactsOneToMany component unit tests", () => {
     let mockAxios;
     let wrapper, wrapper_two;
     let add_spy, delete_spy, update_spy, inflight_spy;
-
-    const MOCK_EMAILS = [
-        {
-            id: 39,
-            address: "Foo@Bar.com",
-            label: "family",
-        },
-    ];
 
     const MOCK_SOCIALS = [
         {
@@ -50,17 +41,6 @@ describe("ContactsOneToMany component unit tests", () => {
         initialItems: MOCK_SOCIALS,
         freshItem: FRESH_SOCIAL,
         apiName: "social_media_contact",
-    };
-
-    // an example mock contact object to use
-    const MOCK_CONTACT = {
-        id: 33,
-        first_name: "Shivanah",
-        social_media: MOCK_SOCIALS,
-        emails: MOCK_EMAILS,
-        addresses: [],
-        important_dates: [],
-        phone_nos: [],
     };
 
     beforeAll(() => {
