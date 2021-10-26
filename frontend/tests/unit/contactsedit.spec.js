@@ -4,6 +4,8 @@ import MockAdapter from "axios-mock-adapter";
 import { getAxiosInstance } from "@/api/api";
 import { flushPromises } from "@vue/test-utils";
 import ContactsOneToMany from "../../src/components/ContactsOneToMany.vue";
+import { Model } from "../../src/api/model";
+import { Contact } from "../../src/api/contacts";
 
 describe("ContactsEdit component unit tests", () => {
     let mockAxios;
@@ -294,15 +296,106 @@ describe("ContactsEdit component unit tests", () => {
         }
     });
 
-    // test.only("Display add and delete email actions upon clicking add email", () => {
-    //     const wrapper = mount(ContactsEdit, {
-    //         propsData: {
-    //             expanded: true,
-    //             contact: { name: "contactName" },
-    //         },
-    //     });
-    //     wrapper.setData({ emails: [({ address: "shiv@gmail.com" }, 0)] });
-    //     wrapper.find("o-button.add-email").trigger("click");
-    //     //expect(wrapper.find("o-field.edit-email").exists()).toBeTruthy();
-    // });
+    test("onSavingUpdated makes newlyCreated false if it started as true", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+            data() {
+                return {
+                    model: new Model(MOCK_CONTACT),
+                    newlyCreated: true,
+                };
+            },
+        });
+        wrapper.vm.onSavingUpdated(false, true);
+        expect(wrapper.emitted()).toHaveProperty("contact-updated");
+        expect(wrapper.vm.newlyCreated).toBeFalsy();
+    });
+
+    test("updates recently updated one to manys", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+            data() {
+                return {
+                    model: new Model(MOCK_CONTACT),
+                    recentlyUpdatedOneToManys: {
+                        email: false,
+                    },
+                };
+            },
+        });
+
+        wrapper.vm.updateRecentlyUpdatedOneToManys("email", true);
+        expect(wrapper.vm.recentlyUpdatedOneToManys["email"]).toBeTruthy();
+    });
+
+    test("load contact splits contact and onetoManys if serverId is null", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: {
+                localId: 33,
+                serverId: null,
+            },
+            data() {
+                return {
+                    initialData: MOCK_CONTACT,
+                };
+            },
+        });
+
+        wrapper.vm.loadContact();
+        expect(wrapper.vm.oneToManys).toEqual({
+            social_media: [],
+            emails: MOCK_EMAILS,
+            addresses: [],
+            important_dates: [],
+            phone_nos: [],
+        });
+    });
+
+    test("Doesn't have unsaved changes", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+        });
+
+        expect(wrapper.vm.hasUnsavedChanges()).toBeFalsy();
+    });
+
+    test("freshEmailAddress returns fresh email address", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+        });
+
+        expect(wrapper.vm.freshEmailAddress()).toEqual({
+            label: "other",
+            email_address: "",
+        });
+    });
+
+    test("freshPhoneNumber returns fresh phone number", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+        });
+
+        expect(wrapper.vm.freshPhoneNumber()).toEqual({
+            label: "other",
+            number: "",
+        });
+    });
+
+    test("freshAddress returns fresh address", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+        });
+
+        expect(wrapper.vm.freshAddress()).toEqual({ is_current: true });
+    });
+
+    test("discards changes", () => {
+        const wrapper = mount(ContactsEdit, {
+            propsData: CONTACT_33_PROPS,
+        });
+
+        wrapper.vm.discardChanges();
+
+        expect(wrapper.vm.isDiscardChangesDialogActive).toBeFalsy();
+    });
 });
