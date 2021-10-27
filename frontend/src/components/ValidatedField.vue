@@ -14,6 +14,7 @@
                 :model-value="currentValue"
                 v-bind="$attrs"
                 @update:model-value="debounceUpdateValue"
+                @blur="onBlur"
             />
         </slot>
     </o-field>
@@ -67,6 +68,11 @@ export default class ValidatedField extends Vue.with(Props) {
             return;
         }
         this.model.model[this.name] = v;
+    }
+
+    onBlur(event: Event) {
+        console.log(event);
+        this.doUpdateValue((event.target as HTMLInputElement).value);
     }
 }
 </script>
