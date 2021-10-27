@@ -1,7 +1,5 @@
 import InlineSelect from "../../src/components/InlineSelect.vue";
 import { mount } from "./global";
-import MockAdapter from "axios-mock-adapter";
-import { getAxiosInstance } from "@/api/api";
 
 describe("InlineSelect component unit tests", () => {
     const SELECT_PROPS = {

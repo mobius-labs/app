@@ -1,8 +1,5 @@
 import Navbar from "../../src/components/Navbar.vue";
 import { mount } from "./global";
-import MockAdapter from "axios-mock-adapter";
-import { getAxiosInstance } from "@/api/api";
-import { createStore } from "vuex";
 
 describe("Navbar component unit tests", () => {
     test("is a Vue instance", () => {
