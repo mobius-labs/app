@@ -58,6 +58,11 @@ def create_user_contact(request):
         user.connected_contact = contact
         user.save()
 
+        # Also add the user's login email address to their own "user contact"
+        # The user can manually remove this email later on if they so choose
+        email = Email(email_address=user.email, label='other', contact=contact)
+        email.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     else:
