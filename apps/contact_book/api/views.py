@@ -1,7 +1,8 @@
 from django.db import IntegrityError
+from django.db.models import F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.response import Response
 
 from apps.account.models import User
@@ -107,6 +108,32 @@ def get_business_cards(request, email):
         return Response({"user's business card is not shareable"}, status=404)
 
 
+class OrderNullContactRegularityLast(OrderingFilter):
+    """
+    Ensure that `regularity_of_contact=null` has a higher
+    ordering value than any other integer.
+    This is required in order to match expected user behaviour
+    """
+    def fix_ordering(self, ordering):
+        FIELD = 'regularity_of_contact'
+        print(ordering)
+        if ordering == FIELD:
+            return F(FIELD).asc(nulls_first=True)
+        elif ordering == ('-' + FIELD):
+            return F(FIELD).desc(nulls_last=True)
+        else:
+            return ordering
+
+
+    def filter_queryset(self, request, queryset, view):
+        ordering = self.get_ordering(request, queryset, view)
+
+        if ordering:
+            return queryset.order_by(*list(map(self.fix_ordering, ordering)))
+
+        return queryset
+
+
 class ApiContactList(ListAPIView):
 
     def get_queryset(self):
@@ -122,8 +149,11 @@ class ApiContactList(ListAPIView):
     serializer_class = FullContactSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter, OrderNullContactRegularityLast)
     search_fields = ('first_name', 'surname', 'nickname')
+    # removes the following warning by setting a default ordering
+    # UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list:
+    ordering = ['-id']
 
 
 @api_view(['DELETE'])
