@@ -187,6 +187,7 @@
                         <o-select
                             :model-value="value"
                             @update:model-value="setValue"
+                            data-test="select_email"
                         >
                             <option value="business">Business</option>
                             <option value="friend">Friend</option>
@@ -201,6 +202,7 @@
                         :update-value="updateItem"
                         placeholder="e.g.: johndoe@gmail.com"
                         required
+                        data-test="input_email"
                     ></ValidatedField>
                 </ContactsOneToMany>
 
