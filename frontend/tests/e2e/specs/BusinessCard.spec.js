@@ -28,7 +28,7 @@ describe("Dashboard integration tests", () => {
         cy.get(".bc-name-title > .subtitle").should("contain.text", "Test");
     });
 
-    it.only("Can edit business card", () => {
+    it("Can edit business card", () => {
         cy.get(".edit-button > :nth-child(1)").click();
 
         cy.get('[placeholder="Surname"][expanded=""] > .control > .input')
