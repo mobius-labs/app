@@ -137,7 +137,13 @@
                                 </div>
                             </div>
                             <div class="level-right">
-                                <div>
+                                <div
+                                    class="
+                                        is-flex
+                                        is-flex-direction-column
+                                        is-align-items-flex-end
+                                    "
+                                >
                                     <o-button
                                         v-if="collapse.overdue"
                                         :disabled="catchUp.stale"
@@ -290,13 +296,6 @@
                                     </p>
                                 </div>
                             </div>
-                            <!--                             <o-button tag="router-link" :to="'/app/contacts/' + impDate.contact.id" variant="light" icon-left="user-edit" style="padding-top: 0"></o-button>-->
-                            <!--                                 {{ impDate }}-->
-
-                            <!--                             <h2 class="subtitle">{{ fullName(catchUp.contact) }} <o-button tag="router-link" :to="'/app/contacts/' + catchUp.contact.id" variant="light" icon-left="user-edit" style="padding-top: 0"></o-button></h2>-->
-                            <!--                             <p v-if="collapse.overdue">{{ catchUp.contact.first_name }} is <span class="has-text-danger">{{ displayDateDelta(catchUp.catchUpDate) }} days overdue</span> for a catch up.</p>-->
-                            <!--                             <p v-if="collapse.overdue">You last caught up with {{ catchUp.contact.first_name }} on {{ displayDateStr(catchUp.contact.last_time_contacted) }}</p>-->
-                            <!--                             <p v-else>You are due to catch up with {{ catchUp.contact.first_name }} by {{ displayDate(catchUp.catchUpDate) }}</p>-->
                         </div>
                         <div v-if="importantDates.length === 0">
                             <h2 class="subtitle m-6 has-text-centered">

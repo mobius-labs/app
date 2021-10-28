@@ -161,6 +161,9 @@ export default defineComponent({
         primaryEmail() {
             if (this.contact && this.contact.emails.length > 0) {
                 return this.contact.emails[0].email_address;
+            } else if (this.contact) {
+                // empty string will hide the user profile pic
+                return "";
             }
             return null;
         },

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
-    "@oruga-ui/oruga-next": "^0.4.4",
+    "@oruga-ui/oruga-next": "^0.4.6",
     "@types/gravatar": "^1.8.3",
     "axios": "^0.23.0",
     "copy-to-clipboard": "^3.3.1",
@@ -20,7 +20,7 @@
     "gravatar": "^1.8.2",
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
-    "my-vue-app": "github:oruga-ui/oruga-bulma",
+    "oruga-bulma": "github:oruga-ui/oruga-bulma",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.11",

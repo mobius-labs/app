@@ -14,6 +14,7 @@
 import { prop, Vue } from "vue-class-component";
 import { PropType } from "vue";
 import { Model } from "@/api/model";
+import { valuesEqual } from "@/api/utils";
 
 class Props {
     model = prop({
@@ -24,7 +25,7 @@ class Props {
 
 export default class NonFieldErrorsList extends Vue.with(Props) {
     get nonFieldErrors() {
-        if (!this.model.matchesServer()) {
+        if (!valuesEqual(this.model.model, this.model.lastSubmittedModel)) {
             return [];
         } else {
             return this.model.nonFieldErrors;
