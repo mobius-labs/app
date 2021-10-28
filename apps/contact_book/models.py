@@ -1,7 +1,6 @@
-from django.core.validators import RegexValidator
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
-# from apps.account.models import User
 from backend_crm import settings
 
 
@@ -73,8 +72,7 @@ class Address(models.Model):
 # each contact has any number of phone numbers
 class Number(models.Model):
 
-    number_regex = RegexValidator(regex=r'^\+?1?\d{3,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    number = models.CharField(validators=[number_regex], max_length=15)
+    number = PhoneNumberField()
     label = models.CharField(max_length=15, choices=ContactMediumLabel.choices, null=True, blank=True)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
 

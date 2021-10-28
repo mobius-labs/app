@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'phonenumber_field',
      # allows running the frontend from a different domain/port to the backend
     'corsheaders',
 
@@ -60,6 +61,9 @@ INSTALLED_APPS = [
     'apps.account'
 
 ]
+
+PHONENUMBER_DEFAULT_REGION = 'AU'
+PHONENUMBER_DEFAULT_FORMAT = 'NATIONAL'
 
 # authenticating users with custom authentication instead of default
 AUTH_USER_MODEL = 'account.User'
