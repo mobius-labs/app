@@ -17,6 +17,7 @@
                         icon="search"
                         placeholder="Search for contacts..."
                         @update:model-value="debounceUpdateSearchQuery"
+                        data-test="contact-search"
                     />
                 </div>
 
