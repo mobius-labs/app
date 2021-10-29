@@ -41,8 +41,8 @@
                     </o-button>
                     <!--                    </router-link>-->
                 </div>
-                <div class="box has-shadow demo">
-                    <!--<video
+                <div class="box demo">
+                    <video
                         autoplay
                         loop
                         playsinline
@@ -50,20 +50,14 @@
                         muted
                         width="800"
                     >
+                        <!-- to get around issues with storing videos inside this code repository,
+                             we link to demo videos posted to this separate repo: https://github.com/mobius-labs/demo
+                             -->
                         <source
-                            src="https://youtu.be/kzUAZqLWxzw"
+                            src="https://user-images.githubusercontent.com/7961339/139358825-514b3358-3658-48d9-ba98-edb1ed325b87.mp4"
                             type="video/mp4"
                         />
-                    </video>-->
-                    <iframe
-                        id="ytplayer"
-                        type="text/html"
-                        width="800"
-                        height="404"
-                        src="https://www.youtube.com/embed/kzUAZqLWxzw?autoplay=1&controls=0&loop=1&mute=1&modestbranding=1"
-                        frameborder="0"
-                    >
-                    </iframe>
+                    </video>
                 </div>
             </div>
         </section>
@@ -87,7 +81,7 @@ export default class Home extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .desc {
     width: 40%;
     margin: 3rem auto;
@@ -95,5 +89,11 @@ export default class Home extends Vue {
 .demo {
     margin: 0 7rem;
     box-shadow: 0 0.5em 1em -0.125em, 0 0 0 1px;
+    padding: 1rem;
+
+    video {
+        border-radius: 6px;
+        display: block;
+    }
 }
 </style>
