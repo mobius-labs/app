@@ -53,7 +53,7 @@
                     </p>
                 </div>
                 <div class="is-flex-grow-1"></div>
-                <div class="content has-text-centered">
+                <div class="content has-text-centered" id="features">
                     <hr />
                     <h1 class="title is-size-2" style="margin: 6rem 0 4rem 0">
                         Key features
@@ -61,13 +61,6 @@
                 </div>
             </div>
         </section>
-        <!--        <section class="hero is-info is-medium" id="features">-->
-        <!--            <div class="hero-body">-->
-        <!--                <div class="content has-text-centered">-->
-
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </section>-->
         <section class="hero is-info is-medium">
             <div class="hero-body">
                 <div
