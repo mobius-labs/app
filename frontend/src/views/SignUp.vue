@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div class="box login-box">
+    <div class="login-box">
+        <div class="box">
             <div class="has-text-centered">
                 <Logo type="is-large-logo" />
             </div>
@@ -135,8 +135,6 @@ export default class SignUp extends Vue {
 }
 </script>
 
-<style scoped>
-.login-box {
-    width: 30rem;
-}
+<style scoped lang="scss">
+@import "../styles/login";
 </style>

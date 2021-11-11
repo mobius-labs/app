@@ -24,6 +24,8 @@
             :class="{ 'navbar-menu': true, 'is-active': isActive }"
         >
             <div class="navbar-start">
+                <a class="navbar-item" href="/#features"> Features </a>
+                <a class="navbar-item" href="/#about"> About </a>
                 <!--                  <a class="navbar-item">-->
                 <!--                    Home-->
                 <!--                  </a>-->
