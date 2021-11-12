@@ -47,7 +47,15 @@
                         </template>
 
                         <!--                        <o-dropdown-item aria-role="listitem">Action</o-dropdown-item>-->
-                        <!--                        <o-dropdown-item aria-role="listitem">Another action</o-dropdown-item>-->
+                        <o-dropdown-item
+                            aria-role="listitem"
+                            tag="a"
+                            href="https://gravatar.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            >Change profile picture
+                            <o-icon icon="external-link-alt"></o-icon
+                        ></o-dropdown-item>
                         <o-dropdown-item aria-role="listitem" @click="logout"
                             >Logout</o-dropdown-item
                         >
@@ -68,11 +76,6 @@
                         <!--                            <li><a>Networking</a></li>-->
                         <!--                        </ul>-->
                     </li>
-                    <!--                    <li>-->
-                    <!--                        <router-link to="/app"-->
-                    <!--                            ><s>Calendar</s> (coming soon)-->
-                    <!--                        </router-link>-->
-                    <!--                    </li>-->
                 </ul>
                 <p class="menu-label">Networking</p>
                 <ul class="menu-list">
@@ -83,11 +86,6 @@
                                 >New!</span
                             ></router-link
                         >
-                        <!--                    <ul>-->
-                        <!--                        <li><a>Close Friends</a></li>-->
-                        <!--                        <li><a>Family</a></li>-->
-                        <!--                        <li><a>Networking</a></li>-->
-                        <!--                    </ul>-->
                     </li>
                 </ul>
             </div>
@@ -211,6 +209,10 @@ export default class AppLayout extends Vue {
     &:hover {
         background-color: lighten($info, 10%);
         border-color: lighten($primary, 10%);
+
+        .app-menu-dark & {
+            background-color: lighten($grey-dark, 5%);
+        }
 
         & .user-profile-icon {
             color: lighten($primary, 10%);

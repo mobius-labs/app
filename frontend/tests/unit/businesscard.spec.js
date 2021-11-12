@@ -76,6 +76,6 @@ describe("BusinessCard component unit tests", () => {
                 theme: "granite-night",
             },
         });
-        expect(wrapper.vm.primaryEmail).toBe(null);
+        expect(wrapper.vm.primaryEmail).toBe("");
     });
 });

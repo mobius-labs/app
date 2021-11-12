@@ -38,9 +38,14 @@ export default defineComponent({
     },
     watch: {
         email(newValue) {
-            if (!newValue) {
+            if (newValue === null) {
                 console.log("resetting loading state");
                 this.gravatarLoaded = null;
+            } else if (newValue === "") {
+                console.log(
+                    "invalid empty email provided - switching to fallback"
+                );
+                this.gravatarLoaded = false;
             }
         },
         gravatarLoaded() {

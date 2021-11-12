@@ -3,7 +3,7 @@ import "./class-component-hooks";
 import App from "./App.vue";
 import Oruga from "@oruga-ui/oruga-next";
 import "@oruga-ui/oruga-next/dist/oruga-full.css";
-import { bulmaConfig } from "my-vue-app/src/plugins/oruga";
+import { bulmaConfig } from "oruga-bulma/src/plugins/oruga";
 import router from "./router";
 
 import "./styles/app.scss";
