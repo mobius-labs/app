@@ -124,7 +124,7 @@ const router = createRouter({
     routes,
 });
 
-const APP_TITLE = "Möbius CRM";
+const APP_TITLE = "Möbius";
 
 router.beforeEach((to, from, next) => {
     store.dispatch("determineAuthStatus").then(async (authenticated) => {

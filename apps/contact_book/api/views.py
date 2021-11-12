@@ -3,9 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
-
 from apps.account.models import User
-from apps.account.api.serializers import UserSerializer
 from apps.contact_book.api.serializers import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -13,7 +11,6 @@ from apps.contact_book.models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from datetime import timedelta, date
-
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 NOT_PERMITTED_RESPONSE = {'has_permissions': False}
@@ -22,8 +19,6 @@ NOT_FOUND_RESPONSE = {'non_field_errors': ['This item does not exist']}
 
 
 # ---------------------------------------- CONTACTS ----------------------------------------
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_contact(request):
@@ -109,6 +104,8 @@ def get_business_cards(request, email):
 
 class ApiContactList(ListAPIView):
 
+    ordering = ['id']
+
     def get_queryset(self):
         user = self.request.user
         for_user = Contact.objects.filter(author=user.email)
@@ -168,6 +165,7 @@ def calc_days_until_catchup(contact):
     # decide whether contact should be shown for this window, find days until
     delta = contact.last_time_contacted - today + timedelta(days=365/contact.regularity_of_contact)
     return delta.days
+
 
 class ApiCatchupCountdown(ListAPIView):
 
@@ -414,8 +412,6 @@ def update_email_by_eid(request, email_id):
 
 
 # ----------------------------------------- SOCIAL MEDIA SITE -----------------------------------------
-
-
 @api_view(['POST'])
 def create_social_media_site(request):
     social_media_site = SocialMediaSite()
@@ -446,8 +442,6 @@ def get_social_media_sites(request):
 
 
 # ----------------------------------------- SOCIAL MEDIA -----------------------------------------
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_social_media_contact(request, contact_id):
@@ -528,8 +522,6 @@ def update_social_media_contact(request, social_media_contact_id):
 
 
 # ----------------------------------------- IMPORTANT DATE TYPE -----------------------------------------
-
-
 @api_view(['POST'])
 def create_important_date_type(request):
     important_date_type = ImportantDateType()
@@ -559,8 +551,6 @@ def get_important_date_types(request):
 
 
 # ----------------------------------------- IMPORTANT DATE -----------------------------------------
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_important_date(request, contact_id):
@@ -635,6 +625,7 @@ def update_important_date(request, important_date_id):
     else:
         data = serializer.errors
         return Response({'errors': data}, status=400)
+
 
 def calc_days_until_imp_date(imp_date):
     # check to see how far away an important date is
