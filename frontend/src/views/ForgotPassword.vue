@@ -3,7 +3,7 @@
         <h1 class="title is-2 is-spaced has-text-primary">
             We're sorry to hear that!
         </h1>
-        <h2 class="subtitle">
+        <h2 class="subtitle has-text-grey-darker">
             Enter your email below, and we'll send you a verification code.
         </h2>
         <o-field>
@@ -11,10 +11,10 @@
                 v-model="email"
                 placeholder="Enter your email"
                 type="Email"
+                disabled
                 icon="envelope"
             />
         </o-field>
-
         <o-tooltip
             label="Please wait a moment before trying to send again."
             position="right"
@@ -22,7 +22,7 @@
         >
             <o-button
                 variant="primary"
-                :disabled="sending || !canSendCode"
+                disabled
                 :loading="sending"
                 @click="sendData"
             >
@@ -32,6 +32,11 @@
                 </SpinnerOverlay>
             </o-button>
         </o-tooltip>
+        <br />
+        <br />
+        <p class="notification is-danger has-text-centered">
+            Forgot-password functionality is currently unimplemented!
+        </p>
         <VerificationInput :expanded="codeSent" />
     </div>
 </template>
