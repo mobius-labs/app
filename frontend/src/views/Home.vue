@@ -23,7 +23,7 @@
                              we link to demo videos posted to this separate repo: https://github.com/mobius-labs/demo
                              -->
                         <source
-                            src="https://user-images.githubusercontent.com/7961339/139358825-514b3358-3658-48d9-ba98-edb1ed325b87.mp4"
+                            src="https://user-images.githubusercontent.com/71884945/141427691-bcdb3458-a4ab-4306-b62a-69db1381e559.mp4"
                             type="video/mp4"
                         />
                     </video>
