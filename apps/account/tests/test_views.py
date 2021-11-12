@@ -23,7 +23,23 @@ class RegistrationViewTests(TestCase):
 
         self.get_info_response = self.client.get(
             reverse('registrations:getinfo'),
-            self.request_data,
+            format="json"
+        )
+
+        self.update_data = {
+            'email': 'moby@gmail.com',
+            'business_card': True,
+            'business_card_theme': 'granite night'
+        }
+
+        self.update_bc_response = self.client.put(
+            reverse('registrations:update_business_card_visibility'),
+            self.update_data,
+            format="json"
+        )
+
+        self.get_bc_response = self.client.get(
+            reverse('registrations:get_business_card_visibility'),
             format="json"
         )
 
@@ -47,6 +63,13 @@ class RegistrationViewTests(TestCase):
         self.assertEqual(self.get_info_response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.get_info_response.data['email'], self.request_data['email'])
 
+    def test_update_bc(self):
+        self.assertEqual(self.update_bc_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.update_bc_response.data['response'], 'success')
+
+    def test_get_bc(self):
+        self.assertEqual(self.get_bc_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.get_bc_response.data['email'], self.request_data['email'])
 
 
 
