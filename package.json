@@ -4,6 +4,7 @@
   "dependencies": {
     "@mobius-labs/frontend": "file:./frontend"
   },
+  "license": "MIT",
   "engines": {
     "node": "16.x"
   },

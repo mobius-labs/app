@@ -107,8 +107,6 @@ export default class Login extends Vue {
 }
 </script>
 
-<style scoped>
-.login-box {
-    width: 30rem;
-}
+<style scoped lang="scss">
+@import "../styles/login";
 </style>

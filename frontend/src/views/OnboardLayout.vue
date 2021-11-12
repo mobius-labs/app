@@ -86,12 +86,14 @@
                                 label="Work address"
                                 :model="model"
                                 name="work_address"
+                                disabled
                                 placeholder="Your work address"
                             />
                             <ValidatedField
                                 label="Phone number"
                                 :model="model"
                                 name="phone_number"
+                                disabled
                                 placeholder="Your phone number"
                             />
                         </div>

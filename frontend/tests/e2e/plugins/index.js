@@ -15,6 +15,13 @@ module.exports = (on, config) => {
     //  watchOptions: {}
     // }))
 
+    on("before:browser:launch", (browser, launchOptions) => {
+        if (browser.name === "chrome" && browser.isHeadless) {
+            launchOptions.args.push("--disable-gpu");
+            return launchOptions;
+        }
+    });
+
     return Object.assign({}, config, {
         fixturesFolder: "tests/e2e/fixtures",
         integrationFolder: "tests/e2e/specs",
