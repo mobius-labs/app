@@ -187,6 +187,7 @@ import {
     displayRegularity,
     FullContact,
     getFullName,
+    NEW_CONTACT,
     ServerContactId,
 } from "@/api/contacts";
 import { getAxiosInstance, ListResponse } from "@/api/api";
@@ -237,27 +238,23 @@ export default class Contacts extends Vue.with(Props) {
         this.searchQuery = v;
     }, 500);
 
-    static NEW_CONTACT = -1;
-
     get isContactsEditExpanded() {
         return this.selectedId !== null;
     }
 
     get isAddContactButtonDisabled() {
-        return this.selectedId === Contacts.NEW_CONTACT;
+        return this.selectedId === NEW_CONTACT;
     }
 
     get selectedLocalId() {
-        if (this.selectedId === Contacts.NEW_CONTACT) {
+        if (this.selectedId === NEW_CONTACT) {
             return this.nextClientContactId;
         }
         return this.serverToLocalIdMap.get(this.selectedId) || this.selectedId;
     }
 
     get selectedServerId() {
-        return this.selectedId === Contacts.NEW_CONTACT
-            ? null
-            : this.selectedId;
+        return this.selectedId === NEW_CONTACT ? null : this.selectedId;
     }
 
     get orderingParam() {

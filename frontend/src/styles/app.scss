@@ -1,14 +1,9 @@
 @import "variables.scss";
 
-// Now we use the work-in-progress `oruga-bulma` project,
-// https://github.com/oruga-ui/oruga-bulma in order to
-// tie together the bulma CSS framework,
-// and the 'Oruga' Vue UI component framework.
+// Now we tie together the bulma CSS framework,
+// and the 'Oruga' Vue UI component framework.d
+@import "~bulma/bulma";
+@import "~@oruga-ui/theme-bulma/dist/scss/bulma";
 
-@import "~oruga-bulma/src/assets/scss/buefy/utils/_all";
-
-@import "bulma/bulma";
-
-@import "~oruga-bulma/src/assets/scss/buefy.scss";
-
+// Some custom style overrides.
 @import "oruga-fixes.scss";

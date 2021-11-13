@@ -273,8 +273,8 @@
             <div class="content has-text-centered">
                 <strong>möbius crm</strong>, built with love by
                 <em>Möbius Labs</em>. The source code can be found on
-                <a href="https://github.com/mobius-labs">GitHub</a> under a
-                [insert license here] license.
+                <a href="https://github.com/mobius-labs/app">GitHub</a> under a
+                MIT license.
             </div>
         </footer>
     </div>
