@@ -21,6 +21,7 @@ import { nextTick } from "vue";
 import store from "@/store";
 import BusinessCardView from "../views/BusinessCardView.vue";
 import ScanCard from "@/views/ScanCard.vue";
+import { NEW_CONTACT } from "@/api/contacts";
 
 const routes = [
     {
@@ -88,14 +89,14 @@ const routes = [
                 props: (route: RouteLocationNormalized) => {
                     if (route.query.initialData) {
                         return {
-                            selectedId: Contacts.NEW_CONTACT,
+                            selectedId: NEW_CONTACT,
                             initialData: JSON.parse(
                                 route.query.initialData as string
                             ),
                         };
                     }
                     if (route.params.id === "new") {
-                        return { selectedId: Contacts.NEW_CONTACT };
+                        return { selectedId: NEW_CONTACT };
                     }
                     return {
                         selectedId: !route.params.id

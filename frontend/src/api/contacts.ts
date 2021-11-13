@@ -4,6 +4,8 @@ import { PrimaryKey } from "@/api/model";
 import { deepCopy } from "@/api/utils";
 import { DateTime } from "luxon";
 
+export const NEW_CONTACT = -1;
+
 export type ContactId = number;
 
 // +ve if a proper server ID, null if doesn't exist on the server yet
