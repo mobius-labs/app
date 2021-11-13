@@ -297,7 +297,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="importantDates.length === 0">
+                        <div v-if="importantDates.results.length === 0">
                             <h2 class="subtitle m-6 has-text-centered">
                                 <em>Nothing coming up!</em>
                             </h2>
